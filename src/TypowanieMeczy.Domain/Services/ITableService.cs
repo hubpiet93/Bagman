@@ -16,4 +16,11 @@ public interface ITableService
     Task<bool> IsUserMemberAsync(TableId tableId, UserId userId);
     Task<bool> IsUserAdminAsync(TableId tableId, UserId userId);
     Task<IEnumerable<TableMembership>> GetTableMembersAsync(TableId tableId, UserId userId);
+    Task<bool> CanUserJoinTableAsync(TableId tableId, UserId userId);
+    Task<bool> CanUserLeaveTableAsync(TableId tableId, UserId userId);
+    Task<bool> CanUserDeleteTableAsync(TableId tableId, UserId userId);
+    Task<bool> CanUserEditTableAsync(TableId tableId, UserId userId);
+    Task<bool> IsTableFullAsync(TableId tableId);
+    Task<bool> IsTableSecretAsync(TableId tableId);
+    Task<bool> ValidateTablePasswordAsync(TableId tableId, string password);
 } 

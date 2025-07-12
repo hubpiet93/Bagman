@@ -39,6 +39,7 @@ public class MatchDto
 
 public class CreateMatchRequest
 {
+    public string TableId { get; set; } = string.Empty;
     public string Country1 { get; set; } = string.Empty;
     public string Country2 { get; set; } = string.Empty;
     public DateTime MatchDateTime { get; set; }

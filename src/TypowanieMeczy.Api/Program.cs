@@ -2,6 +2,7 @@ using FluentValidation;
 using TypowanieMeczy.Domain.Interfaces;
 using TypowanieMeczy.Domain.Services;
 using TypowanieMeczy.Infrastructure.Services;
+using TypowanieMeczy.Infrastructure.Repositories;
 using TypowanieMeczy.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,14 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization();
 
+// Add Repositories
+builder.Services.AddScoped<ITableRepository, SupabaseTableRepository>();
+builder.Services.AddScoped<IMatchRepository, SupabaseMatchRepository>();
+builder.Services.AddScoped<IBetRepository, SupabaseBetRepository>();
+builder.Services.AddScoped<IPoolRepository, SupabasePoolRepository>();
+builder.Services.AddScoped<IUserRepository, SupabaseUserRepository>();
+builder.Services.AddScoped<IStatisticsRepository, SupabaseStatisticsRepository>();
+
 // Add Domain Services
 builder.Services.AddScoped<IAuthService, SupabaseAuthService>();
 builder.Services.AddScoped<ITableService, TableService>();
@@ -45,6 +54,9 @@ builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 // Add Infrastructure
 builder.Services.AddScoped<ISupabaseClient, SupabaseClient>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Add Background Services
+builder.Services.AddHostedService<MatchManagementBackgroundService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
@@ -68,6 +80,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Add custom middleware
+app.UseMiddleware<AuthorizationMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 

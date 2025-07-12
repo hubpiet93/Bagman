@@ -143,6 +143,22 @@ public class Table : AggregateRoot
         AddDomainEvent(new TableSettingsUpdatedEvent(Id));
     }
 
+    public void UpdateName(TableName name)
+    {
+        Name = name;
+        AddDomainEvent(new TableSettingsUpdatedEvent(Id));
+    }
+    public void UpdateMaxPlayers(MaxPlayers maxPlayers)
+    {
+        MaxPlayers = maxPlayers;
+        AddDomainEvent(new TableSettingsUpdatedEvent(Id));
+    }
+    public void UpdateStake(Stake stake)
+    {
+        Stake = stake;
+        AddDomainEvent(new TableSettingsUpdatedEvent(Id));
+    }
+
     public bool IsAdmin(UserId userId)
     {
         return _memberships.Any(m => m.UserId == userId && m.IsAdmin);

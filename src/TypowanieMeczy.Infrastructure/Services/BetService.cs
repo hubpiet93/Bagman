@@ -1,6 +1,7 @@
 using TypowanieMeczy.Domain.Services;
 using TypowanieMeczy.Domain.ValueObjects;
 using TypowanieMeczy.Domain.Interfaces;
+using TypowanieMeczy.Domain.Entities;
 
 namespace TypowanieMeczy.Infrastructure.Services;
 
@@ -8,11 +9,13 @@ public class BetService : IBetService
 {
     private readonly IBetRepository _betRepository;
     private readonly IMatchRepository _matchRepository;
+    private readonly IPoolRepository _poolRepository;
 
-    public BetService(IBetRepository betRepository, IMatchRepository matchRepository)
+    public BetService(IBetRepository betRepository, IMatchRepository matchRepository, IPoolRepository poolRepository)
     {
         _betRepository = betRepository;
         _matchRepository = matchRepository;
+        _poolRepository = poolRepository;
     }
 
     public async Task<bool> CanUserBetAsync(UserId userId, MatchId matchId)
@@ -40,8 +43,34 @@ public class BetService : IBetService
 
     public async Task<decimal> CalculateWinningsAsync(MatchId matchId, UserId userId)
     {
-        // Implement logic for calculating winnings
-        await Task.CompletedTask; // Placeholder for async operation
+        var pool = await _poolRepository.GetByMatchIdAsync(matchId);
+        if (pool == null) return 0;
+
+        if (pool.Winners.Contains(userId))
+        {
+            var winnerCount = pool.Winners.Count;
+            return winnerCount > 0 ? pool.Amount / winnerCount : 0;
+        }
+
         return 0;
+    }
+
+    public async Task PlaceBetAsync(Bet bet)
+    {
+        var existingBet = await _betRepository.GetByUserAndMatchAsync(bet.UserId, bet.MatchId);
+        if (existingBet != null)
+        {
+            existingBet.UpdatePrediction(bet.Prediction);
+            await _betRepository.UpdateAsync(existingBet);
+        }
+        else
+        {
+            await _betRepository.AddAsync(bet);
+        }
+    }
+
+    public async Task<IEnumerable<Bet>> GetMatchBetsAsync(MatchId matchId)
+    {
+        return await _betRepository.GetByMatchIdAsync(matchId);
     }
 } 

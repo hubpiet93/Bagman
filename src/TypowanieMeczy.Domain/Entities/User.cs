@@ -9,7 +9,7 @@ public class User : AggregateRoot
 {
     public UserId Id { get; private set; }
     public Login Login { get; private set; }
-    public Email Email { get; private set; }
+    public Email  Email { get; private set; }
     public PasswordHash PasswordHash { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public bool IsActive { get; private set; }

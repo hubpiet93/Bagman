@@ -36,12 +36,12 @@ public class CreateTableRequest
     public string Password { get; set; } = string.Empty;
     public int MaxPlayers { get; set; }
     public decimal Stake { get; set; }
+    public bool IsSecretMode { get; set; }
 }
 
 public class JoinTableRequest
 {
-    public string TableName { get; set; } = string.Empty;
-    public string TablePassword { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
 
 public class UpdateTableSettingsRequest

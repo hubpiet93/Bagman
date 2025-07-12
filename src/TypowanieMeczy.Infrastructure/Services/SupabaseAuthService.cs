@@ -2,6 +2,7 @@ using TypowanieMeczy.Domain.Interfaces;
 using TypowanieMeczy.Domain.ValueObjects;
 using TypowanieMeczy.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using Postgrest.Constants;
 
 namespace TypowanieMeczy.Infrastructure.Services;
 
@@ -101,7 +102,7 @@ public class SupabaseAuthService : IAuthService
 
             // Get user data from Supabase
             var response = await _supabaseClient
-                .From<SupabaseUser>()
+                .From<TypowanieMeczy.Infrastructure.Models.SupabaseUser>()
                 .Select("*")
                 .Filter("id", Postgrest.Constants.Operator.Equals, supabaseUser.Id.ToString())
                 .GetAsync();
@@ -133,12 +134,12 @@ public class SupabaseAuthService : IAuthService
         }
     }
 
-    private async Task<SupabaseUser?> GetUserByLoginAsync(Login login)
+    private async Task<TypowanieMeczy.Infrastructure.Models.SupabaseUser?> GetUserByLoginAsync(Login login)
     {
         try
         {
             var responseList = await _supabaseClient
-                .From<SupabaseUser>()
+                .From<TypowanieMeczy.Infrastructure.Models.SupabaseUser>()
                 .Select("*")
                 .Filter("login", Postgrest.Constants.Operator.Equals, login.Value)
                 .GetAsync();

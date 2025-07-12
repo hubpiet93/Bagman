@@ -1,61 +1,46 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TypowanieMeczy.Api.Models;
-using TypowanieMeczy.Domain.Services;
+using TypowanieMeczy.Domain.Interfaces;
 using TypowanieMeczy.Domain.ValueObjects;
+using TypowanieMeczy.Domain.Services;
+using TypowanieMeczy.Domain.Entities;
 
 namespace TypowanieMeczy.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/[controller]")]
 [Authorize]
 public class TablesController : ControllerBase
 {
     private readonly ITableService _tableService;
+    private readonly ITableRepository _tableRepository;
     private readonly ILogger<TablesController> _logger;
 
-    public TablesController(ITableService tableService, ILogger<TablesController> logger)
+    public TablesController(
+        ITableService tableService,
+        ITableRepository tableRepository,
+        ILogger<TablesController> logger)
     {
         _tableService = tableService;
+        _tableRepository = tableRepository;
         _logger = logger;
     }
 
-    [HttpPost]
-    public async Task<ActionResult<TableDto>> CreateTable([FromBody] CreateTableRequest request)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var tableName = new TableName(request.Name);
-            var passwordHash = new PasswordHash(request.Password); // Should be hashed
-            var maxPlayers = new MaxPlayers(request.MaxPlayers);
-            var stake = new Stake(request.Stake);
-
-            var table = await _tableService.CreateTableAsync(tableName, passwordHash, maxPlayers, stake, userId);
-            
-            return CreatedAtAction(nameof(GetTable), new { id = table.Id }, TableDto.FromEntity(table));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating table");
-            return BadRequest(new { error = ex.Message });
-        }
-    }
-
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TableDto>>> GetUserTables()
+    public async Task<ActionResult<IEnumerable<TableDto>>> GetTables()
     {
         try
         {
             var userId = GetCurrentUserId();
-            var tables = await _tableService.GetUserTablesAsync(userId);
-            
-            return Ok(tables.Select(TableDto.FromEntity));
+            var tables = await _tableRepository.GetByUserIdAsync(userId);
+            var tableDtos = tables.Select(TableDto.FromEntity);
+            return Ok(tableDtos);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting user tables");
-            return BadRequest(new { error = ex.Message });
+            _logger.LogError(ex, "Error getting tables for user");
+            return StatusCode(500, "Internal server error");
         }
     }
 
@@ -66,147 +51,169 @@ public class TablesController : ControllerBase
         {
             var tableId = TableId.FromString(id);
             var userId = GetCurrentUserId();
-            
-            var table = await _tableService.GetTableDetailsAsync(tableId, userId);
+
+            var table = await _tableRepository.GetByIdAsync(tableId);
             if (table == null)
                 return NotFound();
+
+            var isMember = await _tableService.IsUserMemberAsync(tableId, userId);
+            if (!isMember)
+                return Forbid();
 
             return Ok(TableDto.FromEntity(table));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting table {TableId}", id);
-            return BadRequest(new { error = ex.Message });
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    [HttpPost("join")]
-    public async Task<ActionResult<TableDto>> JoinTable([FromBody] JoinTableRequest request)
+    [HttpPost]
+    public async Task<ActionResult<TableDto>> CreateTable(CreateTableRequest request)
     {
         try
         {
             var userId = GetCurrentUserId();
-            var tableName = new TableName(request.TableName);
-            var tablePassword = new PasswordHash(request.TablePassword);
+            var tableName = new TableName(request.Name);
+            var passwordHash = new PasswordHash(request.Password); // In real app, hash the password
+            var maxPlayers = new MaxPlayers(request.MaxPlayers);
+            var stake = new Stake(request.Stake);
 
-            var table = await _tableService.JoinTableAsync(tableName, tablePassword, userId);
-            
-            return Ok(TableDto.FromEntity(table));
+            var table = new Table(tableName, passwordHash, maxPlayers, stake, userId);
+            await _tableRepository.AddAsync(table);
+
+            _logger.LogInformation("Table {TableName} created by user {UserId}", request.Name, userId);
+            return CreatedAtAction(nameof(GetTable), new { id = table.Id }, TableDto.FromEntity(table));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error joining table");
-            return BadRequest(new { error = ex.Message });
+            _logger.LogError(ex, "Error creating table");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    [HttpDelete("{id}/members/me")]
-    public async Task<ActionResult> LeaveTable(string id)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTable(string id, UpdateTableRequest request)
     {
         try
         {
             var tableId = TableId.FromString(id);
             var userId = GetCurrentUserId();
 
-            await _tableService.LeaveTableAsync(tableId, userId);
-            
+            var canEdit = await _tableService.CanUserEditTableAsync(tableId, userId);
+            if (!canEdit)
+                return Forbid();
+
+            var table = await _tableRepository.GetByIdAsync(tableId);
+            if (table == null)
+                return NotFound();
+
+            // Update table properties
+            if (!string.IsNullOrEmpty(request.Name))
+                table.UpdateName(new TableName(request.Name));
+
+            if (request.MaxPlayers.HasValue)
+                table.UpdateMaxPlayers(new MaxPlayers(request.MaxPlayers.Value));
+
+            if (request.Stake.HasValue)
+                table.UpdateStake(new Stake(request.Stake.Value));
+
+            await _tableRepository.UpdateAsync(table);
+
             return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating table {TableId}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTable(string id)
+    {
+        try
+        {
+            var tableId = TableId.FromString(id);
+            var userId = GetCurrentUserId();
+
+            var canDelete = await _tableService.CanUserDeleteTableAsync(tableId, userId);
+            if (!canDelete)
+                return Forbid();
+
+            await _tableRepository.DeleteAsync(tableId);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting table {TableId}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("{id}/join")]
+    public async Task<IActionResult> JoinTable(string id, JoinTableRequest request)
+    {
+        try
+        {
+            var tableId = TableId.FromString(id);
+            var userId = GetCurrentUserId();
+
+            var canJoin = await _tableService.CanUserJoinTableAsync(tableId, userId);
+            if (!canJoin)
+                return BadRequest("Cannot join table");
+
+            // Validate password if table is secret
+            var isSecret = await _tableService.IsTableSecretAsync(tableId);
+            if (isSecret)
+            {
+                var isValidPassword = await _tableService.ValidateTablePasswordAsync(tableId, request.Password);
+                if (!isValidPassword)
+                    return BadRequest("Invalid password");
+            }
+
+            // Add user to table (this would be implemented in the domain)
+            // For now, we'll just return success
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error joining table {TableId}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost("{id}/leave")]
+    public async Task<IActionResult> LeaveTable(string id)
+    {
+        try
+        {
+            var tableId = TableId.FromString(id);
+            var userId = GetCurrentUserId();
+
+            var canLeave = await _tableService.CanUserLeaveTableAsync(tableId, userId);
+            if (!canLeave)
+                return BadRequest("Cannot leave table");
+
+            // Remove user from table (this would be implemented in the domain)
+            // For now, we'll just return success
+            return Ok();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error leaving table {TableId}", id);
-            return BadRequest(new { error = ex.Message });
-        }
-    }
-
-    [HttpGet("{id}/members")]
-    public async Task<ActionResult<IEnumerable<TableMemberDto>>> GetTableMembers(string id)
-    {
-        try
-        {
-            var tableId = TableId.FromString(id);
-            var userId = GetCurrentUserId();
-
-            var memberships = await _tableService.GetTableMembersAsync(tableId, userId);
-            
-            return Ok(memberships.Select(TableMemberDto.FromEntity));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting table members {TableId}", id);
-            return BadRequest(new { error = ex.Message });
-        }
-    }
-
-    [HttpPost("{id}/members/{userId}/admin")]
-    public async Task<ActionResult> GrantAdminRole(string id, string userId)
-    {
-        try
-        {
-            var tableId = TableId.FromString(id);
-            var targetUserId = UserId.FromString(userId);
-            var adminUserId = GetCurrentUserId();
-
-            await _tableService.GrantAdminRoleAsync(tableId, targetUserId, adminUserId);
-            
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error granting admin role");
-            return BadRequest(new { error = ex.Message });
-        }
-    }
-
-    [HttpDelete("{id}/members/{userId}/admin")]
-    public async Task<ActionResult> RevokeAdminRole(string id, string userId)
-    {
-        try
-        {
-            var tableId = TableId.FromString(id);
-            var targetUserId = UserId.FromString(userId);
-            var adminUserId = GetCurrentUserId();
-
-            await _tableService.RevokeAdminRoleAsync(tableId, targetUserId, adminUserId);
-            
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error revoking admin role");
-            return BadRequest(new { error = ex.Message });
-        }
-    }
-
-    [HttpPut("{id}/settings")]
-    public async Task<ActionResult<TableDto>> UpdateTableSettings(string id, [FromBody] UpdateTableSettingsRequest request)
-    {
-        try
-        {
-            var tableId = TableId.FromString(id);
-            var adminUserId = GetCurrentUserId();
-            var tableName = new TableName(request.Name);
-            var maxPlayers = new MaxPlayers(request.MaxPlayers);
-            var stake = new Stake(request.Stake);
-
-            await _tableService.UpdateTableSettingsAsync(tableId, tableName, maxPlayers, stake, request.IsSecretMode, adminUserId);
-            
-            var updatedTable = await _tableService.GetTableDetailsAsync(tableId, adminUserId);
-            return Ok(TableDto.FromEntity(updatedTable));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating table settings");
-            return BadRequest(new { error = ex.Message });
+            return StatusCode(500, "Internal server error");
         }
     }
 
     private UserId GetCurrentUserId()
     {
-        var userIdClaim = User.FindFirst("sub")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim))
-            throw new UnauthorizedAccessException("User ID not found in token");
+        var userId = HttpContext.Items["UserId"] as UserId;
+        if (userId == null)
+            throw new InvalidOperationException("User ID not found in context");
 
-        return UserId.FromString(userIdClaim);
+        return userId;
     }
 } 

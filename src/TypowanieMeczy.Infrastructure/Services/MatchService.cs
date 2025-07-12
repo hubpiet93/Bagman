@@ -1,87 +1,82 @@
-using TypowanieMeczy.Domain.Common;
 using TypowanieMeczy.Domain.Entities;
 using TypowanieMeczy.Domain.Services;
 using TypowanieMeczy.Domain.ValueObjects;
 using TypowanieMeczy.Domain.Interfaces;
+using TypowanieMeczy.Domain.Common;
 
 namespace TypowanieMeczy.Infrastructure.Services;
 
 public class MatchService : IMatchService
 {
     private readonly IMatchRepository _matchRepository;
-    private readonly ITableRepository _tableRepository;
+    private readonly IBetRepository _betRepository;
+    private readonly IPoolService _poolService;
 
-    public MatchService(IMatchRepository matchRepository, ITableRepository tableRepository)
+    public MatchService(IMatchRepository matchRepository, IBetRepository betRepository, IPoolService poolService)
     {
         _matchRepository = matchRepository;
-        _tableRepository = tableRepository;
+        _betRepository = betRepository;
+        _poolService = poolService;
     }
 
-    public async Task<Match> CreateMatchAsync(TableId tableId, Country country1, Country country2, MatchDateTime matchDateTime, UserId createdBy)
+    public async Task<bool> CanStartMatchAsync(MatchId matchId)
     {
-        var table = await _tableRepository.GetByIdAsync(tableId) ?? throw new Exception("Table not found");
-        var match = new Match(tableId, country1, country2, matchDateTime, createdBy);
-        table.AddMatch(match);
-        await _matchRepository.AddAsync(match);
-        await _tableRepository.UpdateAsync(table);
-        return match;
+        var match = await _matchRepository.GetByIdAsync(matchId);
+        return match != null && !match.IsStarted && match.MatchDateTime.Value <= DateTime.UtcNow;
     }
 
-    public async Task<Match> UpdateMatchResultAsync(MatchId matchId, MatchResult result, UserId adminUserId)
+    public async Task<bool> CanFinishMatchAsync(MatchId matchId)
     {
-        var match = await _matchRepository.GetByIdAsync(matchId) ?? throw new Exception("Match not found");
+        var match = await _matchRepository.GetByIdAsync(matchId);
+        return match != null && match.IsStarted && match.Status == MatchStatus.InProgress;
+    }
+
+    public async Task StartMatchAsync(MatchId matchId)
+    {
+        var match = await _matchRepository.GetByIdAsync(matchId);
+        if (match == null) throw new InvalidOperationException("Match not found");
+
+        if (match.IsStarted) throw new InvalidOperationException("Match already started");
+
+        match.StartMatch();
+        await _matchRepository.UpdateAsync(match);
+    }
+
+    public async Task FinishMatchAsync(MatchId matchId, MatchResult result)
+    {
+        var match = await _matchRepository.GetByIdAsync(matchId);
+        if (match == null) throw new InvalidOperationException("Match not found");
+
+        if (!match.IsStarted) throw new InvalidOperationException("Match not started");
+
         match.FinishMatch(result);
         await _matchRepository.UpdateAsync(match);
-        return match;
+
+        // Process pool distribution
+        var winners = await _betRepository.GetWinnersByMatchIdAsync(matchId);
+        var winnerIds = winners.Select(w => w.UserId);
+        await _poolService.DistributePoolAsync(matchId, winnerIds);
     }
 
-    public async Task DeleteMatchAsync(MatchId matchId, UserId adminUserId)
+    public async Task<IEnumerable<Match>> GetMatchesNeedingStartAsync()
     {
-        var match = await _matchRepository.GetByIdAsync(matchId) ?? throw new Exception("Match not found");
-        await _matchRepository.DeleteAsync(matchId);
+        return await _matchRepository.GetMatchesNeedingStartAsync();
     }
 
-    public async Task<IEnumerable<Match>> GetTableMatchesAsync(TableId tableId, UserId userId)
+    public async Task<IEnumerable<Match>> GetMatchesNeedingFinishAsync()
     {
-        return await _matchRepository.GetByTableIdAsync(tableId);
+        return await _matchRepository.GetMatchesNeedingFinishAsync();
     }
 
-    public async Task<IEnumerable<Match>> GetUpcomingMatchesAsync(TableId tableId, UserId userId)
+    public async Task<bool> IsMatchInProgressAsync(MatchId matchId)
     {
-        return (await _matchRepository.GetByTableIdAsync(tableId)).Where(m => m.MatchDateTime.Value > DateTime.UtcNow);
+        var match = await _matchRepository.GetByIdAsync(matchId);
+        return match != null && match.IsStarted && match.Status == MatchStatus.InProgress;
     }
 
-    public async Task<IEnumerable<Match>> GetFinishedMatchesAsync(TableId tableId, UserId userId)
+    public async Task<bool> IsMatchFinishedAsync(MatchId matchId)
     {
-        return (await _matchRepository.GetByTableIdAsync(tableId)).Where(m => m.Status == MatchStatus.Finished);
-    }
-
-    public async Task<Match> GetMatchDetailsAsync(MatchId matchId, UserId userId)
-    {
-        return await _matchRepository.GetByIdAsync(matchId) ?? throw new Exception("Match not found");
-    }
-
-    public Task<bool> CanUserEditMatchAsync(MatchId matchId, UserId userId)
-    {
-        // Implement logic based on domain rules
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> CanUserDeleteMatchAsync(MatchId matchId, UserId userId)
-    {
-        // Implement logic based on domain rules
-        throw new NotImplementedException();
-    }
-
-    public Task StartMatchesAsync()
-    {
-        // Implement background logic
-        throw new NotImplementedException();
-    }
-
-    public Task FinishMatchesAsync()
-    {
-        // Implement background logic
-        throw new NotImplementedException();
+        var match = await _matchRepository.GetByIdAsync(matchId);
+        return match != null && match.Status == MatchStatus.Finished;
     }
 } 
