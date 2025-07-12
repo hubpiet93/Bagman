@@ -1,0 +1,312 @@
+### Bagman API Endpoints
+### Base URL: https://localhost:5001/api/v1
+
+
+### Health check
+GET {{baseUrl}}/health
+
+### API version info
+GET {{baseUrl}}/version
+
+### ========================================
+### ENVIRONMENT VARIABLES
+### ========================================
+
+@baseUrl = https://localhost:5001/api/v1
+@accessToken = your_jwt_token_here
+@refreshToken = your_refresh_token_here
+@tableId = table_uuid_here
+@matchId = match_uuid_here
+@userId = user_uuid_here
+@notificationId = notification_uuid_here
+@commentId = comment_uuid_here 
+
+
+### ========================================
+### AUTHENTICATION & USER MANAGEMENT
+### ========================================
+
+### Register new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "login": "testuser",
+  "email": "test@example.com",
+  "password": "min10characters"
+}
+
+### Login user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "login": "testuser",
+  "password": "min10characters"
+}
+
+### Refresh token
+POST {{baseUrl}}/auth/refresh
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### TABLE MANAGEMENT
+### ========================================
+
+### Create new table
+POST {{baseUrl}}/tables
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "EURO 2024 - Grupa znajomych",
+  "password": "min10characters",
+  "maxPlayers": 20,
+  "stake": 10.00
+}
+
+### Get user's tables
+GET {{baseUrl}}/tables
+Authorization: Bearer {{accessToken}}
+
+### Get table details
+GET {{baseUrl}}/tables/{{tableId}}
+Authorization: Bearer {{accessToken}}
+
+### Join existing table
+POST {{baseUrl}}/tables/join
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "tableName": "EURO 2024 - Grupa znajomych",
+  "tablePassword": "min10characters"
+}
+
+### Leave table
+DELETE {{baseUrl}}/tables/{{tableId}}/members/me
+Authorization: Bearer {{accessToken}}
+
+### Get table members
+GET {{baseUrl}}/tables/{{tableId}}/members
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### ADMIN MANAGEMENT
+### ========================================
+
+### Grant admin role
+POST {{baseUrl}}/tables/{{tableId}}/members/{{userId}}/admin
+Authorization: Bearer {{accessToken}}
+
+### Revoke admin role
+DELETE {{baseUrl}}/tables/{{tableId}}/members/{{userId}}/admin
+Authorization: Bearer {{accessToken}}
+
+### Get table admins
+GET {{baseUrl}}/tables/{{tableId}}/admins
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### MATCH MANAGEMENT
+### ========================================
+
+### Create new match (Admin only)
+POST {{baseUrl}}/tables/{{tableId}}/matches
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "country1": "Poland",
+  "country2": "Germany",
+  "matchDateTime": "2024-06-15T20:00:00Z"
+}
+
+### Get table matches
+GET {{baseUrl}}/tables/{{tableId}}/matches
+Authorization: Bearer {{accessToken}}
+
+### Get upcoming matches
+GET {{baseUrl}}/tables/{{tableId}}/matches/upcoming
+Authorization: Bearer {{accessToken}}
+
+### Get finished matches
+GET {{baseUrl}}/tables/{{tableId}}/matches/finished
+Authorization: Bearer {{accessToken}}
+
+### Get match details
+GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}
+Authorization: Bearer {{accessToken}}
+
+### Update match result (Admin only)
+PUT {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/result
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "result": "2:1"
+}
+
+### Delete match (Admin only, before start)
+DELETE {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### BETTING SYSTEM
+### ========================================
+
+### Place bet
+POST {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "prediction": "2:1"
+}
+
+### Update bet
+PUT {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "prediction": "1:1"
+}
+
+### Get user's bet for match
+GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets/me
+Authorization: Bearer {{accessToken}}
+
+### Get all bets for match (if not secret mode)
+GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets
+Authorization: Bearer {{accessToken}}
+
+### Get user's betting history
+GET {{baseUrl}}/tables/{{tableId}}/bets/history
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### POOL MANAGEMENT
+### ========================================
+
+### Get current pool for match
+GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/pool
+Authorization: Bearer {{accessToken}}
+
+### Get pool history
+GET {{baseUrl}}/tables/{{tableId}}/pools/history
+Authorization: Bearer {{accessToken}}
+
+### Get pool winners for match
+GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/pool/winners
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### STATISTICS
+### ========================================
+
+### Get user statistics for table
+GET {{baseUrl}}/tables/{{tableId}}/stats/me
+Authorization: Bearer {{accessToken}}
+
+### Get all users statistics for table
+GET {{baseUrl}}/tables/{{tableId}}/stats
+Authorization: Bearer {{accessToken}}
+
+### Get user statistics across all tables
+GET {{baseUrl}}/stats/me
+Authorization: Bearer {{accessToken}}
+
+### Get table leaderboard
+GET {{baseUrl}}/tables/{{tableId}}/leaderboard
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### COUNTRIES & UTILITIES
+### ========================================
+
+### Get countries list (for autocomplete)
+GET {{baseUrl}}/countries
+Authorization: Bearer {{accessToken}}
+
+### Search countries
+GET {{baseUrl}}/countries/search?query=pol
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### TABLE SETTINGS
+### ========================================
+
+### Update table settings (Admin only)
+PUT {{baseUrl}}/tables/{{tableId}}/settings
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated table name",
+  "maxPlayers": 25,
+  "stake": 15.00,
+  "isSecretMode": true
+}
+
+### Get table settings
+GET {{baseUrl}}/tables/{{tableId}}/settings
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### NOTIFICATIONS (Future - v2.0)
+### ========================================
+
+### Get user notifications
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{accessToken}}
+
+### Mark notification as read
+PUT {{baseUrl}}/notifications/{{notificationId}}/read
+Authorization: Bearer {{accessToken}}
+
+### Update notification preferences
+PUT {{baseUrl}}/notifications/preferences
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "emailNotifications": true,
+  "pushNotifications": false,
+  "matchReminders": true
+}
+
+### ========================================
+### COMMENTS (Future - v2.0)
+### ========================================
+
+### Get match comments
+GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/comments
+Authorization: Bearer {{accessToken}}
+
+### Add comment to match
+POST {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "Świetny mecz! Polska wygra!"
+}
+
+### Delete comment
+DELETE {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+
+### ========================================
+### HEALTH & SYSTEM
+### ========================================
+

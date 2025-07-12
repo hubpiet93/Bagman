@@ -18,4 +18,4 @@ Widzę takie akcje w systemie:
 14. Każdy gracz może podejrzeć, jacy uczestnicy są jeszcze przy stole i jakie wyniki obstawili (no chyba że chcecie zrobić tryb „tajemniczego typera" — ale to wersja 2.0).
 15. Każdy użytkownik może podejrzeć historyczne wyniki — kto trafił, a kto nie.
 16. Administrator może nadać rolę administratora innej osobie przy stole. Idealne rozwiązanie, jeśli chce się komuś przekazać pałeczkę… albo obowiązki.
-17. Jeśli w ostatnim meczu turnieju nikt nie trafi wyniku, pula przepada. Nikt nic nikomu nie płaci — koniec, kropka. Chyba że chcecie zrobić wersję charytatywną. 
+17. Jeśli w ostatnim meczu turnieju nikt nie trafi wyniku, pula przepada. Nikt nic nikomu nie płaci — koniec, kropka. Chyba że chcecie zrobić wersję charytatywną.
