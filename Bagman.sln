@@ -13,7 +13,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Api", "src\Bagman.Ap
 	ProjectSection(ProjectDependencies) = postProject
 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
 		{B2C3D4E5-F6G7-8901-BCDE-F23456789012} = {B2C3D4E5-F6G7-8901-BCDE-F23456789012}
+		{D4E5F6G7-H8I9-0123-EFGH-456789012345} = {D4E5F6G7-H8I9-0123-EFGH-456789012345}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Contracts", "src\Bagman.Contracts\Bagman.Contracts.csproj", "{00000000-0000-0000-0000-000000000000}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Web", "src\Bagman.Web\Bagman.Web.csproj", "{00000000-0000-0000-0000-000000000000}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D4E5F6G7-H8I9-0123-EFGH-456789012345} = {D4E5F6G7-H8I9-0123-EFGH-456789012345}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.UnitTests", "tests\Bagman.UnitTests\Bagman.UnitTests.csproj", "{00000000-0000-0000-0000-000000000000}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.IntegrationTests", "tests\Bagman.IntegrationTests\Bagman.IntegrationTests.csproj", "{00000000-0000-0000-0000-000000000000}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +44,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E5F6G7H8-I9J0-1234-FGHI-567890123456}
+		SolutionGuid = {H8I9J0K1-L2M3-4567-IJKL-890123456789}
 	EndGlobalSection
 EndGlobal

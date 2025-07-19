@@ -1,4 +1,4 @@
-# Dokumentacja techniczna – System do typowania meczów piłki nożnej  
+a# Dokumentacja techniczna – System do typowania meczów piłki nożnej  
 **Blazor (client-side) + ASP.NET Core API + Supabase + MudBlazor**
 
 ---
@@ -15,13 +15,20 @@
   - API obsługuje autoryzację, logikę biznesową, walidacje, bezpieczeństwo.
 - **Baza danych:**  
   - Supabase PostgreSQL – przechowuje wszystkie dane aplikacji.
-  - API komunikuje się z Supabase przez oficjalne klienty .NET (lub REST/GraphQL).
+  - API komunikuje się z Supabase przez oficjalny klient .NET (Supabase.Client).
+  - Bezpośrednie zapytania SQL przez Supabase Client, bez Entity Framework Core.
 - **Autoryzacja:**  
   - Supabase Auth – zarządzanie kontami (rejestracja, logowanie, sesje).
   - API obsługuje pośrednictwo w autoryzacji, przekazuje tokeny JWT do Blazor.
+  - Mechanizm refresh token: JWT token (10 min) + Refresh token (60 dni).
+  - Blazor automatycznie odświeża JWT token używając refresh token przed wygaśnięciem.
+  - Obsługa wygaśnięcia sesji: automatyczne odświeżenie gdy refresh token ważny, wylogowanie z komunikatem gdy oba tokeny wygasły.
 - **DevOps/Uruchamianie lokalne:**  
   - VS Code/Visual Studio + .NET CLI
-  - Plik `.env` do konfiguracji połączeń (np. klucz API Supabase, endpoint DB itp.)
+  - Konfiguracja przez appsettings.json + User Secrets (development)
+  - GitHub Actions dla CI/CD
+  - Wrażliwe klucze przechowywane w GitHub Secrets i ustawiane w procesie deployment
+  - Dwa środowiska: development (lokalne) i production
 
 ---
 
@@ -53,7 +60,8 @@
 
 3. **Migracja bazy danych:**
    - W przypadku lokalnego developmentu uruchom Supabase przez Docker lub korzystaj z instancji chmurowej.
-   - Skrypt migracji oraz seed danych znajduje się w katalogu `db/migrations`.
+   - Skrypty migracji z numeracją wersji w katalogu `db/migrations/` (np. `001_initial_schema.sql`, `002_add_user_stats.sql`).
+   - Ręczne uruchamianie migracji w kolejności numeracji.
 
 4. **Instalacja zależności:**
    ```bash
@@ -76,14 +84,32 @@
 
 ## 3. Architektura aplikacji
 
-### 3.1. Warstwy
+### 3.1. Struktura projektu
+
+```
+src/
+├── Bagman.Api/           # ASP.NET Core API
+├── Bagman.Domain/        # Modele domenowe, logika biznesowa
+├── Bagman.Infrastructure/ # Repositories, Supabase Client
+├── Bagman.Contracts/     # Modele odpowiedzi API (współdzielone z UI)
+└── Bagman.Web/          # Blazor WebAssembly UI
+```
+
+### 3.2. Warstwy
 
 - **UI (Blazor WebAssembly):**  
   - Renderuje widoki, komunikuje się wyłącznie z własnym .NET API przez HTTP (REST).
   - Nie kontaktuje się bezpośrednio z Supabase.
 - **API (ASP.NET Core):**  
-  - Realizuje logikę biznesową, autoryzację, walidację danych, obsługę uprawnień.
-  - Komunikuje się z Supabase (baza, auth, storage, realtime).
+  - **Controllers** - endpointy HTTP, walidacja requestów, mapowanie DTOs przez extension methods
+  - **Services** - logika biznesowa, operacje na modelach domenowych
+  - **Repositories** - dostęp do bazy danych przez Supabase Client
+  - **Domain Models** - modele domenowe z logiką biznesową
+  - **Contracts** - modele odpowiedzi API współdzielone z UI
+  - **Dependency Injection** - wbudowany .NET DI container (Scoped dla Services/Repositories, Singleton dla Supabase Client)
+  - **CRUD pattern** - standardowe operacje Create, Read, Update, Delete
+  - **Result Pattern** - wszystkie metody w Services i Domain Models zwracają Result<T> używając biblioteki ErrorOr (brak wyjątków)
+  - Realizuje autoryzację, walidację danych, obsługę uprawnień.
   - Zwroty JSON, statusy HTTP, obsługa błędów.
 - **Supabase:**  
   - Przechowuje dane, obsługuje autoryzację, storage, realtime.
@@ -103,6 +129,14 @@
   - Pobieranie/przesyłanie danych (mecze, stoły, typy, pule, statystyki)
   - Walidacja uprawnień i ról (np. admin stołu)
   - Obsługa błędów i logowanie zdarzeń
+- **Contracts - współdzielone modele:**  
+  - Projekt Bagman.Contracts zawiera modele odpowiedzi API
+  - UI korzysta z tych samych modeli co API
+  - Zapewnia type safety i spójność między warstwami
+- **Aktualizacje danych:**  
+  - Brak realtime updates - zmiany w bazie danych są widoczne dopiero po odświeżeniu strony
+  - Użytkownicy muszą ręcznie odświeżyć stronę aby zobaczyć nowe typy, wyniki meczów, itp.
+  - To upraszcza architekturę i zwiększa bezpieczeństwo (jedyny punkt wejścia przez API)
 
 ---
 
@@ -110,7 +144,9 @@
 
 - **Hasła min. 10 znaków, hashowane przez Supabase Auth**
 - **Dostęp do API chroniony przez JWT (Bearer token)**
-- **Weryfikacja uprawnień i ról w API**
+- **Weryfikacja uprawnień i ról w API - podejście hybrydowe:**
+  - Podstawowa autoryzacja na poziomie endpointów (`[Authorize]` na kontrolerach/akcjach)
+  - Szczegółowe sprawdzanie uprawnień w serwisach biznesowych (np. czy użytkownik ma dostęp do stołu, czy może edytować typ)
 - **CORS skonfigurowany na API**
 - **Ochrona przed typowymi atakami (XSS, CSRF, brute force) – szczegóły w README API**
 - **Rate limiting dla endpointów API**
@@ -120,38 +156,58 @@
 
 ## 6. Obsługa migracji i wersjonowania bazy danych
 
-- **Skrypty migracji w katalogu `db/migrations`**
+- **Skrypty migracji w katalogu `db/migrations` z numeracją wersji**
+- **Ręczne uruchamianie migracji w kolejności**
 - **Seed danych testowych**
+- **Hard delete dla wszystkich encji - fizyczne usuwanie z bazy danych**
 - **Instrukcja aktualizacji schematu bazy przy wdrożeniach**
-- **Wersjonowanie API – np. `/api/v1/`, `/api/v2/`**
+- **Routing zgodny z zasadami REST - bez wersjonowania API**
 
 ---
 
 ## 7. Testowanie i jakość
 
-- **Testy jednostkowe (xUnit) – logika API**
+- **Testy jednostkowe (NUnit) – logika API**
+  - Mockowanie Supabase Client za pomocą NSubstitute
+  - Asercje za pomocą FluentAssertions
+  - Testowanie Services, Repositories, Domain Models
+  - Testowanie Result Pattern (ErrorOr) - weryfikacja sukcesu/błędów
 - **Testy integracyjne – komunikacja API z Supabase**
+  - TestContainers dla izolowanej bazy PostgreSQL
+  - Testowanie pełnej integracji z Supabase
+  - Automatyczne uruchamianie i czyszczenie kontenerów testowych
 - **Testy E2E – UI + API (np. Playwright lub Selenium)**
-- **Testy UI (MudBlazor) – snapshot tests**
+- **Testy UI – testy manualne**
 - **Linter C# (dotnet-format), analiza statyczna kodu**
-- **CI/CD pipeline – GitHub Actions, Azure DevOps, itp.**
+- **CI/CD pipeline – GitHub Actions**
 
 ---
 
 ## 8. Monitoring / Logging
 
-- **Logowanie błędów w API (ILogger, np. do pliku, Azure Monitor, Sentry)**
-- **Monitorowanie wydajności API**
-- **Alertowanie o krytycznych błędach**
+- **Logowanie błędów w API (wbudowany ILogger, output na console)**
 - **Logi audytowe (np. ważne operacje: zmiana admina, dodanie meczu, typowanie)**
 
 ---
 
-## 9. UI/UX
+## 9. Performance
+
+- **Memory Cache w API** - cache w pamięci aplikacji z krótkim czasem życia (2 minuty)
+- **Caching często używanych danych** - lista meczów, statystyki użytkowników
+
+## 10. Error Handling
+
+- **Hybrydowa obsługa błędów w Blazor** - global error boundary dla nieoczekiwanych błędów + lokalne obsługiwanie dla błędów API
+
+## 11. UI/UX
 
 - **MudBlazor – elastyczne, lekkie komponenty, okienka w okienku, brak typowych dashboardowych nawigacji**
 - **Nawigacja w formie kart, paneli, dialogów, nie jako stały pasek**
-- **Mobile-first, responsywność, jasny motyw, duże odstępy, zaokrąglone elementy**
+- **MudBlazor Theme Provider – obsługa light i dark mode**
+- **Responsywność przez MudBlazor Grid system**
+- **Lazy loading dla komponentów z dużą ilością danych (lista meczów, statystyki)**
+- **Loading spinners podczas ładowania danych z API**
+- **Mobile-first, duże odstępy, zaokrąglone elementy**
 - **Mockupy i wireframes – dołączone w katalogu `design/`**
 - **Onboarding użytkownika, rejestracja, reset hasła, flow logowania – opisane w osobnym rozdziale**
 - **WCAG 2.1 – minimalne wymagania dostępności**
@@ -219,6 +275,7 @@ Przykład encji:
 - [MudBlazor Docs](https://mudblazor.com/getting-started/installation)
 - [Blazor WebAssembly Docs](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-8.0)
 - [ASP.NET Core API Docs](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0)
+- [ErrorOr Library](https://github.com/amantinband/error-or) - Result Pattern dla .NET
 
 ---
 
