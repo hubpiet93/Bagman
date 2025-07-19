@@ -1,312 +1,347 @@
-### Bagman API Endpoints
-### Base URL: https://localhost:5001/api/v1
+### Bagman API - HTTP Requests for Rider HTTP Client
 
-
-### Health check
-GET {{baseUrl}}/health
-
-### API version info
-GET {{baseUrl}}/version
+# Base URL
+@baseUrl = http://localhost:5000
 
 ### ========================================
-### ENVIRONMENT VARIABLES
+### TABLES ENDPOINTS
 ### ========================================
 
-@baseUrl = https://localhost:5001/api/v1
-@accessToken = your_jwt_token_here
-@refreshToken = your_refresh_token_here
-@tableId = table_uuid_here
-@matchId = match_uuid_here
-@userId = user_uuid_here
-@notificationId = notification_uuid_here
-@commentId = comment_uuid_here 
+# Get all tables for current user
+GET {{baseUrl}}/api/tables
+Authorization: Bearer {{authToken}}
 
+###
 
-### ========================================
-### AUTHENTICATION & USER MANAGEMENT
-### ========================================
+# Get specific table by ID
+GET {{baseUrl}}/api/tables/{{tableId}}
+Authorization: Bearer {{authToken}}
 
-### Register new user
-POST {{baseUrl}}/auth/register
+###
+
+# Create new table
+POST {{baseUrl}}/api/tables
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "login": "testuser",
-  "email": "test@example.com",
-  "password": "min10characters"
-}
-
-### Login user
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "login": "testuser",
-  "password": "min10characters"
-}
-
-### Refresh token
-POST {{baseUrl}}/auth/refresh
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "refreshToken": "{{refreshToken}}"
-}
-
-### Logout
-POST {{baseUrl}}/auth/logout
-Authorization: Bearer {{accessToken}}
-
-### ========================================
-### TABLE MANAGEMENT
-### ========================================
-
-### Create new table
-POST {{baseUrl}}/tables
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "name": "EURO 2024 - Grupa znajomych",
-  "password": "min10characters",
+  "name": "EURO 2024 Group A",
+  "password": "secret123",
   "maxPlayers": 20,
-  "stake": 10.00
+  "stake": 10.00,
+  "isSecretMode": true
 }
 
-### Get user's tables
-GET {{baseUrl}}/tables
-Authorization: Bearer {{accessToken}}
+###
 
-### Get table details
-GET {{baseUrl}}/tables/{{tableId}}
-Authorization: Bearer {{accessToken}}
-
-### Join existing table
-POST {{baseUrl}}/tables/join
-Authorization: Bearer {{accessToken}}
+# Update table
+PUT {{baseUrl}}/api/tables/{{tableId}}
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "tableName": "EURO 2024 - Grupa znajomych",
-  "tablePassword": "min10characters"
+  "name": "Updated Table Name",
+  "maxPlayers": 25,
+  "stake": 15.00,
+  "isSecretMode": false
 }
 
-### Leave table
-DELETE {{baseUrl}}/tables/{{tableId}}/members/me
-Authorization: Bearer {{accessToken}}
+###
 
-### Get table members
-GET {{baseUrl}}/tables/{{tableId}}/members
-Authorization: Bearer {{accessToken}}
+# Delete table
+DELETE {{baseUrl}}/api/tables/{{tableId}}
+Authorization: Bearer {{authToken}}
 
-### ========================================
-### ADMIN MANAGEMENT
-### ========================================
+###
 
-### Grant admin role
-POST {{baseUrl}}/tables/{{tableId}}/members/{{userId}}/admin
-Authorization: Bearer {{accessToken}}
-
-### Revoke admin role
-DELETE {{baseUrl}}/tables/{{tableId}}/members/{{userId}}/admin
-Authorization: Bearer {{accessToken}}
-
-### Get table admins
-GET {{baseUrl}}/tables/{{tableId}}/admins
-Authorization: Bearer {{accessToken}}
-
-### ========================================
-### MATCH MANAGEMENT
-### ========================================
-
-### Create new match (Admin only)
-POST {{baseUrl}}/tables/{{tableId}}/matches
-Authorization: Bearer {{accessToken}}
+# Join table
+POST {{baseUrl}}/api/tables/{{tableId}}/join
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
+  "password": "secret123"
+}
+
+###
+
+# Leave table
+POST {{baseUrl}}/api/tables/{{tableId}}/leave
+Authorization: Bearer {{authToken}}
+
+###
+
+### ========================================
+### MATCHES ENDPOINTS
+### ========================================
+
+# Get all matches for a table
+GET {{baseUrl}}/api/matches/table/{{tableId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get upcoming matches for a table
+GET {{baseUrl}}/api/matches/table/{{tableId}}/upcoming
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get finished matches for a table
+GET {{baseUrl}}/api/matches/table/{{tableId}}/finished
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get specific match by ID
+GET {{baseUrl}}/api/matches/{{matchId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# Create new match
+POST {{baseUrl}}/api/matches
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "tableId": "{{tableId}}",
   "country1": "Poland",
   "country2": "Germany",
   "matchDateTime": "2024-06-15T20:00:00Z"
 }
 
-### Get table matches
-GET {{baseUrl}}/tables/{{tableId}}/matches
-Authorization: Bearer {{accessToken}}
+###
 
-### Get upcoming matches
-GET {{baseUrl}}/tables/{{tableId}}/matches/upcoming
-Authorization: Bearer {{accessToken}}
+# Start match (Admin only)
+POST {{baseUrl}}/api/matches/{{matchId}}/start
+Authorization: Bearer {{authToken}}
 
-### Get finished matches
-GET {{baseUrl}}/tables/{{tableId}}/matches/finished
-Authorization: Bearer {{accessToken}}
+###
 
-### Get match details
-GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}
-Authorization: Bearer {{accessToken}}
-
-### Update match result (Admin only)
-PUT {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/result
-Authorization: Bearer {{accessToken}}
+# Finish match with result (Admin only)
+POST {{baseUrl}}/api/matches/{{matchId}}/finish
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
   "result": "2:1"
 }
 
-### Delete match (Admin only, before start)
-DELETE {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}
-Authorization: Bearer {{accessToken}}
+###
 
-### ========================================
-### BETTING SYSTEM
-### ========================================
+# Delete match (Admin only)
+DELETE {{baseUrl}}/api/matches/{{matchId}}
+Authorization: Bearer {{authToken}}
 
-### Place bet
-POST {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets
-Authorization: Bearer {{accessToken}}
+###
+
+# Place bet on match
+POST {{baseUrl}}/api/matches/{{matchId}}/bet
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
+  "prediction": "1:0"
+}
+
+###
+
+# Get all bets for a match
+GET {{baseUrl}}/api/matches/{{matchId}}/bets
+Authorization: Bearer {{authToken}}
+
+###
+
+### ========================================
+### BETS ENDPOINTS
+### ========================================
+
+# Place bet
+POST {{baseUrl}}/api/bets
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "matchId": "{{matchId}}",
   "prediction": "2:1"
 }
 
-### Update bet
-PUT {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets
-Authorization: Bearer {{accessToken}}
+###
+
+# Update bet
+PUT {{baseUrl}}/api/bets/{{betId}}
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
   "prediction": "1:1"
 }
 
-### Get user's bet for match
-GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets/me
-Authorization: Bearer {{accessToken}}
+###
 
-### Get all bets for match (if not secret mode)
-GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/bets
-Authorization: Bearer {{accessToken}}
+# Get specific bet
+GET {{baseUrl}}/api/bets/{{betId}}
+Authorization: Bearer {{authToken}}
 
-### Get user's betting history
-GET {{baseUrl}}/tables/{{tableId}}/bets/history
-Authorization: Bearer {{accessToken}}
+###
 
-### ========================================
-### POOL MANAGEMENT
-### ========================================
+# Get all bets for a match
+GET {{baseUrl}}/api/bets/match/{{matchId}}
+Authorization: Bearer {{authToken}}
 
-### Get current pool for match
-GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/pool
-Authorization: Bearer {{accessToken}}
+###
 
-### Get pool history
-GET {{baseUrl}}/tables/{{tableId}}/pools/history
-Authorization: Bearer {{accessToken}}
+# Get all bets for a user
+GET {{baseUrl}}/api/bets/user/{{userId}}
+Authorization: Bearer {{authToken}}
 
-### Get pool winners for match
-GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/pool/winners
-Authorization: Bearer {{accessToken}}
+###
+
+# Delete bet
+DELETE {{baseUrl}}/api/bets/{{betId}}
+Authorization: Bearer {{authToken}}
+
+###
 
 ### ========================================
-### STATISTICS
+### POOLS ENDPOINTS
 ### ========================================
 
-### Get user statistics for table
-GET {{baseUrl}}/tables/{{tableId}}/stats/me
-Authorization: Bearer {{accessToken}}
+# Get pool by ID
+GET {{baseUrl}}/api/pools/{{poolId}}
+Authorization: Bearer {{authToken}}
 
-### Get all users statistics for table
-GET {{baseUrl}}/tables/{{tableId}}/stats
-Authorization: Bearer {{accessToken}}
+###
 
-### Get user statistics across all tables
-GET {{baseUrl}}/stats/me
-Authorization: Bearer {{accessToken}}
+# Get pool by match ID
+GET {{baseUrl}}/api/pools/match/{{matchId}}
+Authorization: Bearer {{authToken}}
 
-### Get table leaderboard
-GET {{baseUrl}}/tables/{{tableId}}/leaderboard
-Authorization: Bearer {{accessToken}}
+###
+
+# Get all active pools
+GET {{baseUrl}}/api/pools/active
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get all expired pools
+GET {{baseUrl}}/api/pools/expired
+Authorization: Bearer {{authToken}}
+
+###
+
+# Calculate pool amount for a match
+POST {{baseUrl}}/api/pools/match/{{matchId}}/calculate
+Authorization: Bearer {{authToken}}
+
+###
+
+# Distribute pool to winners
+POST {{baseUrl}}/api/pools/match/{{matchId}}/distribute
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+[
+  "user1-id",
+  "user2-id",
+  "user3-id"
+]
+
+###
+
+# Rollover pool to next match
+POST {{baseUrl}}/api/pools/match/{{matchId}}/rollover
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get user winnings for a match
+GET {{baseUrl}}/api/pools/match/{{matchId}}/winnings/{{userId}}
+Authorization: Bearer {{authToken}}
+
+###
 
 ### ========================================
-### COUNTRIES & UTILITIES
+### AUTHENTICATION ENDPOINTS
 ### ========================================
 
-### Get countries list (for autocomplete)
-GET {{baseUrl}}/countries
-Authorization: Bearer {{accessToken}}
-
-### Search countries
-GET {{baseUrl}}/countries/search?query=pol
-Authorization: Bearer {{accessToken}}
-
-### ========================================
-### TABLE SETTINGS
-### ========================================
-
-### Update table settings (Admin only)
-PUT {{baseUrl}}/tables/{{tableId}}/settings
-Authorization: Bearer {{accessToken}}
+# Register new user
+POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "Updated table name",
-  "maxPlayers": 25,
-  "stake": 15.00,
-  "isSecretMode": true
+  "login": "testuser",
+  "email": "pietruczukhubert@gmail.com",
+  "password": "password123456"
 }
 
-### Get table settings
-GET {{baseUrl}}/tables/{{tableId}}/settings
-Authorization: Bearer {{accessToken}}
+###
 
-### ========================================
-### NOTIFICATIONS (Future - v2.0)
-### ========================================
-
-### Get user notifications
-GET {{baseUrl}}/notifications
-Authorization: Bearer {{accessToken}}
-
-### Mark notification as read
-PUT {{baseUrl}}/notifications/{{notificationId}}/read
-Authorization: Bearer {{accessToken}}
-
-### Update notification preferences
-PUT {{baseUrl}}/notifications/preferences
-Authorization: Bearer {{accessToken}}
+# Login user
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "emailNotifications": true,
-  "pushNotifications": false,
-  "matchReminders": true
+  "login": "testuser",
+  "password": "password123456"
 }
 
-### ========================================
-### COMMENTS (Future - v2.0)
-### ========================================
+> {%
+    client.global.set("authToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+%}
+###
 
-### Get match comments
-GET {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/comments
-Authorization: Bearer {{accessToken}}
-
-### Add comment to match
-POST {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/comments
-Authorization: Bearer {{accessToken}}
+# Refresh token
+POST {{baseUrl}}/api/auth/refresh
 Content-Type: application/json
 
 {
-  "content": "Świetny mecz! Polska wygra!"
+  "refreshToken": "{{refreshToken}}"
 }
 
-### Delete comment
-DELETE {{baseUrl}}/tables/{{tableId}}/matches/{{matchId}}/comments/{{commentId}}
-Authorization: Bearer {{accessToken}}
+###
+
+# Logout user
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get current user info
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{authToken}}
+
+###
 
 ### ========================================
-### HEALTH & SYSTEM
+### USAGE NOTES
 ### ========================================
+
+# 1. Replace {{authToken}} with your actual JWT token
+# 2. Replace {{tableId}}, {{matchId}}, {{betId}}, {{poolId}}, {{userId}} with actual IDs
+# 3. All endpoints require authentication (Bearer token)
+# 4. Admin endpoints require admin role
+# 5. Some endpoints are restricted to table members only
+
+# Example workflow:
+# 1. Login to get JWT token
+# 2. Create a table
+# 3. Join the table (if secret)
+# 4. Create matches
+# 5. Place bets
+# 6. Start/finish matches
+# 7. Distribute pools
+
+# Common HTTP Status Codes:
+# 200 - OK
+# 201 - Created
+# 204 - No Content
+# 400 - Bad Request
+# 401 - Unauthorized
+# 403 - Forbidden
+# 404 - Not Found
+# 500 - Internal Server Error
 
