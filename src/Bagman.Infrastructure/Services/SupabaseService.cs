@@ -32,9 +32,7 @@ public class SupabaseService : ISupabaseService
                 .Get();
 
             if (existingUsers.Models.Count > 0)
-            {
                 return Error.Conflict("Auth.LoginAlreadyExists", "Użytkownik z tym loginem już istnieje");
-            }
 
             var options = new SignUpOptions
             {
@@ -47,9 +45,7 @@ public class SupabaseService : ISupabaseService
             var response = await _supabaseClient.Auth.SignUp(email, password, options);
 
             if (response.User is null)
-            {
                 return Error.Failure("Auth.RegistrationFailed", "Rejestracja nie powiodła się");
-            }
 
             // Ręcznie utwórz użytkownika w tabeli users
             var userEntity = new UserEntity
@@ -112,23 +108,17 @@ public class SupabaseService : ISupabaseService
                 .Single();
 
             if (userResponse is null)
-            {
                 return Error.NotFound("Auth.UserNotFound", "Nieprawidłowy login lub hasło");
-            }
 
             // Teraz zaloguj się przez Supabase używając emaila
             var response = await _supabaseClient.Auth.SignIn(userResponse.Email, password);
 
             if (response.User is null)
-            {
                 return Error.NotFound("Auth.UserNotFound", "Nieprawidłowy login lub hasło");
-            }
 
             var session = response;
             if (session is null)
-            {
                 return Error.Failure("Auth.NoSession", "Nie udało się utworzyć sesji");
-            }
 
             return new AuthResult
             {
@@ -162,15 +152,11 @@ public class SupabaseService : ISupabaseService
             var response = await _supabaseClient.Auth.RefreshSession();
 
             if (response.User is null)
-            {
                 return Error.Unauthorized("Auth.InvalidRefreshToken", "Nieprawidłowy refresh token");
-            }
 
             var session = response;
             if (session is null)
-            {
                 return Error.Failure("Auth.NoSession", "Nie udało się odświeżyć sesji");
-            }
 
             // Pobierz dane użytkownika z bazy danych
             var userResponse = await _supabaseClient

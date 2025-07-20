@@ -41,15 +41,11 @@ Console.WriteLine($"Supabase URL: {supabaseUrl}");
 Console.WriteLine($"Supabase Key: {supabaseKey?.Substring(0, Math.Min(20, supabaseKey?.Length ?? 0))}...");
 
 if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
-{
     throw new InvalidOperationException("Supabase configuration is missing. Please check appsettings.json");
-}
 
 // Validate URL format
 if (!Uri.TryCreate(supabaseUrl, UriKind.Absolute, out var uri) || uri.Scheme != "https")
-{
     throw new InvalidOperationException($"Invalid Supabase URL: {supabaseUrl}. URL must be a valid HTTPS URL.");
-}
 
 builder.Services.AddSingleton<Client>(provider => new Client(supabaseUrl, supabaseKey));
 

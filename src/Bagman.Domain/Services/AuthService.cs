@@ -21,32 +21,22 @@ public class AuthService : IAuthService
         // Sprawdź czy użytkownik już istnieje
         var existingUserResult = await _userRepository.GetByLoginAsync(login);
         if (existingUserResult.IsError)
-        {
             return existingUserResult.Errors;
-        }
 
         if (existingUserResult.Value is not null)
-        {
             return Error.Conflict("User.AlreadyExists", "Użytkownik o podanym loginie już istnieje");
-        }
 
         var existingEmailResult = await _userRepository.GetByEmailAsync(email);
         if (existingEmailResult.IsError)
-        {
             return existingEmailResult.Errors;
-        }
 
         if (existingEmailResult.Value is not null)
-        {
             return Error.Conflict("User.EmailAlreadyExists", "Użytkownik o podanym emailu już istnieje");
-        }
 
         // Rejestracja przez Supabase (to już tworzy użytkownika w tabeli users)
         var authResult = await _supabaseService.RegisterAsync(login, password, email);
         if (authResult.IsError)
-        {
             return authResult.Errors;
-        }
 
         return authResult.Value;
     }
@@ -56,26 +46,18 @@ public class AuthService : IAuthService
         // Logowanie przez Supabase
         var authResult = await _supabaseService.LoginAsync(login, password);
         if (authResult.IsError)
-        {
             return authResult.Errors;
-        }
 
         // Sprawdź czy użytkownik jest aktywny
         var userResult = await _userRepository.GetByIdAsync(authResult.Value.User.Id);
         if (userResult.IsError)
-        {
             return userResult.Errors;
-        }
 
         if (userResult.Value is null)
-        {
             return Error.NotFound("User.NotFound", "Użytkownik nie został znaleziony");
-        }
 
         if (!userResult.Value.IsActive)
-        {
             return Error.Failure("User.Inactive", "Konto użytkownika jest nieaktywne");
-        }
 
         return authResult.Value;
     }
@@ -85,9 +67,7 @@ public class AuthService : IAuthService
         // Odświeżanie tokenu przez Supabase
         var authResult = await _supabaseService.RefreshTokenAsync(refreshToken);
         if (authResult.IsError)
-        {
             return authResult.Errors;
-        }
 
         return authResult.Value;
     }
@@ -97,9 +77,7 @@ public class AuthService : IAuthService
         // Wylogowanie przez Supabase
         var result = await _supabaseService.LogoutAsync(refreshToken);
         if (result.IsError)
-        {
             return result.Errors;
-        }
 
         return Result.Success;
     }
