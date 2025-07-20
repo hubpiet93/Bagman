@@ -4,7 +4,8 @@ System do obstawiania meczów piłki nożnej dla prywatnych grup znajomych podcz
 
 ## 🎯 O projekcie
 
-Bagman to aplikacja webowa umożliwiająca organizowanie prywatnych zakładów wśród zamkniętej grupy znajomych. Użytkownicy mogą zakładać własne "stoły do grania", zapraszać znajomych i wspólnie typować wyniki meczów turniejowych.
+Bagman to aplikacja webowa umożliwiająca organizowanie prywatnych zakładów wśród zamkniętej grupy znajomych. Użytkownicy mogą zakładać własne "stoły do grania", zapraszać znajomych i wspólnie typować
+wyniki meczów turniejowych.
 
 ### Kluczowe funkcje
 
@@ -25,12 +26,15 @@ Bagman to aplikacja webowa umożliwiająca organizowanie prywatnych zakładów w
 ## 📚 Dokumentacja
 
 ### [Koncept aplikacji](docs/bet-concept.md)
+
 Początkowe założenia i pomysły na funkcjonalności systemu.
 
 ### [Wymagania systemowe](docs/system-requirements.md)
+
 Szczegółowa dokumentacja wymagań funkcjonalnych, przypadków użycia i modelu danych.
 
 ### [Dokumentacja techniczna](docs/technical-documentation.md)
+
 Specyfikacja techniczna, architektura, stack technologiczny i instrukcje wdrożenia.
 
 ## 🚀 Rozpoczęcie pracy
@@ -53,6 +57,7 @@ Szczegółowe instrukcje znajdują się w [dokumentacji technicznej](docs/techni
 ## 🎨 UI/UX
 
 Aplikacja wykorzystuje MudBlazor do stworzenia nowoczesnego, responsywnego interfejsu z:
+
 - Nawigacją w formie kart i paneli
 - Mobile-first design
 - Jasnym motywem z dużymi odstępami

@@ -1,49 +1,58 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Domain", "src\Bagman.Domain\Bagman.Domain.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Api", "src\Bagman.Api\Bagman.Api.csproj", "{CB53474A-8187-4E93-92F9-8FA08093DF62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Infrastructure", "src\Bagman.Infrastructure\Bagman.Infrastructure.csproj", "{00000000-0000-0000-0000-000000000000}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Contracts", "src\Bagman.Contracts\Bagman.Contracts.csproj", "{3A5107FB-0597-43CA-8A8A-D3094F3E380F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Api", "src\Bagman.Api\Bagman.Api.csproj", "{00000000-0000-0000-0000-000000000000}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
-		{B2C3D4E5-F6G7-8901-BCDE-F23456789012} = {B2C3D4E5-F6G7-8901-BCDE-F23456789012}
-		{D4E5F6G7-H8I9-0123-EFGH-456789012345} = {D4E5F6G7-H8I9-0123-EFGH-456789012345}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Domain", "src\Bagman.Domain\Bagman.Domain.csproj", "{52256ECE-C087-4856-BCE8-432ED8DF5DBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Contracts", "src\Bagman.Contracts\Bagman.Contracts.csproj", "{00000000-0000-0000-0000-000000000000}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Infrastructure", "src\Bagman.Infrastructure\Bagman.Infrastructure.csproj", "{620706A5-E6DA-46D8-9DE1-68BB88F3CC38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Web", "src\Bagman.Web\Bagman.Web.csproj", "{00000000-0000-0000-0000-000000000000}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D4E5F6G7-H8I9-0123-EFGH-456789012345} = {D4E5F6G7-H8I9-0123-EFGH-456789012345}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Web", "src\Bagman.Web\Bagman.Web.csproj", "{154B57D9-3F9F-4DFA-BABD-EB0BBA532422}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.UnitTests", "tests\Bagman.UnitTests\Bagman.UnitTests.csproj", "{00000000-0000-0000-0000-000000000000}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.IntegrationTests", "tests\Bagman.IntegrationTests\Bagman.IntegrationTests.csproj", "{D665BBB6-D075-46E0-87AC-B32DDB9F5A68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.IntegrationTests", "tests\Bagman.IntegrationTests\Bagman.IntegrationTests.csproj", "{00000000-0000-0000-0000-000000000000}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.UnitTests", "tests\Bagman.UnitTests\Bagman.UnitTests.csproj", "{A05643C8-CC01-4E2B-BCFD-01D43860AC0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
-		{00000000-0000-0000-0000-000000000000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{00000000-0000-0000-0000-000000000000}.Debug|Any CPU.Build.0 = Debug|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {H8I9J0K1-L2M3-4567-IJKL-890123456789}
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CB53474A-8187-4E93-92F9-8FA08093DF62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB53474A-8187-4E93-92F9-8FA08093DF62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB53474A-8187-4E93-92F9-8FA08093DF62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB53474A-8187-4E93-92F9-8FA08093DF62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A5107FB-0597-43CA-8A8A-D3094F3E380F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A5107FB-0597-43CA-8A8A-D3094F3E380F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A5107FB-0597-43CA-8A8A-D3094F3E380F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A5107FB-0597-43CA-8A8A-D3094F3E380F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52256ECE-C087-4856-BCE8-432ED8DF5DBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52256ECE-C087-4856-BCE8-432ED8DF5DBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52256ECE-C087-4856-BCE8-432ED8DF5DBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52256ECE-C087-4856-BCE8-432ED8DF5DBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{620706A5-E6DA-46D8-9DE1-68BB88F3CC38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{620706A5-E6DA-46D8-9DE1-68BB88F3CC38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{620706A5-E6DA-46D8-9DE1-68BB88F3CC38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{620706A5-E6DA-46D8-9DE1-68BB88F3CC38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154B57D9-3F9F-4DFA-BABD-EB0BBA532422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154B57D9-3F9F-4DFA-BABD-EB0BBA532422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154B57D9-3F9F-4DFA-BABD-EB0BBA532422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154B57D9-3F9F-4DFA-BABD-EB0BBA532422}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D665BBB6-D075-46E0-87AC-B32DDB9F5A68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D665BBB6-D075-46E0-87AC-B32DDB9F5A68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D665BBB6-D075-46E0-87AC-B32DDB9F5A68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D665BBB6-D075-46E0-87AC-B32DDB9F5A68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A05643C8-CC01-4E2B-BCFD-01D43860AC0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A05643C8-CC01-4E2B-BCFD-01D43860AC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A05643C8-CC01-4E2B-BCFD-01D43860AC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A05643C8-CC01-4E2B-BCFD-01D43860AC0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

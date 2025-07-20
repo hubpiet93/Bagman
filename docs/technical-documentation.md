@@ -109,6 +109,7 @@ src/
   - **Dependency Injection** - wbudowany .NET DI container (Scoped dla Services/Repositories, Singleton dla Supabase Client)
   - **CRUD pattern** - standardowe operacje Create, Read, Update, Delete
   - **Result Pattern** - wszystkie metody w Services i Domain Models zwracają Result<T> używając biblioteki ErrorOr (brak wyjątków)
+  - **FluentValidation** - walidacja danych wejściowych przyjmowanych przez API
   - Realizuje autoryzację, walidację danych, obsługę uprawnień.
   - Zwroty JSON, statusy HTTP, obsługa błędów.
 - **Supabase:**  
@@ -154,7 +155,68 @@ src/
 
 ---
 
-## 6. Obsługa migracji i wersjonowania bazy danych
+## 6. Walidacja danych
+
+### 6.1. FluentValidation
+
+- **Biblioteka walidacji:** FluentValidation - nowoczesna biblioteka do walidacji danych w .NET
+- **Lokalizacja walidatorów:** `src/Bagman.Api/Validators/` - dedykowany katalog dla walidatorów
+- **Automatyczna rejestracja:** Walidatory rejestrowane automatycznie przez ASP.NET Core DI container
+- **Walidacja requestów:** Wszystkie modele requestów (RegisterRequest, LoginRequest, etc.) mają dedykowane walidatory
+
+### 6.2. Przykłady walidacji
+
+```csharp
+// Przykład walidatora dla RegisterRequest
+public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+{
+    public RegisterRequestValidator()
+    {
+        RuleFor(x => x.Login)
+            .NotEmpty().WithMessage("Login jest wymagany")
+            .Length(3, 50).WithMessage("Login musi mieć od 3 do 50 znaków")
+            .Matches("^[a-zA-Z0-9_]+$").WithMessage("Login może zawierać tylko litery, cyfry i podkreślnik");
+
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email jest wymagany")
+            .EmailAddress().WithMessage("Nieprawidłowy format email");
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Hasło jest wymagane")
+            .MinimumLength(10).WithMessage("Hasło musi mieć minimum 10 znaków")
+            .Matches("[A-Z]").WithMessage("Hasło musi zawierać wielką literę")
+            .Matches("[a-z]").WithMessage("Hasło musi zawierać małą literę")
+            .Matches("[0-9]").WithMessage("Hasło musi zawierać cyfrę");
+    }
+}
+```
+
+### 6.3. Obsługa błędów walidacji
+
+- **Automatyczna walidacja:** ASP.NET Core automatycznie waliduje requesty przed przekazaniem do kontrolerów
+- **Format odpowiedzi:** Błędy walidacji zwracane w standardowym formacie JSON z listą błędów
+- **HTTP Status:** 400 Bad Request dla błędów walidacji
+- **Integracja z ErrorOr:** Błędy walidacji mapowane na ErrorOr.ValidationError
+
+### 6.4. Walidatory w projekcie
+
+- `RegisterRequestValidator` - walidacja danych rejestracji
+- `LoginRequestValidator` - walidacja danych logowania
+- `CreateTableRequestValidator` - walidacja tworzenia stołu
+- `CreateMatchRequestValidator` - walidacja dodawania meczu
+- `PlaceBetRequestValidator` - walidacja typowania
+
+### 6.5. Konfiguracja
+
+```csharp
+// Program.cs - rejestracja FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+```
+
+---
+
+## 7. Obsługa migracji i wersjonowania bazy danych
 
 - **Skrypty migracji w katalogu `db/migrations` z numeracją wersji**
 - **Ręczne uruchamianie migracji w kolejności**
@@ -165,7 +227,7 @@ src/
 
 ---
 
-## 7. Testowanie i jakość
+## 8. Testowanie i jakość
 
 - **Testy jednostkowe (NUnit) – logika API**
   - Mockowanie Supabase Client za pomocą NSubstitute
@@ -183,23 +245,23 @@ src/
 
 ---
 
-## 8. Monitoring / Logging
+## 9. Monitoring / Logging
 
 - **Logowanie błędów w API (wbudowany ILogger, output na console)**
 - **Logi audytowe (np. ważne operacje: zmiana admina, dodanie meczu, typowanie)**
 
 ---
 
-## 9. Performance
+## 10. Performance
 
 - **Memory Cache w API** - cache w pamięci aplikacji z krótkim czasem życia (2 minuty)
 - **Caching często używanych danych** - lista meczów, statystyki użytkowników
 
-## 10. Error Handling
+## 11. Error Handling
 
 - **Hybrydowa obsługa błędów w Blazor** - global error boundary dla nieoczekiwanych błędów + lokalne obsługiwanie dla błędów API
 
-## 11. UI/UX
+## 12. UI/UX
 
 - **MudBlazor – elastyczne, lekkie komponenty, okienka w okienku, brak typowych dashboardowych nawigacji**
 - **Nawigacja w formie kart, paneli, dialogów, nie jako stały pasek**
@@ -214,7 +276,7 @@ src/
 
 ---
 
-## 10. Model danych
+## 13. Model danych
 
 **Szczegółowy ERD i typy pól dołączone w katalogu `db/ERD.png` oraz `db/schema.sql`.**
 
@@ -237,7 +299,7 @@ Przykład encji:
 
 ---
 
-## 11. Rozszerzenia i wersja 2.0
+## 14. Rozszerzenia i wersja 2.0
 
 - Tryb „tajemniczego typera" – flaga w tabeli `tables`, obsługa w UI i API
 - Powiadomienia – integracja z Supabase Functions lub zewnętrzne API (np. SendGrid, Twilio)
@@ -250,7 +312,7 @@ Przykład encji:
 
 ---
 
-## 12. Monitoring, backup i disaster recovery
+## 15. Monitoring, backup i disaster recovery
 
 - **Backup bazy danych – codzienny eksport przez Supabase lub narzędzia zewnętrzne**
 - **Instrukcja odtwarzania backupu**
@@ -259,7 +321,7 @@ Przykład encji:
 
 ---
 
-## 13. FAQ dla developerów
+## 16. FAQ dla developerów
 
 - **Jak debugować typowe problemy z Supabase/Blazor/API**
 - **Jak dodać nową migrację bazy**
@@ -269,13 +331,14 @@ Przykład encji:
 
 ---
 
-## 14. Linki i zasoby
+## 17. Linki i zasoby
 
 - [Supabase .NET Client Docs](https://supabase.com/docs/reference/dotnet)
 - [MudBlazor Docs](https://mudblazor.com/getting-started/installation)
 - [Blazor WebAssembly Docs](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-8.0)
 - [ASP.NET Core API Docs](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0)
 - [ErrorOr Library](https://github.com/amantinband/error-or) - Result Pattern dla .NET
+- [FluentValidation Docs](https://docs.fluentvalidation.net/) - Walidacja danych w .NET
 
 ---
 

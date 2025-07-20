@@ -62,4 +62,4 @@ public record StatsInfo
     public required int BetsPlaced { get; init; }
     public required int PoolsWon { get; init; }
     public required decimal TotalWon { get; init; }
-} 
+}

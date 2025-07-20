@@ -5,23 +5,24 @@
 ### KONFIGURACJA
 ### ========================================
 
-@baseUrl = https://localhost:5001/api
+@baseUrl = http://localhost:5000/api
 @authToken = {{login.response.body.accessToken}}
-@refreshToken = {{login.response.body.refreshToken}}
+@refreshToken = 4crticmsmw7t
 
 ### ========================================
 ### AUTORYZACJA
 ### ========================================
 
 ### Rejestracja nowego użytkownika
+@id = 24
 # @name register
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "login": "testuser",
-  "password": "testpassword123",
-  "email": "test@example.com"
+  "login": "testuser{{id}}",
+  "password": "Testowanie2025%",
+  "email": "pietruczukhubert+{{id}}@gmail.com"
 }
 
 ### Logowanie użytkownika
@@ -30,8 +31,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "login": "testuser",
-  "password": "testpassword123"
+  "login": "testuser24",
+  "password": "Testowanie2025%"
 }
 
 ### Odświeżenie tokenu
