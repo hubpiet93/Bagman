@@ -14,7 +14,7 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .NotEmpty().WithMessage("Login jest wymagany")
             .Length(3, 50).WithMessage("Login musi mieć od 3 do 50 znaków")
             .Matches("^[a-zA-Z0-9_]+$").WithMessage("Login może zawierać tylko litery, cyfry i podkreślnik")
-            .Must(login => !login.Contains(' ')).WithMessage("Login nie może zawierać spacji");
+            .Must(login => login != null && !login.Contains(' ')).WithMessage("Login nie może zawierać spacji");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email jest wymagany")
@@ -29,6 +29,6 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .Matches("[a-z]").WithMessage("Hasło musi zawierać małą literę")
             .Matches("[0-9]").WithMessage("Hasło musi zawierać cyfrę")
             .Matches("[^a-zA-Z0-9]").WithMessage("Hasło musi zawierać znak specjalny")
-            .Must(password => !password.Contains(' ')).WithMessage("Hasło nie może zawierać spacji");
+            .Must(password => password != null && !password.Contains(' ')).WithMessage("Hasło nie może zawierać spacji");
     }
 }

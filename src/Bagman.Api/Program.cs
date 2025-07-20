@@ -14,7 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Add FluentValidation
-builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationAutoValidation(config =>
+{
+    config.DisableDataAnnotationsValidation = true;
+});
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -69,7 +72,7 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorApp");
 
-// Add validation exception middleware
+// Add validation exception middleware BEFORE authorization
 app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.UseAuthorization();
@@ -77,3 +80,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program class public for integration tests
+public partial class Program { }
