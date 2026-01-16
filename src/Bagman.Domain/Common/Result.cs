@@ -1,1 +1,0 @@
-namespace Bagman.Domain.Common;
