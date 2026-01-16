@@ -502,7 +502,7 @@ public class AuthControllerTests : IAsyncLifetime
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var initialAccessToken = initialAuth!.AccessToken;
-        var refreshToken = initialAuth.RefreshToken;
+        var initialRefreshToken = initialAuth.RefreshToken;
 
         // Act & Assert - Login
         var loginRequest = new LoginRequest
@@ -518,10 +518,10 @@ public class AuthControllerTests : IAsyncLifetime
 
         var loginResponse = await _httpClient.PostAsync("/api/auth/login", loginContent);
 
-        // Act & Assert - Refresh
+        // Act & Assert - Refresh with initial token
         var refreshRequest = new RefreshRequest
         {
-            RefreshToken = refreshToken
+            RefreshToken = initialRefreshToken
         };
 
         var refreshContent = new StringContent(
@@ -535,10 +535,13 @@ public class AuthControllerTests : IAsyncLifetime
             refreshBody,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        // Act & Assert - Logout
+        var newAccessToken = refreshedAuth!.AccessToken;
+        var newRefreshToken = refreshedAuth.RefreshToken;
+
+        // Act & Assert - Logout with the NEW refresh token from refresh operation
         var logoutRequest = new LogoutRequest
         {
-            RefreshToken = refreshToken
+            RefreshToken = newRefreshToken
         };
 
         var logoutContent = new StringContent(
@@ -559,7 +562,8 @@ public class AuthControllerTests : IAsyncLifetime
             LoginSucceeded = loginResponse.StatusCode == HttpStatusCode.OK,
             RefreshSucceeded = refreshResponse.StatusCode == HttpStatusCode.OK,
             LogoutSucceeded = logoutResponse.StatusCode == HttpStatusCode.OK,
-            AccessTokenRefreshed = refreshedAuth!.AccessToken != initialAccessToken
+            AccessTokenRefreshed = newAccessToken != initialAccessToken,
+            RefreshTokenRefreshed = newRefreshToken != initialRefreshToken
         });
     }
 }

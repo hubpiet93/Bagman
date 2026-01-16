@@ -4,5 +4,5 @@
     Login: refreshuser
   },
   HasNewAccessToken: true,
-  AccessTokenChanged: false
+  AccessTokenChanged: true
 }

@@ -109,13 +109,23 @@ public class AuthorizationProvider : IAuthorizationProvider
         return tokens;
     }
 
-    public Task<ErrorOr<Success>> LogoutAsync(string refreshToken)
+    public async Task<ErrorOr<Success>> LogoutAsync(string refreshToken)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
-            return Task.FromResult<ErrorOr<Success>>(Error.Validation("Auth.InvalidRefresh", "Refresh token jest nieprawidłowy"));
+            return Error.Validation("Auth.InvalidRefresh", "Refresh token jest nieprawidłowy");
 
         // Remove refresh token from persistent store
-        return _userRepository.RemoveRefreshTokenAsync(refreshToken);
+        var result = await _userRepository.RemoveRefreshTokenAsync(refreshToken);
+        
+        // Even if token doesn't exist, consider logout successful (idempotent operation)
+        if (result.IsError)
+        {
+            _logger.LogWarning("Failed to remove refresh token during logout: {Code}", 
+                result.FirstError.Code);
+            // Don't return error - logout is considered successful if token is already gone
+        }
+
+        return Result.Success;
     }
 
     public Task<ErrorOr<bool>> ValidateJwtAsync(string jwt)
@@ -163,7 +173,8 @@ public class AuthorizationProvider : IAuthorizationProvider
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.UniqueName, user.Login),
-            new(JwtRegisteredClaimNames.Email, user.Email)
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         var token = new JwtSecurityToken(

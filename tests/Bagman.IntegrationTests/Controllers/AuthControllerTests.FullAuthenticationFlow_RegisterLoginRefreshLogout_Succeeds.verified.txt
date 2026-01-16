@@ -2,10 +2,11 @@
   RegisterStatusCode: OK,
   LoginStatusCode: OK,
   RefreshStatusCode: OK,
-  LogoutStatusCode: BadRequest,
+  LogoutStatusCode: OK,
   RegisterSucceeded: true,
   LoginSucceeded: true,
   RefreshSucceeded: true,
-  LogoutSucceeded: false,
-  AccessTokenRefreshed: false
+  LogoutSucceeded: true,
+  AccessTokenRefreshed: true,
+  RefreshTokenRefreshed: true
 }
