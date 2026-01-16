@@ -1,5 +1,5 @@
 a# Dokumentacja techniczna – System do typowania meczów piłki nożnej  
-**Blazor (client-side) + ASP.NET Core API + Supabase + MudBlazor**
+**Blazor (client-side) + ASP.NET Core API + Azure SQL (MSSQL) + EF Core + ASP.NET Core Identity + MudBlazor**
 
 ---
 
@@ -11,16 +11,15 @@ a# Dokumentacja techniczna – System do typowania meczów piłki nożnej
   - Blazor WebAssembly (C#) – aplikacja całkowicie po stronie klienta, hostowana statycznie.
   - MudBlazor – nowoczesny, lekki framework UI, pozwala na projektowanie nietypowych nawigacji (okienka w okienku).
 - **Backend (API):**  
-  - ASP.NET Core (.NET 8) – REST API, pośredniczy między Blazor a Supabase.
+  - ASP.NET Core (.NET 8) – REST API, pośredniczy między Blazor a Azure SQL oraz usługami autoryzacji (ASP.NET Core Identity).
   - API obsługuje autoryzację, logikę biznesową, walidacje, bezpieczeństwo.
-- **Baza danych:**  
-  - Supabase PostgreSQL – przechowuje wszystkie dane aplikacji.
-  - API komunikuje się z Supabase przez oficjalny klient .NET (Supabase.Client).
-  - Bezpośrednie zapytania SQL przez Supabase Client, bez Entity Framework Core.
+ - **Baza danych:**
+  - Azure SQL (MSSQL) – przechowuje wszystkie dane aplikacji.
+  - API używa Entity Framework Core (Microsoft.EntityFrameworkCore.SqlServer) do dostępu do danych.
+  - W razie potrzeby można wykonać bezpośrednie zapytania SQL przez ADO.NET lub Dapper.
 - **Autoryzacja:**  
-  - Supabase Auth – zarządzanie kontami (rejestracja, logowanie, sesje).
-  - API obsługuje pośrednictwo w autoryzacji, przekazuje tokeny JWT do Blazor.
-  - Mechanizm refresh token: JWT token (10 min) + Refresh token (60 dni).
+  - ASP.NET Core Identity – zarządzanie kontami (rejestracja, logowanie, sesje) z własnym providerem.
+  - API wystawia i weryfikuje tokeny JWT oraz obsługuje refresh tokeny (konfiguracja TTL wedle potrzeb).
   - Blazor automatycznie odświeża JWT token używając refresh token przed wygaśnięciem.
   - Obsługa wygaśnięcia sesji: automatyczne odświeżenie gdy refresh token ważny, wylogowanie z komunikatem gdy oba tokeny wygasły.
 - **DevOps/Uruchamianie lokalne:**  
@@ -38,10 +37,10 @@ a# Dokumentacja techniczna – System do typowania meczów piłki nożnej
 
 - **.NET 8 SDK** - główny framework aplikacji
 - **Node.js** (opcjonalnie, do niektórych narzędzi UI, np. budowanie stylów)
-- **Konto Supabase** (https://supabase.com) - baza danych i autoryzacja
-- **Klucze API Supabase** (do autoryzacji i bazy)
+ - **Konto Azure** (https://portal.azure.com) - Azure SQL, Blob Storage i opcjonalne usługi
+ - **Connection string do Azure SQL / dane dostępu** (przechowywane w Secret Manager / GitHub Secrets)
 - **Docker Desktop** - wymagany dla testów integracyjnych z Testcontainers
-- **Co najmniej 4GB RAM** - dla kontenerów PostgreSQL w testach
+- **Co najmniej 4GB RAM** - dla kontenerów SQL Server w testach
 - **Git** - kontrola wersji
 
 ### 2.2. Kroki instalacji
@@ -52,18 +51,23 @@ a# Dokumentacja techniczna – System do typowania meczów piłki nożnej
    cd typowanie-meczy
    ```
 
-2. **Konfiguracja połączenia Supabase:**
-   - Utwórz plik `.env.local` w katalogu API z danymi:
+2. **Konfiguracja połączenia do Azure SQL i Identity:**
+   - Ustaw connection string w `appsettings.json` lub Secret Managerze:
+     ```json
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=tcp:<your-server>.database.windows.net,1433;Initial Catalog=<db>;Persist Security Info=False;User ID=<user>;Password=<password>;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;"
+     }
      ```
-     SUPABASE_URL=https://xxxx.supabase.co
-     SUPABASE_ANON_KEY=xxxx
-     SUPABASE_SERVICE_KEY=xxxx
-     ```
+   - Dodatkowe ustawienia dla Azure Blob Storage (jeśli używane) i konfiguracja JWT/refresh tokens w sekcji `Jwt`.
 
 3. **Migracja bazy danych:**
-   - W przypadku lokalnego developmentu uruchom Supabase przez Docker lub korzystaj z instancji chmurowej.
-   - Skrypty migracji z numeracją wersji w katalogu `db/migrations/` (np. `001_initial_schema.sql`, `002_add_user_stats.sql`).
-   - Ręczne uruchamianie migracji w kolejności numeracji.
+  - Użyj EF Core Migrations. Przykładowe komendy:
+    ```bash
+    dotnet tool install --global dotnet-ef
+    dotnet ef migrations add InitialCreate --project src/Bagman.Api
+    dotnet ef database update --project src/Bagman.Api
+    ```
+  - Istniejące skrypty SQL w `db/` mogą pozostać jako referencja; zalecane jest przeniesienie schematu do migracji EF Core.
 
 4. **Instalacja zależności:**
    ```bash
@@ -104,7 +108,7 @@ a# Dokumentacja techniczna – System do typowania meczów piłki nożnej
 src/
 ├── Bagman.Api/           # ASP.NET Core API
 ├── Bagman.Domain/        # Modele domenowe, logika biznesowa
-├── Bagman.Infrastructure/ # Repositories, Supabase Client
+├── Bagman.Infrastructure/ # Repositories, EF Core DbContexts i Migrations
 ├── Bagman.Contracts/     # Modele odpowiedzi API (współdzielone z UI)
 └── Bagman.Web/          # Blazor WebAssembly UI
 ```
@@ -113,32 +117,34 @@ src/
 
 - **UI (Blazor WebAssembly):**  
   - Renderuje widoki, komunikuje się wyłącznie z własnym .NET API przez HTTP (REST).
-  - Nie kontaktuje się bezpośrednio z Supabase.
+  - Nie kontaktuje się bezpośrednio z bazą danych — cały dostęp realizowany jest przez API.
 - **API (ASP.NET Core):**  
   - **Controllers** - endpointy HTTP, walidacja requestów, mapowanie DTOs przez extension methods
   - **Services** - logika biznesowa, operacje na modelach domenowych
-  - **Repositories** - dostęp do bazy danych przez Supabase Client
+  - **Repositories / Data Access** - dostęp do bazy danych przez EF Core `DbContext` (Repositories mogą używać `DbContext` bezpośrednio)
   - **Domain Models** - modele domenowe z logiką biznesową
   - **Contracts** - modele odpowiedzi API współdzielone z UI
-  - **Dependency Injection** - wbudowany .NET DI container (Scoped dla Services/Repositories, Singleton dla Supabase Client)
+  - **Dependency Injection** - wbudowany .NET DI container (Scoped dla Services/Repositories/DbContext, Singletony dla serwisów, konfigurowalny provider Identity)
   - **CRUD pattern** - standardowe operacje Create, Read, Update, Delete
   - **Result Pattern** - wszystkie metody w Services i Domain Models zwracają Result<T> używając biblioteki ErrorOr (brak wyjątków)
   - **FluentValidation** - walidacja danych wejściowych przyjmowanych przez API
   - Realizuje autoryzację, walidację danych, obsługę uprawnień.
   - Zwroty JSON, statusy HTTP, obsługa błędów.
-- **Supabase:**  
-  - Przechowuje dane, obsługuje autoryzację, storage, realtime.
-- **DevOps:**  
+  - **Azure SQL / Azure services:**  
+  - Dane przechowywane w Azure SQL (MSSQL). Autoryzacja realizowana przez ASP.NET Core Identity.
+  - Pliki (awatar, eksporty) zalecane do przechowywania w Azure Blob Storage.
+  - Realtime / powiadomienia można zrealizować przez SignalR lub Azure SignalR Service.
+  - **DevOps:**  
   - Skrypty migracji bazy, seed danych, CI/CD pipeline (testy, deployment), monitoring.
 
 ---
 
-## 4. Integracja Blazor <-> API <-> Supabase
+## 4. Integracja Blazor <-> API <-> Azure SQL / Identity
 
 - **Blazor komunikuje się WYŁĄCZNIE z własnym API przez REST.**
 - **API pośredniczy w autoryzacji użytkownika:**  
   - UI przesyła dane logowania do API  
-  - API kontaktuje się z Supabase Auth, otrzymuje JWT, zwraca je do UI
+  - API korzysta z ASP.NET Core Identity (custom provider), generuje JWT i refresh tokeny, zwraca je do UI
   - Zarządzanie sesją po stronie UI (token JWT w localStorage lub sessionStorage)
 - **API realizuje całą logikę dostępu do danych:**  
   - Pobieranie/przesyłanie danych (mecze, stoły, typy, pule, statystyki)
@@ -157,7 +163,7 @@ src/
 
 ## 5. Bezpieczeństwo
 
-- **Hasła min. 10 znaków, hashowane przez Supabase Auth**
+ - **Hasła min. 10 znaków, hashowane przez ASP.NET Core Identity**
 - **Dostęp do API chroniony przez JWT (Bearer token)**
 - **Weryfikacja uprawnień i ról w API - podejście hybrydowe:**
   - Podstawowa autoryzacja na poziomie endpointów (`[Authorize]` na kontrolerach/akcjach)
@@ -165,7 +171,7 @@ src/
 - **CORS skonfigurowany na API**
 - **Ochrona przed typowymi atakami (XSS, CSRF, brute force) – szczegóły w README API**
 - **Rate limiting dla endpointów API**
-- **Logowanie zdarzeń i błędów (np. do Supabase Storage lub zewnętrznego systemu logującego)**
+ - **Logowanie zdarzeń i błędów (np. do Azure Blob Storage lub zewnętrznego systemu logującego)**
 
 ---
 
@@ -245,15 +251,15 @@ builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>()
 
 ### 8.1. Testy jednostkowe (xUnit) – logika API
 - **Framework testowy:** xUnit - domyślny framework dla ASP.NET Core
-- **Mockowanie:** NSubstitute dla mockowania Supabase Client
+- **Mockowanie:** NSubstitute dla mockowania warstwy dostępu do danych (np. `DbContext` lub repozytoriów)
 - **Asercje:** FluentAssertions dla czytelnych i ekspresywnych asercji
 - **Pokrycie:** Services, Repositories, Domain Models
 - **Result Pattern:** Testowanie ErrorOr - weryfikacja sukcesu/błędów
 
-### 8.2. Testy integracyjne – komunikacja API z Supabase
+### 8.2. Testy integracyjne – komunikacja API z Azure SQL / Identity
 - **Framework:** xUnit z WebApplicationFactory
-- **Kontenery:** Testcontainers dla izolowanej bazy PostgreSQL
-- **Pokrycie:** Pełna integracja z Supabase Auth i Database
+- **Kontenery:** Testcontainers (mssql) dla izolowanej bazy SQL Server
+- **Pokrycie:** Integracja z ASP.NET Core Identity i Azure SQL
 - **Automatyzacja:** Automatyczne uruchamianie i czyszczenie kontenerów testowych
 - **Struktura testów:**
   ```
@@ -295,7 +301,7 @@ dotnet test tests/Bagman.IntegrationTests/Bagman.IntegrationTests.csproj
 - **Pokrycie scenariuszy:** >95%
 - **Czas wykonania:** ~3 minuty dla całej suity
 - **Stabilność:** >99% współczynnik sukcesu
-- **Izolacja:** Każdy test ma własny kontener PostgreSQL
+- **Izolacja:** Każdy test może mieć własny kontener SQL Server (Testcontainers mssql) lub współdzielone środowisko testowe
 
 ### 8.6. Pozostałe testy
 - **Testy E2E:** UI + API (np. Playwright lub Selenium)
@@ -380,10 +386,10 @@ Przykład encji:
 ## 14. Rozszerzenia i wersja 2.0
 
 - Tryb „tajemniczego typera" – flaga w tabeli `tables`, obsługa w UI i API
-- Powiadomienia – integracja z Supabase Functions lub zewnętrzne API (np. SendGrid, Twilio)
+ - Powiadomienia – integracja przez SignalR / Azure SignalR Service lub zewnętrzne API (np. SendGrid, Twilio)
 - Wersja charytatywna – tabela `charity_history`
 - Mobile – PWA (Blazor WebAssembly natywnie wspiera), dedykowany layout mobile
-- Komentarze/czat – Supabase Realtime Channels przez API
+ - Komentarze/czat – SignalR / Azure SignalR Service przez API
 - Integracja z zewnętrznym API – np. [API-Football](https://www.api-football.com/), obsługa przez backend API
 
 **Roadmapa jest opisana w katalogu `roadmap.md` z priorytetami i szacunkami czasowymi.**
@@ -392,7 +398,7 @@ Przykład encji:
 
 ## 15. Monitoring, backup i disaster recovery
 
-- **Backup bazy danych – codzienny eksport przez Supabase lub narzędzia zewnętrzne**
+- **Backup bazy danych – automatyczne backupy Azure SQL lub eksport przez narzędzia zewnętrzne**
 - **Instrukcja odtwarzania backupu**
 - **Monitorowanie dostępności API (np. UptimeRobot, HealthChecks w .NET)**
 - **Procedury awaryjne – opisane w katalogu `ops/`**
@@ -402,7 +408,7 @@ Przykład encji:
 ## 16. FAQ dla developerów
 
 ### Ogólne pytania
-- **Jak debugować typowe problemy z Supabase/Blazor/API**
+- **Jak debugować typowe problemy z Azure SQL/Blazor/API**
 - **Jak dodać nową migrację bazy**
 - **Jak dodać nowy endpoint API**
 - **Jak stylizować MudBlazor zgodnie z wymaganiami UI**
@@ -415,7 +421,7 @@ Przykład encji:
 
 ### Troubleshooting testów
 ```bash
-# Problem: Kontener PostgreSQL nie startuje
+# Problem: Kontener SQL Server nie startuje
 docker info
 ./tests/Bagman.IntegrationTests/run-tests.sh cleanup
 
@@ -433,7 +439,9 @@ docker system prune
 ## 17. Linki i zasoby
 
 ### Dokumentacja technologii
-- [Supabase .NET Client Docs](https://supabase.com/docs/reference/dotnet)
+- [Entity Framework Core](https://learn.microsoft.com/ef/core/)
+- [ASP.NET Core Identity](https://learn.microsoft.com/aspnet/core/security/authentication/identity)
+- [Azure SQL Database docs](https://learn.microsoft.com/azure/azure-sql/)
 - [MudBlazor Docs](https://mudblazor.com/getting-started/installation)
 - [Blazor WebAssembly Docs](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-8.0)
 - [ASP.NET Core API Docs](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0)
@@ -457,7 +465,7 @@ docker system prune
 
 1. **Czy API będzie publiczne, czy tylko dla frontendu? (Warto doprecyzować politykę CORS i uprawnienia dostępu)**
 2. **Czy przewidujesz wersjonowanie API od początku? (np. /api/v1/)**
-3. **Czy chcesz obsługiwać upload plików (np. avatarów, eksportów) przez API/Supabase Storage?**
+3. **Czy chcesz obsługiwać upload plików (np. avatarów, eksportów) przez API/Azure Blob Storage?**
 4. **Czy potrzebujesz integracji z zewnętrznymi systemami powiadomień (email, SMS)?**
 5. **Jakie są preferencje co do hostingu: chmura, VPS, lokalnie?**
 6. **Czy w projekcie będą wymagane logi audytowe (np. kto, kiedy zmienił typ, dodał mecz itp.)?**

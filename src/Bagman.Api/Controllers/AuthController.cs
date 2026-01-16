@@ -6,7 +6,7 @@ namespace Bagman.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController : AppControllerBase
 {
     private readonly IAuthService _authService;
 
@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
                     IsActive = authResult.User.IsActive
                 }
             }),
-            errors => BadRequest(new {errors = errors.Select(e => e.Description)})
+            BadRequest
         );
     }
 
@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
                     IsActive = authResult.User.IsActive
                 }
             }),
-            errors => BadRequest(new {errors = errors.Select(e => e.Description)})
+            BadRequest
         );
     }
 
@@ -92,7 +92,7 @@ public class AuthController : ControllerBase
                     IsActive = authResult.User.IsActive
                 }
             }),
-            errors => BadRequest(new {errors = errors.Select(e => e.Description)})
+            BadRequest
         );
     }
 
@@ -106,7 +106,7 @@ public class AuthController : ControllerBase
 
         return result.Match<IActionResult>(
             _ => Ok(new {message = "Wylogowano pomyślnie"}),
-            errors => BadRequest(new {errors = errors.Select(e => e.Description)})
+            BadRequest
         );
     }
 }

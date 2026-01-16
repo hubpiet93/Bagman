@@ -1,16 +1,16 @@
-using Postgrest.Attributes;
-using Postgrest.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bagman.Infrastructure.Models;
 
 [Table("users")]
-public class UserEntity : BaseModel
+public class UserEntity
 {
-    [PrimaryKey("id")] public Guid Id { get; set; }
+    [Key] [Column("id")] public Guid Id { get; set; }
 
-    [Column("login")] public string Login { get; set; } = string.Empty;
+    [Required] [Column("login")] public string Login { get; set; } = string.Empty;
 
-    [Column("email")] public string Email { get; set; } = string.Empty;
+    [Required] [Column("email")] public string Email { get; set; } = string.Empty;
 
     [Column("created_at")] public DateTime CreatedAt { get; set; }
 

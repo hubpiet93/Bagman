@@ -1,12 +1,8 @@
 -- Complete migration for Bagman betting system
--- Supabase PostgreSQL migration - FINAL VERSION
--- Run this in Supabase SQL Editor
+-- PostgreSQL migration (originally targeted Supabase) - FINAL VERSION
+-- Review and adapt for your SQL Server / Azure SQL environment if needed.
 -- This migration includes all tables but NO triggers and minimal RLS policies
-
--- ========================================
--- 1. SCHEMA CREATION
--- ========================================
-
+CREATE TABLE public.users (
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

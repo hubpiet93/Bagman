@@ -4,25 +4,19 @@ API dla systemu typowania meczów piłki nożnej.
 
 ## Konfiguracja
 
-### 1. Supabase
+### 1. Database (Azure SQL / EF Core)
 
-1. Utwórz projekt w [Supabase](https://supabase.com)
-2. Skopiuj URL i klucz anonimowy z ustawień projektu
-3. Zaktualizuj `appsettings.json` lub `appsettings.Development.json`:
+1. Create an Azure SQL database or use a local SQL Server instance.
+2. Configure connection string in `appsettings.json` under `ConnectionStrings:DefaultConnection`.
+3. Use EF Core migrations to create the schema:
 
-```json
-{
-  "Supabase": {
-    "Url": "https://your-project.supabase.co",
-    "AnonKey": "your-anon-key"
-  }
-}
+```bash
+cd src/Bagman.Api
+dotnet ef migrations add Initial --project ../Bagman.Infrastructure/Bagman.Infrastructure.csproj --startup-project .
+dotnet ef database update --project ../Bagman.Infrastructure/Bagman.Infrastructure.csproj --startup-project .
 ```
 
-### 2. Baza danych
-
-1. Uruchom skrypt `db/schema.sql` w swojej bazie Supabase
-2. Skrypt utworzy wszystkie potrzebne tabele i indeksy
+The project uses EF Core (`Microsoft.EntityFrameworkCore.SqlServer`) for database access.
 
 ### 3. Uruchomienie
 
@@ -91,7 +85,6 @@ Content-Type: application/json
 
 ## Bezpieczeństwo
 
-- Hasła są hashowane przez Supabase Auth
 - JWT tokeny z automatycznym odświeżaniem
 - CORS skonfigurowany dla Blazor aplikacji
 - Walidacja wszystkich requestów 

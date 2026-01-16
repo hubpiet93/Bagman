@@ -1,0 +1,11 @@
+﻿{
+  RegisterStatusCode: OK,
+  LoginStatusCode: OK,
+  RefreshStatusCode: OK,
+  LogoutStatusCode: BadRequest,
+  RegisterSucceeded: true,
+  LoginSucceeded: true,
+  RefreshSucceeded: true,
+  LogoutSucceeded: false,
+  AccessTokenRefreshed: false
+}

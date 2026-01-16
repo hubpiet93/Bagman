@@ -7,18 +7,17 @@ namespace Bagman.Domain.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly ISupabaseService _supabaseService;
+    private readonly IAuthorizationProvider _authorizationProvider;
     private readonly IUserRepository _userRepository;
 
-    public AuthService(ISupabaseService supabaseService, IUserRepository userRepository)
+    public AuthService(IAuthorizationProvider authorizationProvider, IUserRepository userRepository)
     {
-        _supabaseService = supabaseService;
+        _authorizationProvider = authorizationProvider;
         _userRepository = userRepository;
     }
 
     public async Task<ErrorOr<AuthResult>> RegisterAsync(string login, string password, string email)
     {
-        // Sprawdź czy użytkownik już istnieje
         var existingUserResult = await _userRepository.GetByLoginAsync(login);
         if (existingUserResult.IsError)
             return existingUserResult.Errors;
@@ -33,8 +32,7 @@ public class AuthService : IAuthService
         if (existingEmailResult.Value is not null)
             return Error.Conflict("User.EmailAlreadyExists", "Użytkownik o podanym emailu już istnieje");
 
-        // Rejestracja przez Supabase (to już tworzy użytkownika w tabeli users)
-        var authResult = await _supabaseService.RegisterAsync(login, password, email);
+        var authResult = await _authorizationProvider.RegisterAsync(login, password, email);
         if (authResult.IsError)
             return authResult.Errors;
 
@@ -43,12 +41,10 @@ public class AuthService : IAuthService
 
     public async Task<ErrorOr<AuthResult>> LoginAsync(string login, string password)
     {
-        // Logowanie przez Supabase
-        var authResult = await _supabaseService.LoginAsync(login, password);
+        var authResult = await _authorizationProvider.LoginAsync(login, password);
         if (authResult.IsError)
             return authResult.Errors;
 
-        // Sprawdź czy użytkownik jest aktywny
         var userResult = await _userRepository.GetByIdAsync(authResult.Value.User.Id);
         if (userResult.IsError)
             return userResult.Errors;
@@ -64,8 +60,7 @@ public class AuthService : IAuthService
 
     public async Task<ErrorOr<AuthResult>> RefreshTokenAsync(string refreshToken)
     {
-        // Odświeżanie tokenu przez Supabase
-        var authResult = await _supabaseService.RefreshTokenAsync(refreshToken);
+        var authResult = await _authorizationProvider.RefreshTokensAsync(refreshToken);
         if (authResult.IsError)
             return authResult.Errors;
 
@@ -74,8 +69,7 @@ public class AuthService : IAuthService
 
     public async Task<ErrorOr<Success>> LogoutAsync(string refreshToken)
     {
-        // Wylogowanie przez Supabase
-        var result = await _supabaseService.LogoutAsync(refreshToken);
+        var result = await _authorizationProvider.LogoutAsync(refreshToken);
         if (result.IsError)
             return result.Errors;
 

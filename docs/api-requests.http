@@ -20,9 +20,9 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "login": "testuser{{id}}",
-  "password": "Testowanie2025%",
-  "email": "pietruczukhubert+{{id}}@gmail.com"
+  "login": "testuser3",
+  "password": "Testowanie2027%",
+  "email": "pietruczukhubert2+{{id}}@gmail.com"
 }
 
 ### Logowanie użytkownika
@@ -31,8 +31,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "login": "testuser24",
-  "password": "Testowanie2025%"
+  "login": "testuser3",
+  "password": "Testowanie2027%"
 }
 
 ### Odświeżenie tokenu
@@ -41,7 +41,7 @@ POST {{baseUrl}}/auth/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": "{{refreshToken}}"
+  "refreshToken": "HRn1Oyyf2/V6bZDHJLdPgsC0f3U5LpIyuObpIGB1ySVRaj5SknmVKfHS6e7uINOpi5a+qYI3BcqlwKwryEyQaQ=="
 }
 
 ### Wylogowanie

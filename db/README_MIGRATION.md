@@ -1,7 +1,7 @@
 # Database Migration Instructions for Bagman
 
 ## Overview
-This document provides instructions for setting up the database for the Bagman football betting system using Supabase.
+This document provides instructions for setting up the database for the Bagman football betting system using SQL Server / Azure SQL and EF Core.
 
 ## Quick Start
 
@@ -9,11 +9,7 @@ This document provides instructions for setting up the database for the Bagman f
 The `complete_migration_final.sql` file contains everything you need in one migration:
 
 ```sql
--- Run this in Supabase SQL Editor
--- Copy and paste the entire content of complete_migration_final.sql
 ```
-
-This migration includes:
 - ✅ All tables with proper relationships
 - ✅ No triggers (application-controlled)
 - ✅ RLS disabled on users table (no permission issues)
@@ -47,7 +43,7 @@ If you prefer to run migrations step by step:
 ## Database Schema
 
 ### Core Tables
-- `users` - User accounts (extends Supabase auth)
+- `users` - User accounts
 - `tables` - Betting tables/groups
 - `table_members` - Users belonging to tables
 - `matches` - Football matches

@@ -1,0 +1,11 @@
+﻿{
+  StatusCode: OK,
+  User: {
+    Login: testuser,
+    Email: test@example.com,
+    IsActive: true
+  },
+  HasAccessToken: true,
+  HasRefreshToken: true,
+  ExpiresAtIsInFuture: true
+}

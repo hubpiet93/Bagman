@@ -16,4 +16,7 @@ public class User
     public DateTime CreatedAt { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    // Stored password hash (PBKDF2). Nullable to allow external users without password (e.g., OAuth).
+    public string? PasswordHash { get; set; }
 }

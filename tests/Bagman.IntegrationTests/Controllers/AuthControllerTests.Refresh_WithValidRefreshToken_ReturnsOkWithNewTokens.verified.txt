@@ -1,0 +1,8 @@
+﻿{
+  StatusCode: OK,
+  User: {
+    Login: refreshuser
+  },
+  HasNewAccessToken: true,
+  AccessTokenChanged: false
+}
