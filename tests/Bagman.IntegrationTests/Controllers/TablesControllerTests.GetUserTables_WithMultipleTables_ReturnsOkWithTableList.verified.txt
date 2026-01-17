@@ -2,7 +2,7 @@
   StatusCode: OK,
   TableCount: 2,
   TableNames: [
-    Table Two,
-    Table One
+    Table One,
+    Table Two
   ]
 }

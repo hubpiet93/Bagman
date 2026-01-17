@@ -7,6 +7,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,11 +62,18 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseSwagger(options =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bagman API v1");
-    c.RoutePrefix = "swagger";
+    options.RouteTemplate = "swagger/{documentName}/swagger.json";
+});
+
+app.MapScalarApiReference(options =>
+{
+    options
+        .WithTitle("Bagman API")
+        .WithTheme(ScalarTheme.Default)
+        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+        .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
 });
 
 app.UseHttpsRedirection();

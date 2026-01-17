@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Bagman.Contracts.Models;
 using FluentValidation;
 
 namespace Bagman.Api.Middleware;
@@ -24,10 +25,18 @@ public class ValidationExceptionMiddleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-            var response = new
+            var errors = ex.Errors
+                .Select(error => new ValidationError
+                {
+                    ErrorCode = MapErrorCode(error.ErrorCode),
+                    ErrorMessage = error.ErrorMessage,
+                    ErrorSource = error.PropertyName
+                })
+                .ToList();
+
+            var response = new ValidationErrorResponse
             {
-                errors = ex.Errors.Select(error => error.ErrorMessage).ToArray(),
-                message = "Walidacja nie powiodła się"
+                Errors = errors
             };
 
             var jsonResponse = JsonSerializer.Serialize(response, new JsonSerializerOptions
@@ -37,5 +46,30 @@ public class ValidationExceptionMiddleware
 
             await context.Response.WriteAsync(jsonResponse);
         }
+    }
+
+    private static string MapErrorCode(string fluentValidationCode)
+    {
+        return fluentValidationCode switch
+        {
+            "NotEmptyValidator" => ValidationErrorCode.Required.ToString(),
+            "NotNullValidator" => ValidationErrorCode.Required.ToString(),
+            "EmailValidator" => ValidationErrorCode.InvalidEmail.ToString(),
+            "UrlValidator" => ValidationErrorCode.InvalidUrl.ToString(),
+            "MinimumLengthValidator" => ValidationErrorCode.MinLength.ToString(),
+            "MaximumLengthValidator" => ValidationErrorCode.MaxLength.ToString(),
+            "LengthValidator" => ValidationErrorCode.MaxLength.ToString(),
+            "RegularExpressionValidator" => ValidationErrorCode.PatternMismatch.ToString(),
+            "EqualValidator" => ValidationErrorCode.InvalidFormat.ToString(),
+            "NotEqualValidator" => ValidationErrorCode.InvalidFormat.ToString(),
+            "GreaterThanValidator" => ValidationErrorCode.RangeError.ToString(),
+            "GreaterThanOrEqualValidator" => ValidationErrorCode.RangeError.ToString(),
+            "LessThanValidator" => ValidationErrorCode.RangeError.ToString(),
+            "LessThanOrEqualValidator" => ValidationErrorCode.RangeError.ToString(),
+            "InclusiveBetweenValidator" => ValidationErrorCode.RangeError.ToString(),
+            "ExclusiveBetweenValidator" => ValidationErrorCode.RangeError.ToString(),
+            "EnumValidator" => ValidationErrorCode.InvalidFormat.ToString(),
+            _ => ValidationErrorCode.Other.ToString()
+        };
     }
 }
