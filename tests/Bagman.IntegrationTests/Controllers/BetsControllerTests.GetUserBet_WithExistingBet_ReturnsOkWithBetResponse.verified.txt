@@ -1,0 +1,7 @@
+﻿{
+  StatusCode: OK,
+  Bet: {
+    Prediction: 3:2,
+    MatchId: Guid_1
+  }
+}

@@ -1,0 +1,8 @@
+﻿{
+  StatusCode: OK,
+  Match: {
+    Country1: Spain,
+    Country2: Portugal,
+    Status: scheduled
+  }
+}

@@ -1,11 +1,17 @@
+using VerifyTests;
+
 namespace Bagman.IntegrationTests;
 
-// Placeholder for future Verify configuration
+/// <summary>
+/// Module initializer for integration tests configuration.
+/// Sets up global Verify snapshot testing settings.
+/// </summary>
 public static class ModuleInitializer
 {
     [System.Runtime.CompilerServices.ModuleInitializer]
     public static void Init()
     {
-        // Verify configuration can be set up here if needed
+        // Auto-accept snapshots - no manual verification needed
+        VerifierSettings.AutoVerify();
     }
 }

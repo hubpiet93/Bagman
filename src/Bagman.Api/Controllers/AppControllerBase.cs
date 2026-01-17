@@ -43,4 +43,36 @@ public abstract class AppControllerBase : ControllerBase
             StatusCode = problemDetails.Status
         };
     }
+
+    [NonAction]
+    protected virtual IActionResult MapErrors(IList<Error> errors)
+    {
+        if (errors == null || errors.Count == 0)
+            return BadRequest(errors);
+
+        var errorType = errors[0].Type;
+
+        return errorType switch
+        {
+            ErrorType.NotFound => NotFound(),
+            ErrorType.Conflict => Conflict(new
+            {
+                errors = errors.Select(e => new
+                {
+                    e.Code,
+                    e.Description
+                })
+            }),
+            ErrorType.Forbidden => StatusCode((int)HttpStatusCode.Forbidden, new
+            {
+                errors = errors.Select(e => new
+                {
+                    e.Code,
+                    e.Description
+                })
+            }),
+            ErrorType.Unauthorized => Unauthorized(),
+            _ => BadRequest(errors)
+        };
+    }
 }

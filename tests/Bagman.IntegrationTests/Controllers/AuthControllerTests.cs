@@ -1,8 +1,9 @@
 using System.Net;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VerifyXunit;
 using Xunit;
@@ -62,6 +63,9 @@ public class AuthControllerTests : IAsyncLifetime
             try
             {
                 await dbContext.Database.EnsureCreatedAsync();
+                // Ensure database is clean between tests to allow deterministic logins
+                await dbContext.Database.ExecuteSqlRawAsync(
+                    "TRUNCATE TABLE pool_winners, pools, bets, matches, user_stats, table_members, tables, refresh_tokens, users RESTART IDENTITY CASCADE;");
                 break;
             }
             catch (Exception ex) when (i < maxRetries - 1)
@@ -89,16 +93,14 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(request),
+            JsonConvert.SerializeObject(request),
             Encoding.UTF8,
             "application/json");
 
         // Act
         var response = await _httpClient!.PostAsync("/api/auth/register", content);
         var responseBody = await response.Content.ReadAsStringAsync();
-        var authResponse = JsonSerializer.Deserialize<AuthResponse>(
-            responseBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
 
         // Assert
         await Verify(new
@@ -128,7 +130,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(request),
+            JsonConvert.SerializeObject(request),
             Encoding.UTF8,
             "application/json");
 
@@ -144,7 +146,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content2 = new StringContent(
-            JsonSerializer.Serialize(request2),
+            JsonConvert.SerializeObject(request2),
             Encoding.UTF8,
             "application/json");
 
@@ -171,7 +173,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(request),
+            JsonConvert.SerializeObject(request),
             Encoding.UTF8,
             "application/json");
 
@@ -198,7 +200,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(request),
+            JsonConvert.SerializeObject(request),
             Encoding.UTF8,
             "application/json");
 
@@ -225,7 +227,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var registerContent = new StringContent(
-            JsonSerializer.Serialize(registerRequest),
+            JsonConvert.SerializeObject(registerRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -239,15 +241,13 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var loginContent = new StringContent(
-            JsonSerializer.Serialize(loginRequest),
+            JsonConvert.SerializeObject(loginRequest),
             Encoding.UTF8,
             "application/json");
 
         var response = await _httpClient.PostAsync("/api/auth/login", loginContent);
         var responseBody = await response.Content.ReadAsStringAsync();
-        var authResponse = JsonSerializer.Deserialize<AuthResponse>(
-            responseBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
 
         // Assert
         await Verify(new
@@ -274,7 +274,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var registerContent = new StringContent(
-            JsonSerializer.Serialize(registerRequest),
+            JsonConvert.SerializeObject(registerRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -288,7 +288,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var loginContent = new StringContent(
-            JsonSerializer.Serialize(loginRequest),
+            JsonConvert.SerializeObject(loginRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -313,7 +313,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(loginRequest),
+            JsonConvert.SerializeObject(loginRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -340,15 +340,13 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var registerContent = new StringContent(
-            JsonSerializer.Serialize(registerRequest),
+            JsonConvert.SerializeObject(registerRequest),
             Encoding.UTF8,
             "application/json");
 
         var registerResponse = await _httpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var initialAuthResponse = JsonSerializer.Deserialize<AuthResponse>(
-            registerBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var initialAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
         var initialAccessToken = initialAuthResponse!.AccessToken;
         var refreshToken = initialAuthResponse.RefreshToken;
@@ -360,15 +358,13 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var refreshContent = new StringContent(
-            JsonSerializer.Serialize(refreshRequest),
+            JsonConvert.SerializeObject(refreshRequest),
             Encoding.UTF8,
             "application/json");
 
         var response = await _httpClient.PostAsync("/api/auth/refresh", refreshContent);
         var responseBody = await response.Content.ReadAsStringAsync();
-        var newAuthResponse = JsonSerializer.Deserialize<AuthResponse>(
-            responseBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var newAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
 
         // Assert
         await Verify(new
@@ -393,7 +389,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(refreshRequest),
+            JsonConvert.SerializeObject(refreshRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -420,15 +416,13 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var registerContent = new StringContent(
-            JsonSerializer.Serialize(registerRequest),
+            JsonConvert.SerializeObject(registerRequest),
             Encoding.UTF8,
             "application/json");
 
         var registerResponse = await _httpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var authResponse = JsonSerializer.Deserialize<AuthResponse>(
-            registerBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
         var refreshToken = authResponse!.RefreshToken;
 
@@ -439,7 +433,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var logoutContent = new StringContent(
-            JsonSerializer.Serialize(logoutRequest),
+            JsonConvert.SerializeObject(logoutRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -463,7 +457,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var content = new StringContent(
-            JsonSerializer.Serialize(logoutRequest),
+            JsonConvert.SerializeObject(logoutRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -490,16 +484,14 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var registerContent = new StringContent(
-            JsonSerializer.Serialize(registerRequest),
+            JsonConvert.SerializeObject(registerRequest),
             Encoding.UTF8,
             "application/json");
 
         // Act & Assert - Register
         var registerResponse = await _httpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var initialAuth = JsonSerializer.Deserialize<AuthResponse>(
-            registerBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var initialAuth = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
         var initialAccessToken = initialAuth!.AccessToken;
         var initialRefreshToken = initialAuth.RefreshToken;
@@ -512,7 +504,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var loginContent = new StringContent(
-            JsonSerializer.Serialize(loginRequest),
+            JsonConvert.SerializeObject(loginRequest),
             Encoding.UTF8,
             "application/json");
 
@@ -525,15 +517,13 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var refreshContent = new StringContent(
-            JsonSerializer.Serialize(refreshRequest),
+            JsonConvert.SerializeObject(refreshRequest),
             Encoding.UTF8,
             "application/json");
 
         var refreshResponse = await _httpClient.PostAsync("/api/auth/refresh", refreshContent);
         var refreshBody = await refreshResponse.Content.ReadAsStringAsync();
-        var refreshedAuth = JsonSerializer.Deserialize<AuthResponse>(
-            refreshBody,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var refreshedAuth = JsonConvert.DeserializeObject<AuthResponse>(refreshBody);
 
         var newAccessToken = refreshedAuth!.AccessToken;
         var newRefreshToken = refreshedAuth.RefreshToken;
@@ -545,7 +535,7 @@ public class AuthControllerTests : IAsyncLifetime
         };
 
         var logoutContent = new StringContent(
-            JsonSerializer.Serialize(logoutRequest),
+            JsonConvert.SerializeObject(logoutRequest),
             Encoding.UTF8,
             "application/json");
 

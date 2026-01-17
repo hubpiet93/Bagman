@@ -4,6 +4,9 @@ using Bagman.Infrastructure;
 using Bagman.Infrastructure.Data;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,25 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddApplicationDbContext(builder.Configuration.GetConnectionString("Postgres"));
 builder.Services.AddDomainServices();
+// Add Authentication + Authorization (JWT)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    var secret = builder.Configuration["Jwt:Secret"] ?? "dev-secret-change-me";
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 // Add Authorization
 builder.Services.AddAuthorization();
 
@@ -49,9 +71,10 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorApp");
 
-// Add validation exception middleware BEFORE authorization
+// Add validation exception middleware BEFORE authentication/authorization
 app.UseMiddleware<ValidationExceptionMiddleware>();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,0 +1,10 @@
+﻿{
+  StatusCode: Created,
+  Match: {
+    Country1: Poland,
+    Country2: Germany,
+    Status: scheduled,
+    Started: false
+  },
+  HasId: true
+}

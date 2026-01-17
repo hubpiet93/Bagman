@@ -1,0 +1,10 @@
+﻿{
+  StatusCode: OK,
+  Table: {
+    Name: Test Betting Table,
+    MaxPlayers: 10,
+    Stake: 50.0,
+    IsSecretMode: false
+  },
+  HasId: true
+}

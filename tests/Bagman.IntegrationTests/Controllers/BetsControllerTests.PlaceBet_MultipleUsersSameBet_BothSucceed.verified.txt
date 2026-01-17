@@ -1,0 +1,5 @@
+﻿{
+  Player1StatusCode: Created,
+  Player2StatusCode: Created,
+  BothSucceeded: true
+}

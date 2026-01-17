@@ -1,0 +1,8 @@
+﻿{
+  StatusCode: Created,
+  Bet: {
+    Prediction: 2:1,
+    MatchId: Guid_1
+  },
+  HasId: true
+}

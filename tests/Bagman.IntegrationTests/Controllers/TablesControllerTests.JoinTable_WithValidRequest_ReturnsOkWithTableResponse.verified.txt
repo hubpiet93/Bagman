@@ -1,0 +1,8 @@
+﻿{
+  StatusCode: OK,
+  Table: {
+    Name: Joinable Table,
+    MaxPlayers: 5
+  },
+  HasId: true
+}
