@@ -24,6 +24,6 @@
     },
     RequestContent: {"Country1":"Poland","Country2":"Poland","MatchDateTime":"DateTime_4"},
     ResponseStatus: BadRequest 400,
-    ResponseContent: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"":["Drużyny muszą być różne"]},"traceId":"00-2a964f2f986d896b0ad2c35eb2277986-19f572c83cba7021-00"}
+    ResponseContent: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"":["Drużyny muszą być różne"]},"traceId":"***SCRUBBED***"}
   }
 ]

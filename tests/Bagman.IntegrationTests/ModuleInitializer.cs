@@ -30,6 +30,7 @@ public static class ModuleInitializer
         VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("login"));
         VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("Email"));
         VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("email"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("traceId"));
         VerifierSettings.AddScrubber(sb => sb.ScrubBearerToken());
         VerifierSettings.ScrubInlineDateTimes(format: "yyyy-MM-ddTHH:mm:ss.FFFFFFZ");
     }
