@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using Argon;
 using VerifyTests;
 
 namespace Bagman.IntegrationTests;
@@ -11,7 +13,15 @@ public static class ModuleInitializer
     [System.Runtime.CompilerServices.ModuleInitializer]
     public static void Init()
     {
-        // Auto-accept snapshots - no manual verification needed
+        VerifyHttp.Initialize();
+
+        VerifierSettings.InitializePlugins();
         VerifierSettings.AutoVerify();
+        VerifierSettings.AddExtraSettings(settings =>
+        {
+            settings.Formatting = Formatting.Indented;
+            settings.DefaultValueHandling = DefaultValueHandling.Ignore;
+        });
+
     }
 }

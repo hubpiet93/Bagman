@@ -1,4 +1,4 @@
 ﻿{
-  StatusCode: NotFound,
+  StatusCode: NotFound 404,
   IsNotFound: true
 }

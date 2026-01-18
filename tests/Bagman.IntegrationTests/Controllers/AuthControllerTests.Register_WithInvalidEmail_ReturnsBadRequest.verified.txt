@@ -1,4 +1,4 @@
 ﻿{
-  StatusCode: BadRequest,
+  StatusCode: BadRequest 400,
   IsBadRequest: true
 }

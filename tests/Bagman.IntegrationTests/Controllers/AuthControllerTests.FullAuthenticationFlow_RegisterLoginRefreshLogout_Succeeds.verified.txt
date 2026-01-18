@@ -1,8 +1,8 @@
 ﻿{
-  RegisterStatusCode: OK,
-  LoginStatusCode: OK,
-  RefreshStatusCode: OK,
-  LogoutStatusCode: OK,
+  RegisterStatusCode: OK 200,
+  LoginStatusCode: OK 200,
+  RefreshStatusCode: OK 200,
+  LogoutStatusCode: OK 200,
   RegisterSucceeded: true,
   LoginSucceeded: true,
   RefreshSucceeded: true,

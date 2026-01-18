@@ -1,5 +1,5 @@
 ﻿{
-  Player1StatusCode: Created,
-  Player2StatusCode: Created,
+  Player1StatusCode: Created 201,
+  Player2StatusCode: Created 201,
   BothSucceeded: true
 }

@@ -1,5 +1,5 @@
 ﻿{
-  StatusCode: OK,
+  StatusCode: OK 200,
   User: {
     Login: testuser,
     Email: test@example.com,

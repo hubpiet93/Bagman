@@ -1,5 +1,5 @@
 ﻿{
-  StatusCode: OK,
+  StatusCode: OK 200,
   Bet: {
     Prediction: 3:2,
     MatchId: Guid_1

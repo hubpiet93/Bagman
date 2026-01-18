@@ -1,10 +1,32 @@
-﻿{
-  StatusCode: Created,
-  Match: {
-    Country1: Poland,
-    Country2: Germany,
-    Status: scheduled,
-    Started: false
+﻿[
+  {
+    RequestUri: http://localhost/api/tables,
+    RequestMethod: POST,
+    RequestContent: {"UserLogin":"match_creator_1bda7b07","UserPassword":"Creator@12345","TableName":"Match Table","TablePassword":"TablePass@123","MaxPlayers":10,"Stake":100.0},
+    ResponseStatus: Created 201,
+    ResponseHeaders: {
+      Location: http://localhost/api/Tables/77aed087-8f59-4f23-aff3-10c5d53f8ada
+    },
+    ResponseContent: {"id":"77aed087-8f59-4f23-aff3-10c5d53f8ada","name":"Match Table","maxPlayers":10,"stake":100.0,"createdBy":"d572cb8b-eb95-4c44-b56e-4435694cef29","createdAt":"2026-01-18T19:59:30.595656Z","isSecretMode":false}
   },
-  HasId: true
-}
+  {
+    RequestUri: http://localhost/api/auth/login,
+    RequestMethod: POST,
+    RequestContent: {"Login":"match_creator_1bda7b07","Password":"Creator@12345"},
+    ResponseStatus: OK 200,
+    ResponseContent: {"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNTcyY2I4Yi1lYjk1LTRjNDQtYjU2ZS00NDM1Njk0Y2VmMjkiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2NyZWF0b3JfMWJkYTdiMDciLCJlbWFpbCI6Im1hdGNoX2NyZWF0b3JfMWJkYTdiMDdAYmFnbWFuLmxvY2FsIiwianRpIjoiNzZlZmE4MTMtZjE1Zi00NTc5LWE1NGUtMmI3Yzg4Njc1Y2ZlIiwibmJmIjoxNzY4NzY2MzcwLCJleHAiOjE3Njg3Njk5NzB9.uLoQZgA3X_9XqWuZUS9Lx6IH3GIZ2eurS-6uVTY5SQs","refreshToken":"xJTyT2m2FNs9XJdMIY6eSCDFsIM9i+VfHcf3hMEev8lhaUNqHiU2QSWaHR6Cy6QFsfj6JMDjnDpHdwt38obnSA==","expiresAt":"2026-01-18T20:59:30.73649Z","user":{"id":"d572cb8b-eb95-4c44-b56e-4435694cef29","login":"match_creator_1bda7b07","email":"match_creator_1bda7b07@bagman.local","createdAt":"2026-01-18T19:59:30.446346Z","isActive":true}}
+  },
+  {
+    RequestUri: http://localhost/api/tables/77aed087-8f59-4f23-aff3-10c5d53f8ada/matches,
+    RequestMethod: POST,
+    RequestHeaders: {
+      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNTcyY2I4Yi1lYjk1LTRjNDQtYjU2ZS00NDM1Njk0Y2VmMjkiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2NyZWF0b3JfMWJkYTdiMDciLCJlbWFpbCI6Im1hdGNoX2NyZWF0b3JfMWJkYTdiMDdAYmFnbWFuLmxvY2FsIiwianRpIjoiNzZlZmE4MTMtZjE1Zi00NTc5LWE1NGUtMmI3Yzg4Njc1Y2ZlIiwibmJmIjoxNzY4NzY2MzcwLCJleHAiOjE3Njg3Njk5NzB9.uLoQZgA3X_9XqWuZUS9Lx6IH3GIZ2eurS-6uVTY5SQs
+    },
+    RequestContent: {"Country1":"Poland","Country2":"Germany","MatchDateTime":"2026-01-25T19:59:30.742536Z"},
+    ResponseStatus: Created 201,
+    ResponseHeaders: {
+      Location: http://localhost/api/tables/77aed087-8f59-4f23-aff3-10c5d53f8ada/matches/f1e7bac7-58d6-4f65-9842-f18c5d841df4
+    },
+    ResponseContent: {"id":"f1e7bac7-58d6-4f65-9842-f18c5d841df4","tableId":"77aed087-8f59-4f23-aff3-10c5d53f8ada","country1":"Poland","country2":"Germany","matchDateTime":"2026-01-25T19:59:30.742536Z","result":null,"status":"scheduled","started":false,"createdAt":"2026-01-18T19:59:30.774284Z"}
+  }
+]

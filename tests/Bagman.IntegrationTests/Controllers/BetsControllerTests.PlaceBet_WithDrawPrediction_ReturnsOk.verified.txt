@@ -1,5 +1,5 @@
 ﻿{
-  StatusCode: Created,
+  StatusCode: Created 201,
   Bet: {
     Prediction: X
   }

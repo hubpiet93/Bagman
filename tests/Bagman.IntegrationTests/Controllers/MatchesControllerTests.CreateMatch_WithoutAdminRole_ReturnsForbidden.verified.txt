@@ -1,4 +1,4 @@
 ﻿{
-  StatusCode: Forbidden,
+  StatusCode: Forbidden 403,
   IsForbidden: true
 }

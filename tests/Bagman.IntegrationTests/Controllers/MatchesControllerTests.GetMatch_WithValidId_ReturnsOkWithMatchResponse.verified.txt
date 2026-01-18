@@ -1,5 +1,5 @@
 ﻿{
-  StatusCode: OK,
+  StatusCode: OK 200,
   Match: {
     Country1: Spain,
     Country2: Portugal,

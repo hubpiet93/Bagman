@@ -1,4 +1,29 @@
-﻿{
-  StatusCode: BadRequest,
-  IsBadRequest: true
-}
+﻿[
+  {
+    RequestUri: http://localhost/api/tables,
+    RequestMethod: POST,
+    RequestContent: {"UserLogin":"match_invalid_bb214f1a","UserPassword":"Creator@12345","TableName":"Invalid Match Table","TablePassword":"TablePass@123","MaxPlayers":10,"Stake":100.0},
+    ResponseStatus: Created 201,
+    ResponseHeaders: {
+      Location: http://localhost/api/Tables/d5db89fe-872f-42a6-9535-b71a84e9cbee
+    },
+    ResponseContent: {"id":"d5db89fe-872f-42a6-9535-b71a84e9cbee","name":"Invalid Match Table","maxPlayers":10,"stake":100.0,"createdBy":"97bb3907-662d-4657-a67e-49358fedbd84","createdAt":"2026-01-18T19:59:32.09831Z","isSecretMode":false}
+  },
+  {
+    RequestUri: http://localhost/api/auth/login,
+    RequestMethod: POST,
+    RequestContent: {"Login":"match_invalid_bb214f1a","Password":"Creator@12345"},
+    ResponseStatus: OK 200,
+    ResponseContent: {"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5N2JiMzkwNy02NjJkLTQ2NTctYTY3ZS00OTM1OGZlZGJkODQiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2ludmFsaWRfYmIyMTRmMWEiLCJlbWFpbCI6Im1hdGNoX2ludmFsaWRfYmIyMTRmMWFAYmFnbWFuLmxvY2FsIiwianRpIjoiYTliMzI4ZmEtNThmMy00ODU2LTkwNzMtZWE3ZTdmYTA0Mjg4IiwibmJmIjoxNzY4NzY2MzcyLCJleHAiOjE3Njg3Njk5NzJ9.6XDTxDZY5s3MrCjsIjU1ZPQ-dkjIFUPuzAh-BOm6ENg","refreshToken":"VGyoB3uAbBWW+K3tP0CXM9v4jqfLS97Jux/1FXnpMUGC6fYzwd34XEbvsr/vloO77EeZVuAbDtsIh8A2P0aoKg==","expiresAt":"2026-01-18T20:59:32.184136Z","user":{"id":"97bb3907-662d-4657-a67e-49358fedbd84","login":"match_invalid_bb214f1a","email":"match_invalid_bb214f1a@bagman.local","createdAt":"2026-01-18T19:59:32.035302Z","isActive":true}}
+  },
+  {
+    RequestUri: http://localhost/api/tables/d5db89fe-872f-42a6-9535-b71a84e9cbee/matches,
+    RequestMethod: POST,
+    RequestHeaders: {
+      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5N2JiMzkwNy02NjJkLTQ2NTctYTY3ZS00OTM1OGZlZGJkODQiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2ludmFsaWRfYmIyMTRmMWEiLCJlbWFpbCI6Im1hdGNoX2ludmFsaWRfYmIyMTRmMWFAYmFnbWFuLmxvY2FsIiwianRpIjoiYTliMzI4ZmEtNThmMy00ODU2LTkwNzMtZWE3ZTdmYTA0Mjg4IiwibmJmIjoxNzY4NzY2MzcyLCJleHAiOjE3Njg3Njk5NzJ9.6XDTxDZY5s3MrCjsIjU1ZPQ-dkjIFUPuzAh-BOm6ENg
+    },
+    RequestContent: {"Country1":"Poland","Country2":"Poland","MatchDateTime":"2026-01-25T19:59:32.187457Z"},
+    ResponseStatus: BadRequest 400,
+    ResponseContent: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"":["Drużyny muszą być różne"]},"traceId":"00-938e15575ade3ac73ff969c5ae144fea-65676b719805222b-00"}
+  }
+]
