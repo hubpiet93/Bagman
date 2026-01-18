@@ -1,4 +1,43 @@
-﻿{
-  StatusCode: Forbidden 403,
-  IsForbidden: true
-}
+﻿[
+  {
+    RequestUri: http://localhost/api/tables,
+    RequestMethod: POST,
+    RequestContent: {"UserLogin":"***SCRUBBED***","UserPassword":"Creator@12345","TableName":"Admin Check Table","TablePassword":"TablePass@123","MaxPlayers":10,"Stake":100.0},
+    ResponseStatus: Created 201,
+    ResponseHeaders: {
+      Location: http://localhost/api/Tables/Guid_1
+    },
+    ResponseContent: {"id":"Guid_1","name":"Admin Check Table","maxPlayers":10,"stake":100.0,"createdBy":"Guid_2","createdAt":"DateTime_1","isSecretMode":false}
+  },
+  {
+    RequestUri: http://localhost/api/auth/login,
+    RequestMethod: POST,
+    RequestContent: {"Login":"***SCRUBBED***","Password":"Creator@12345"},
+    ResponseStatus: OK 200,
+    ResponseContent: {"accessToken":"***SCRUBBED***","refreshToken":"***SCRUBBED***","expiresAt":"DateTime_2","user":{"id":"Guid_2","login":"***SCRUBBED***","email":"***SCRUBBED***","createdAt":"DateTime_3","isActive":true}}
+  },
+  {
+    RequestUri: http://localhost/api/auth/register,
+    RequestMethod: POST,
+    RequestContent: {"Login":"***SCRUBBED***","Password":"Member@12345","Email":"***SCRUBBED***"},
+    ResponseStatus: OK 200,
+    ResponseContent: {"accessToken":"***SCRUBBED***","refreshToken":"***SCRUBBED***","expiresAt":"DateTime_4","user":{"id":"Guid_3","login":"***SCRUBBED***","email":"***SCRUBBED***","createdAt":"DateTime_5","isActive":true}}
+  },
+  {
+    RequestUri: http://localhost/api/tables/join,
+    RequestMethod: POST,
+    RequestContent: {"UserLogin":"***SCRUBBED***","UserPassword":"Member@12345","TableName":"Admin Check Table","TablePassword":"TablePass@123"},
+    ResponseStatus: OK 200,
+    ResponseContent: {"id":"Guid_1","name":"Admin Check Table","maxPlayers":10,"stake":100.00,"createdBy":"Guid_2","createdAt":"DateTime_1","isSecretMode":false}
+  },
+  {
+    RequestUri: http://localhost/api/tables/Guid_1/matches,
+    RequestMethod: POST,
+    RequestHeaders: {
+      Authorization: Bearer ***SCRUBBED***
+    },
+    RequestContent: {"Country1":"Brazil","Country2":"Argentina","MatchDateTime":"DateTime_6"},
+    ResponseStatus: Forbidden 403,
+    ResponseContent: {"errors":[{"code":"Table.NotAdmin","description":"Nie masz uprawnień do wykonania tej czynności"}]}
+  }
+]

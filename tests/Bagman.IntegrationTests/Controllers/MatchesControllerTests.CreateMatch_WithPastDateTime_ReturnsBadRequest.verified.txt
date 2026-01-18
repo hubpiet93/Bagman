@@ -1,4 +1,29 @@
-﻿{
-  StatusCode: BadRequest 400,
-  IsBadRequest: true
-}
+﻿[
+  {
+    RequestUri: http://localhost/api/tables,
+    RequestMethod: POST,
+    RequestContent: {"UserLogin":"***SCRUBBED***","UserPassword":"Creator@12345","TableName":"Past Match Table","TablePassword":"TablePass@123","MaxPlayers":10,"Stake":100.0},
+    ResponseStatus: Created 201,
+    ResponseHeaders: {
+      Location: http://localhost/api/Tables/Guid_1
+    },
+    ResponseContent: {"id":"Guid_1","name":"Past Match Table","maxPlayers":10,"stake":100.0,"createdBy":"Guid_2","createdAt":"DateTime_1","isSecretMode":false}
+  },
+  {
+    RequestUri: http://localhost/api/auth/login,
+    RequestMethod: POST,
+    RequestContent: {"Login":"***SCRUBBED***","Password":"Creator@12345"},
+    ResponseStatus: OK 200,
+    ResponseContent: {"accessToken":"***SCRUBBED***","refreshToken":"***SCRUBBED***","expiresAt":"DateTime_2","user":{"id":"Guid_2","login":"***SCRUBBED***","email":"***SCRUBBED***","createdAt":"DateTime_3","isActive":true}}
+  },
+  {
+    RequestUri: http://localhost/api/tables/Guid_1/matches,
+    RequestMethod: POST,
+    RequestHeaders: {
+      Authorization: Bearer ***SCRUBBED***
+    },
+    RequestContent: {"Country1":"France","Country2":"Italy","MatchDateTime":"DateTime_4"},
+    ResponseStatus: BadRequest 400,
+    ResponseContent: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"MatchDateTime":["Data meczu musi być w przyszłości"]},"traceId":"00-91d081a3d4b7d5e836742ec5986f6c49-ebfa8b918265c6cb-00"}
+  }
+]

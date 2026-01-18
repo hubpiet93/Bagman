@@ -22,6 +22,16 @@ public static class ModuleInitializer
             settings.Formatting = Formatting.Indented;
             settings.DefaultValueHandling = DefaultValueHandling.Ignore;
         });
-
+        
+        VerifierSettings.ScrubInlineGuids();
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("refreshToken"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("accessToken"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("Login"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("login"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("Email"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("email"));
+        VerifierSettings.AddScrubber(sb => sb.ScrubBearerToken());
+        VerifierSettings.ScrubInlineDateTimes(format: "yyyy-MM-ddTHH:mm:ss.FFFFFFZ");
     }
+        
 }

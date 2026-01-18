@@ -178,14 +178,10 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
 
         // Act
-        var response = await HttpClient!.SendAsync(request);
+        await HttpClient!.SendAsync(request);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -229,19 +225,8 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         if (!response.IsSuccessStatusCode)
             throw new Exception($"Failed to get match: {response.StatusCode} - {responseBody}");
         
-        var matchResponse = JsonConvert.DeserializeObject<MatchResponse>(responseBody);
-
         // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            Match = new
-            {
-                matchResponse!.Country1,
-                matchResponse.Country2,
-                matchResponse.Status
-            }
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -290,24 +275,8 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = updateContent
         };
         updateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
-        var response = await HttpClient.SendAsync(updateRequest);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        
-        if (!response.IsSuccessStatusCode)
-            throw new Exception($"Failed to update match: {response.StatusCode} - {responseBody}");
-        
-        var updatedMatch = JsonConvert.DeserializeObject<MatchResponse>(responseBody);
-
-        // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            Match = new
-            {
-                updatedMatch!.Country1,
-                updatedMatch.Country2
-            }
-        });
+        await HttpClient.SendAsync(updateRequest);
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -345,14 +314,8 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Act - Delete match
         var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{tableId}/matches/{createdMatch!.Id}");
         deleteRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
-        var response = await HttpClient.SendAsync(deleteRequest);
-
-        // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            IsOk = response.StatusCode == HttpStatusCode.OK
-        });
+        await HttpClient.SendAsync(deleteRequest);
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -404,24 +367,8 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = resultContent
         };
         resultHttpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
-        var response = await HttpClient.SendAsync(resultHttpRequest);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        
-        if (!response.IsSuccessStatusCode)
-            throw new Exception($"Failed to set match result: {response.StatusCode} - {responseBody}");
-        
-        var resultMatch = JsonConvert.DeserializeObject<MatchResponse>(responseBody);
-
-        // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            Match = new
-            {
-                resultMatch!.Result,
-                resultMatch.Status
-            }
-        });
+        await HttpClient.SendAsync(resultHttpRequest);
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -485,13 +432,9 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         };
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", memberToken);
 
-        var response = await HttpClient.SendAsync(request);
+        await HttpClient.SendAsync(request);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsForbidden = response.StatusCode == HttpStatusCode.Forbidden
-        });
+        await VerifyHttpRecording();
     }
 }
