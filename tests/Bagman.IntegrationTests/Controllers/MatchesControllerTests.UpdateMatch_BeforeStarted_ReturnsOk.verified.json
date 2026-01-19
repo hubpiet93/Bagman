@@ -55,7 +55,7 @@
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0N2M1ZjA4Yi0wMTFlLTQ5NjYtYjVkZS05ZWJiODg1OTBkMWIiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX3VwZGF0ZV84MjU4ZThmOSIsImVtYWlsIjoibWF0Y2hfdXBkYXRlXzgyNThlOGY5QGJhZ21hbi5sb2NhbCIsImp0aSI6IjVkZjEwZjc5LTRiNWItNDdlYS1iN2JlLThhZDFjNjg0ZDNjOSIsIm5iZiI6MTc2ODg1NjM5NiwiZXhwIjoxNzY4ODU5OTk2fQ.RqhARdgUptuN7-Kn1kRA4SwmQL3eVZ4yHwhHO_c8M3Y"
+      "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Country1": "Netherlands",
@@ -83,7 +83,7 @@
     "RequestOptions": {},
     "RequestMethod": "PUT",
     "RequestHeaders": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0N2M1ZjA4Yi0wMTFlLTQ5NjYtYjVkZS05ZWJiODg1OTBkMWIiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX3VwZGF0ZV84MjU4ZThmOSIsImVtYWlsIjoibWF0Y2hfdXBkYXRlXzgyNThlOGY5QGJhZ21hbi5sb2NhbCIsImp0aSI6IjVkZjEwZjc5LTRiNWItNDdlYS1iN2JlLThhZDFjNjg0ZDNjOSIsIm5iZiI6MTc2ODg1NjM5NiwiZXhwIjoxNzY4ODU5OTk2fQ.RqhARdgUptuN7-Kn1kRA4SwmQL3eVZ4yHwhHO_c8M3Y"
+      "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Country1": "Netherlands",

@@ -55,7 +55,7 @@
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMDYzN2M0OC1kZjFkLTQ5YjctYWU3My1jNTI0YTdhOGQ2ZDgiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2NyZWF0b3JfMjg5MmM4YTEiLCJlbWFpbCI6Im1hdGNoX2NyZWF0b3JfMjg5MmM4YTFAYmFnbWFuLmxvY2FsIiwianRpIjoiY2ViYTlkZWItYjJkYS00ZDAyLTg1OWItMjZkMzE1NjZiYzVkIiwibmJmIjoxNzY4ODU2Mzk2LCJleHAiOjE3Njg4NTk5OTZ9.kye8cDQtbRi0hzpxztdaP4glFU8NJwKSkHoMZpqyaBw"
+      "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Country1": "Poland",

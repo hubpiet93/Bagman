@@ -24,6 +24,7 @@ public static class ModuleInitializer
         });
         
         VerifierSettings.ScrubInlineGuids();
+        VerifierSettings.ScrubMember("Authorization");
         VerifierSettings.ScrubMember("accessToken");
         VerifierSettings.ScrubMember("refreshToken");
         VerifierSettings.ScrubMember("Login");

@@ -55,7 +55,7 @@
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MWFiYmU3ZC00MTU0LTRkMGUtOGFhNy04YjQ4ZmY4ZDUzOTYiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2RlbGV0ZV9kMjM3OTUyYyIsImVtYWlsIjoibWF0Y2hfZGVsZXRlX2QyMzc5NTJjQGJhZ21hbi5sb2NhbCIsImp0aSI6IjJiOTM1MTRmLTM4OTAtNDUyNy1iZTI3LTQ1YTFiMzg1OTg4ZSIsIm5iZiI6MTc2ODg1NjM5NiwiZXhwIjoxNzY4ODU5OTk2fQ.4vHlucv__1OF7jpIeoiDLKIAhwBUjSJqaS_cZhczUUU"
+      "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Country1": "Greece",
@@ -83,7 +83,7 @@
     "RequestOptions": {},
     "RequestMethod": "DELETE",
     "RequestHeaders": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MWFiYmU3ZC00MTU0LTRkMGUtOGFhNy04YjQ4ZmY4ZDUzOTYiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX2RlbGV0ZV9kMjM3OTUyYyIsImVtYWlsIjoibWF0Y2hfZGVsZXRlX2QyMzc5NTJjQGJhZ21hbi5sb2NhbCIsImp0aSI6IjJiOTM1MTRmLTM4OTAtNDUyNy1iZTI3LTQ1YTFiMzg1OTg4ZSIsIm5iZiI6MTc2ODg1NjM5NiwiZXhwIjoxNzY4ODU5OTk2fQ.4vHlucv__1OF7jpIeoiDLKIAhwBUjSJqaS_cZhczUUU"
+      "Authorization": "{Scrubbed}"
     },
     "RequestContent": null,
     "ResponseStatus": "OK 200",

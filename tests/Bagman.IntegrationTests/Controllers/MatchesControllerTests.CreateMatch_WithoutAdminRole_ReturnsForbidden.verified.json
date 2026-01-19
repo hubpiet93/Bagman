@@ -103,7 +103,7 @@
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjlhZTUwYS03Y2EyLTQzODktOGM1ZC1lNmJmNTNiMjJjYTciLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX25vbl9hZG1pbiIsImVtYWlsIjoibWF0Y2hfbm9uX2FkbWluQGV4YW1wbGUuY29tIiwianRpIjoiMmI0NTUyYzEtN2NjMy00YzExLWJiMGEtZGZmMWY2MWExMDBhIiwibmJmIjoxNzY4ODU2Mzk3LCJleHAiOjE3Njg4NTk5OTd9.GAqwcn9mtfIRgXBWTAnulrCwHh3A6UTBGpbrVBdw3ls"
+      "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Country1": "Brazil",
