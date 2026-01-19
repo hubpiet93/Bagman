@@ -1,5 +1,7 @@
+using System.Collections;
 using Argon;
 using Bagman.Infrastructure.Data;
+using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +11,8 @@ namespace Bagman.IntegrationTests.Controllers;
 
 public abstract class BaseIntegrationTest: AuthTestWebApplicationFactory
 {
+    private readonly VerifySettings _verifySettings = new();
+
     private PostgresFixture PostgresFixture 
         => Services.GetService<PostgresFixture>() 
            ?? throw new InvalidOperationException("PostgresFixture not available from factory services.");
@@ -31,20 +35,23 @@ public abstract class BaseIntegrationTest: AuthTestWebApplicationFactory
             return;
 
         _initialized = true;
+        
+        _verifySettings.AddExtraSettings(options =>
+        {
+            options.DefaultValueHandling = DefaultValueHandling.Include;
+            options.NullValueHandling = NullValueHandling.Include;
+            options.Formatting = Formatting.Indented;
+            options. Converters.Add(new RecordedHttpMessageConverter());
+        });
+        
         await InitializeHttpClient();
         await InitializeDatabase();
     }
 
     protected async Task VerifyHttpRecording()
     {
-        var settings = new VerifySettings();
-        settings.AddExtraSettings(options =>
-        {
-            options.NullValueHandling = NullValueHandling.Include;
-            options.Formatting = Formatting.Indented;
-        });
-        
-        await Verify(RecordingHandler.Sends, settings);
+        await Verify(RecordingHandler.Sends, _verifySettings)
+            .UseStrictJson();
     }
     
     protected async Task Dispose()

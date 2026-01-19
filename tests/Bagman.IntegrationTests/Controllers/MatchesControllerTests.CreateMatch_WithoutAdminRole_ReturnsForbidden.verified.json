@@ -1,0 +1,124 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Admin Check Table",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 100.0
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_1"
+    },
+    "ResponseContent": {
+      "id": "Guid_1",
+      "name": "Admin Check Table",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_2",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_2",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_3",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_4",
+      "user": {
+        "id": "Guid_3",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_5",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member@12345",
+      "TableName": "Admin Check Table",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_1",
+      "name": "Admin Check Table",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_2",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_1/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjlhZTUwYS03Y2EyLTQzODktOGM1ZC1lNmJmNTNiMjJjYTciLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX25vbl9hZG1pbiIsImVtYWlsIjoibWF0Y2hfbm9uX2FkbWluQGV4YW1wbGUuY29tIiwianRpIjoiMmI0NTUyYzEtN2NjMy00YzExLWJiMGEtZGZmMWY2MWExMDBhIiwibmJmIjoxNzY4ODU2Mzk3LCJleHAiOjE3Njg4NTk5OTd9.GAqwcn9mtfIRgXBWTAnulrCwHh3A6UTBGpbrVBdw3ls"
+    },
+    "RequestContent": {
+      "Country1": "Brazil",
+      "Country2": "Argentina",
+      "MatchDateTime": "DateTimeOffset_6"
+    },
+    "ResponseStatus": "Forbidden 403",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "errors": [
+        {
+          "code": "Table.NotAdmin",
+          "description": "Nie masz uprawnień do wykonania tej czynności"
+        }
+      ]
+    }
+  }
+]

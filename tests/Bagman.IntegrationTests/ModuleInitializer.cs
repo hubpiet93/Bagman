@@ -24,14 +24,15 @@ public static class ModuleInitializer
         });
         
         VerifierSettings.ScrubInlineGuids();
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("refreshToken"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("accessToken"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("Login"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("login"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("Email"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("email"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubPropInJsonObjectWhenString("traceId"));
-        VerifierSettings.AddScrubber(sb => sb.ScrubBearerToken());
+        VerifierSettings.ScrubMember("accessToken");
+        VerifierSettings.ScrubMember("refreshToken");
+        VerifierSettings.ScrubMember("Login");
+        VerifierSettings.ScrubMember("UserLogin");
+        VerifierSettings.ScrubMember("login");
+        VerifierSettings.ScrubMember("userLogin");
+        VerifierSettings.ScrubMember("Email");
+        VerifierSettings.ScrubMember("email");
+        VerifierSettings.ScrubMember("traceId");
         VerifierSettings.ScrubInlineDateTimes(format: "yyyy-MM-ddTHH:mm:ss.FFFFFFZ");
     }
         

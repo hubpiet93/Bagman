@@ -34,32 +34,5 @@
         <ProjectReference Include="..\..\src\Bagman.Api\Bagman.Api.csproj"/>
         <ProjectReference Include="..\..\src\Bagman.Contracts\Bagman.Contracts.csproj"/>
     </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Controllers\MatchesControllerTests.CreateMatch_ByTableAdmin_ReturnsCreatedWithMatchResponse.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.CreateMatch_WithInvalidCountries_ReturnsBadRequest.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.CreateMatch_WithoutAdminRole_ReturnsForbidden.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.CreateMatch_WithPastDateTime_ReturnsBadRequest.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.DeleteMatch_BeforeStarted_ReturnsOk.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.GetMatch_WithValidId_ReturnsOkWithMatchResponse.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.SetMatchResult_WithValidScore_ReturnsOkAndChangesStatus.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-      <None Update="Controllers\MatchesControllerTests.UpdateMatch_BeforeStarted_ReturnsOk.verified.txt">
-        <DependentUpon>MatchesControllerTests.cs</DependentUpon>
-      </None>
-    </ItemGroup>
-
+    
 </Project>

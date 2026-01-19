@@ -1,0 +1,98 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Result Match Table",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 100.0
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_1"
+    },
+    "ResponseContent": {
+      "id": "Guid_1",
+      "name": "Result Match Table",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_2",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_2",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_3",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_1/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMGNkYWNhYi0zYjU2LTRkNTAtOGQyYy05M2FlNDczM2U1OTAiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX3Jlc3VsdF8zZDBmMTQ3OCIsImVtYWlsIjoibWF0Y2hfcmVzdWx0XzNkMGYxNDc4QGJhZ21hbi5sb2NhbCIsImp0aSI6IjUwMzg2NWVjLTUyNjItNDc2Yy1iZTllLTM1MDgxYzI2Zjc3MSIsIm5iZiI6MTc2ODg1NjM5OCwiZXhwIjoxNzY4ODU5OTk4fQ.62LbzrwcOzyQRuiIfsz0Ho53yaEgZiK4LgVvAbrieKs"
+    },
+    "RequestContent": {
+      "Country1": "England",
+      "Country2": "Scotland",
+      "MatchDateTime": "DateTimeOffset_4"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_1/matches/Guid_3"
+    },
+    "ResponseContent": {
+      "id": "Guid_3",
+      "tableId": "Guid_1",
+      "country1": "England",
+      "country2": "Scotland",
+      "matchDateTime": "DateTimeOffset_4",
+      "result": null,
+      "status": "scheduled",
+      "started": false,
+      "createdAt": "DateTimeOffset_5"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_1/matches/Guid_3/result",
+    "RequestOptions": {},
+    "RequestMethod": "PUT",
+    "RequestHeaders": {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMGNkYWNhYi0zYjU2LTRkNTAtOGQyYy05M2FlNDczM2U1OTAiLCJ1bmlxdWVfbmFtZSI6Im1hdGNoX3Jlc3VsdF8zZDBmMTQ3OCIsImVtYWlsIjoibWF0Y2hfcmVzdWx0XzNkMGYxNDc4QGJhZ21hbi5sb2NhbCIsImp0aSI6IjUwMzg2NWVjLTUyNjItNDc2Yy1iZTllLTM1MDgxYzI2Zjc3MSIsIm5iZiI6MTc2ODg1NjM5OCwiZXhwIjoxNzY4ODU5OTk4fQ.62LbzrwcOzyQRuiIfsz0Ho53yaEgZiK4LgVvAbrieKs"
+    },
+    "RequestContent": {
+      "Score1": "2",
+      "Score2": "1"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "message": "Match result set successfully"
+    }
+  }
+]
