@@ -1,13 +1,8 @@
-using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.TestFixtures;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
-using VerifyXunit;
-using Xunit;
 
 namespace Bagman.IntegrationTests.Controllers;
 

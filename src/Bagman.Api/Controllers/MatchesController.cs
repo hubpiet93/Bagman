@@ -119,7 +119,7 @@ public class MatchesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = string.Format("{0}:{1}", request.Score1, request.Score2);
+        var result = $"{request.Score1}:{request.Score2}";
         var setResultResponse = await _matchService.SetMatchResultAsync(matchId, result, userId.Value);
 
         if (setResultResponse.IsError)
