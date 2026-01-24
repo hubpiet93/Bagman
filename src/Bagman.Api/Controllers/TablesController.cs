@@ -137,16 +137,18 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        var response = result.Value.Select(t => new TableResponse
-        {
-            Id = t.Id,
-            Name = t.Name,
-            MaxPlayers = t.MaxPlayers,
-            Stake = t.Stake,
-            CreatedBy = t.CreatedBy,
-            CreatedAt = t.CreatedAt,
-            IsSecretMode = t.IsSecretMode
-        }).ToList();
+        var response = result.Value
+            .OrderBy(t => t.CreatedAt)
+            .Select(t => new TableResponse
+            {
+                Id = t.Id,
+                Name = t.Name,
+                MaxPlayers = t.MaxPlayers,
+                Stake = t.Stake,
+                CreatedBy = t.CreatedBy,
+                CreatedAt = t.CreatedAt,
+                IsSecretMode = t.IsSecretMode
+            }).ToList();
 
         return Ok(response);
     }
