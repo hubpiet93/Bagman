@@ -1,0 +1,154 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Betting Table Guid_1",
+      "TablePassword": "BettingPass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_2"
+    },
+    "ResponseContent": {
+      "id": "Guid_2",
+      "name": "Betting Table Guid_1",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_3",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_2",
+      "user": {
+        "id": "Guid_3",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_3",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Player@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_4",
+      "user": {
+        "id": "Guid_4",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_5",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Player@12345",
+      "TableName": "Betting Table Guid_1",
+      "TablePassword": "BettingPass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_2",
+      "name": "Betting Table Guid_1",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_3",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_2/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Country1": "Italy",
+      "Country2": "France",
+      "MatchDateTime": "DateTimeOffset_6"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_2/matches/Guid_5"
+    },
+    "ResponseContent": {
+      "id": "Guid_5",
+      "tableId": "Guid_2",
+      "country1": "Italy",
+      "country2": "France",
+      "matchDateTime": "DateTimeOffset_6",
+      "result": null,
+      "status": "scheduled",
+      "started": false,
+      "createdAt": "DateTimeOffset_7"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_2/matches/Guid_5/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "invalid prediction format"
+    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "One or more validation errors occurred.",
+      "status": 400,
+      "errors": {
+        "Prediction": [
+          "Typowanie nie może mieć więcej niż 10 znaków",
+          "Typowanie musi być w formacie 'wynik1:wynik2' lub 'X' (remis)"
+        ]
+      },
+      "traceId": "{Scrubbed}"
+    }
+  }
+]

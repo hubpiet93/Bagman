@@ -1,17 +1,12 @@
-using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
-using Bagman.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using VerifyXunit;
-using Xunit;
+using Bagman.IntegrationTests.TestFixtures;
 
 namespace Bagman.IntegrationTests.Controllers;
 
 [CollectionDefinition("Auth Tests")]
-public class AuthTestsCollection : ICollectionFixture<TestFixtures.PostgresFixture>
+public class AuthTestsCollection : ICollectionFixture<PostgresFixture>
 {
 }
 
@@ -21,64 +16,20 @@ public class AuthTestsCollection : ICollectionFixture<TestFixtures.PostgresFixtu
 /// Uses collection fixture to share one PostgreSQL container across all tests in the class.
 /// </summary>
 [Collection("Auth Tests")]
-public class AuthControllerTests : IAsyncLifetime
+public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-    private readonly TestFixtures.PostgresFixture _postgresFixture;
-    private TestFixtures.AuthTestWebApplicationFactory? _factory;
-    private HttpClient? _httpClient;
-    private bool _initialized = false;
-
-    public AuthControllerTests(TestFixtures.PostgresFixture postgresFixture)
+    public AuthControllerTests(PostgresFixture postgresFixture) : base(postgresFixture)
     {
-        // Use injected fixture shared across all tests
-        _postgresFixture = postgresFixture;
     }
 
     public async Task InitializeAsync()
     {
-        // Initialize only once
-        if (_initialized)
-            return;
-
-        _initialized = true;
-
-        // Initialize PostgreSQL container if not already done
-        if (_postgresFixture.ConnectionString == null)
-        {
-            await _postgresFixture.InitializeAsync();
-        }
-
-        // Create factory with test connection string
-        _factory = new TestFixtures.AuthTestWebApplicationFactory(_postgresFixture.ConnectionString!);
-        _httpClient = _factory.CreateClient();
-
-        // Ensure database is created and migrations are applied
-        using var scope = _factory.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        // Retry logic for database creation
-        int maxRetries = 3;
-        for (int i = 0; i < maxRetries; i++)
-        {
-            try
-            {
-                await dbContext.Database.EnsureCreatedAsync();
-                // Ensure database is clean between tests to allow deterministic logins
-                await dbContext.Database.ExecuteSqlRawAsync(
-                    "TRUNCATE TABLE pool_winners, pools, bets, matches, user_stats, table_members, tables, refresh_tokens, users RESTART IDENTITY CASCADE;");
-                break;
-            }
-            catch (Exception ex) when (i < maxRetries - 1)
-            {
-                await Task.Delay(1000);
-            }
-        }
+        await Init();
     }
 
-    public async Task DisposeAsync()
+    public new async Task DisposeAsync()
     {
-        _httpClient?.Dispose();
-        _factory?.Dispose();
+        await Dispose();
     }
 
     [Fact]
@@ -98,24 +49,10 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient!.PostAsync("/api/auth/register", content);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
+        await HttpClient!.PostAsync("/api/auth/register", content);
 
         // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            User = new
-            {
-                authResponse!.User.Login,
-                authResponse.User.Email,
-                authResponse.User.IsActive
-            },
-            HasAccessToken = !string.IsNullOrEmpty(authResponse.AccessToken),
-            HasRefreshToken = !string.IsNullOrEmpty(authResponse.RefreshToken),
-            ExpiresAtIsInFuture = authResponse.ExpiresAt > DateTime.UtcNow
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -135,7 +72,7 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Register first user
-        await _httpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient!.PostAsync("/api/auth/register", content);
 
         // Try to register with same login
         var request2 = new RegisterRequest
@@ -151,14 +88,10 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient.PostAsync("/api/auth/register", content2);
+        await HttpClient.PostAsync("/api/auth/register", content2);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -178,14 +111,10 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient!.PostAsync("/api/auth/register", content);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -205,14 +134,10 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient!.PostAsync("/api/auth/register", content);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -231,7 +156,7 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        await _httpClient!.PostAsync("/api/auth/register", registerContent);
+        await HttpClient!.PostAsync("/api/auth/register", registerContent);
 
         // Act - Login
         var loginRequest = new LoginRequest
@@ -245,21 +170,10 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.PostAsync("/api/auth/login", loginContent);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
+        await HttpClient.PostAsync("/api/auth/login", loginContent);
 
         // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            User = new
-            {
-                authResponse!.User.Login
-            },
-            HasAccessToken = !string.IsNullOrEmpty(authResponse.AccessToken),
-            HasRefreshToken = !string.IsNullOrEmpty(authResponse.RefreshToken)
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -278,7 +192,7 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        await _httpClient!.PostAsync("/api/auth/register", registerContent);
+        await HttpClient!.PostAsync("/api/auth/register", registerContent);
 
         // Act - Login with wrong password
         var loginRequest = new LoginRequest
@@ -292,14 +206,10 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.PostAsync("/api/auth/login", loginContent);
+        await HttpClient.PostAsync("/api/auth/login", loginContent);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -318,20 +228,16 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient!.PostAsync("/api/auth/login", content);
+        await HttpClient!.PostAsync("/api/auth/login", content);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
     public async Task Refresh_WithValidRefreshToken_ReturnsOkWithNewTokens()
     {
-        // Arrange - Register and Login
+        // Arrange - Register
         var registerRequest = new RegisterRequest
         {
             Login = "refreshuser",
@@ -344,12 +250,11 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var registerResponse = await _httpClient!.PostAsync("/api/auth/register", registerContent);
+        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var initialAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
-        var initialAccessToken = initialAuthResponse!.AccessToken;
-        var refreshToken = initialAuthResponse.RefreshToken;
+        var refreshToken = initialAuthResponse!.RefreshToken;
 
         // Act - Refresh token
         var refreshRequest = new RefreshRequest
@@ -362,21 +267,10 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.PostAsync("/api/auth/refresh", refreshContent);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var newAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
+        await HttpClient.PostAsync("/api/auth/refresh", refreshContent);
 
         // Assert
-        await Verify(new
-        {
-            StatusCode = response.StatusCode,
-            User = new
-            {
-                newAuthResponse!.User.Login
-            },
-            HasNewAccessToken = !string.IsNullOrEmpty(newAuthResponse.AccessToken),
-            AccessTokenChanged = newAuthResponse.AccessToken != initialAccessToken
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -394,14 +288,10 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient!.PostAsync("/api/auth/refresh", content);
+        await HttpClient!.PostAsync("/api/auth/refresh", content);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -420,7 +310,7 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var registerResponse = await _httpClient!.PostAsync("/api/auth/register", registerContent);
+        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
@@ -437,14 +327,10 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.PostAsync("/api/auth/logout", logoutContent);
+        await HttpClient.PostAsync("/api/auth/logout", logoutContent);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsOk = response.StatusCode == HttpStatusCode.OK
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -462,14 +348,10 @@ public class AuthControllerTests : IAsyncLifetime
             "application/json");
 
         // Act
-        var response = await _httpClient!.PostAsync("/api/auth/logout", content);
+        await HttpClient!.PostAsync("/api/auth/logout", content);
 
         // Assert
-        await Verify(new
-        {
-            response.StatusCode,
-            IsBadRequest = response.StatusCode == HttpStatusCode.BadRequest
-        });
+        await VerifyHttpRecording();
     }
 
     [Fact]
@@ -488,15 +370,14 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        // Act & Assert - Register
-        var registerResponse = await _httpClient!.PostAsync("/api/auth/register", registerContent);
+        // Act - Register
+        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var initialAuth = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
-        var initialAccessToken = initialAuth!.AccessToken;
-        var initialRefreshToken = initialAuth.RefreshToken;
+        var initialRefreshToken = initialAuth!.RefreshToken;
 
-        // Act & Assert - Login
+        // Act - Login
         var loginRequest = new LoginRequest
         {
             Login = "fullflowuser",
@@ -508,9 +389,9 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var loginResponse = await _httpClient.PostAsync("/api/auth/login", loginContent);
+        await HttpClient.PostAsync("/api/auth/login", loginContent);
 
-        // Act & Assert - Refresh with initial token
+        // Act - Refresh with initial token
         var refreshRequest = new RefreshRequest
         {
             RefreshToken = initialRefreshToken
@@ -521,14 +402,13 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var refreshResponse = await _httpClient.PostAsync("/api/auth/refresh", refreshContent);
+        var refreshResponse = await HttpClient.PostAsync("/api/auth/refresh", refreshContent);
         var refreshBody = await refreshResponse.Content.ReadAsStringAsync();
         var refreshedAuth = JsonConvert.DeserializeObject<AuthResponse>(refreshBody);
 
-        var newAccessToken = refreshedAuth!.AccessToken;
-        var newRefreshToken = refreshedAuth.RefreshToken;
+        var newRefreshToken = refreshedAuth!.RefreshToken;
 
-        // Act & Assert - Logout with the NEW refresh token from refresh operation
+        // Act - Logout with the NEW refresh token from refresh operation
         var logoutRequest = new LogoutRequest
         {
             RefreshToken = newRefreshToken
@@ -539,21 +419,9 @@ public class AuthControllerTests : IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var logoutResponse = await _httpClient.PostAsync("/api/auth/logout", logoutContent);
+        await HttpClient.PostAsync("/api/auth/logout", logoutContent);
 
-        // Assert complete flow
-        await Verify(new
-        {
-            RegisterStatusCode = registerResponse.StatusCode,
-            LoginStatusCode = loginResponse.StatusCode,
-            RefreshStatusCode = refreshResponse.StatusCode,
-            LogoutStatusCode = logoutResponse.StatusCode,
-            RegisterSucceeded = registerResponse.StatusCode == HttpStatusCode.OK,
-            LoginSucceeded = loginResponse.StatusCode == HttpStatusCode.OK,
-            RefreshSucceeded = refreshResponse.StatusCode == HttpStatusCode.OK,
-            LogoutSucceeded = logoutResponse.StatusCode == HttpStatusCode.OK,
-            AccessTokenRefreshed = newAccessToken != initialAccessToken,
-            RefreshTokenRefreshed = newRefreshToken != initialRefreshToken
-        });
+        // Assert (snapshot for the whole flow: register + login + refresh + logout)
+        await VerifyHttpRecording();
     }
 }

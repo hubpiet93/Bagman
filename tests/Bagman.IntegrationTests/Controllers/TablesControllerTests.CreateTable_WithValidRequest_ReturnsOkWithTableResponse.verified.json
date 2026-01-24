@@ -1,0 +1,29 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Test Betting Table Guid_1",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_2"
+    },
+    "ResponseContent": {
+      "id": "Guid_2",
+      "name": "Test Betting Table Guid_1",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_3",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  }
+]

@@ -1,8 +1,0 @@
-﻿{
-  StatusCode: OK 200,
-  Table: {
-    Name: Joinable Table,
-    MaxPlayers: 5
-  },
-  HasId: true
-}

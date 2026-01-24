@@ -1,0 +1,52 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Joinable Table Guid_1",
+      "TablePassword": "JoinPass@123",
+      "MaxPlayers": 5,
+      "Stake": 100.0
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_2"
+    },
+    "ResponseContent": {
+      "id": "Guid_2",
+      "name": "Joinable Table Guid_1",
+      "maxPlayers": 5,
+      "stake": 100.0,
+      "createdBy": "Guid_3",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Joiner@12345",
+      "TableName": "Joinable Table Guid_1",
+      "TablePassword": "JoinPass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_2",
+      "name": "Joinable Table Guid_1",
+      "maxPlayers": 5,
+      "stake": 100.0,
+      "createdBy": "Guid_3",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  }
+]

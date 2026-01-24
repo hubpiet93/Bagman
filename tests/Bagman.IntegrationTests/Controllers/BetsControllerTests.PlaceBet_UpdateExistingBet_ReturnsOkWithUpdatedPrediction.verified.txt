@@ -1,6 +1,0 @@
-﻿{
-  StatusCode: Created 201,
-  Bet: {
-    Prediction: 2:1
-  }
-}

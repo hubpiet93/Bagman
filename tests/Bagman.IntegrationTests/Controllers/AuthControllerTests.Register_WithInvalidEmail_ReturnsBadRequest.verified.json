@@ -1,0 +1,24 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Test@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "One or more validation errors occurred.",
+      "status": 400,
+      "errors": {
+        "Email": "{Scrubbed}"
+      },
+      "traceId": "{Scrubbed}"
+    }
+  }
+]

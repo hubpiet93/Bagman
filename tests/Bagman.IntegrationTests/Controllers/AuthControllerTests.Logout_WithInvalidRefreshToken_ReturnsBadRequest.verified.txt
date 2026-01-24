@@ -1,4 +1,0 @@
-﻿{
-  StatusCode: OK 200,
-  IsBadRequest: false
-}

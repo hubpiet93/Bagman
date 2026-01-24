@@ -34,5 +34,44 @@
         <ProjectReference Include="..\..\src\Bagman.Api\Bagman.Api.csproj"/>
         <ProjectReference Include="..\..\src\Bagman.Contracts\Bagman.Contracts.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Controllers\AuthControllerTests.FullAuthenticationFlow_RegisterLoginRefreshLogout_Succeeds.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Login_WithInvalidPassword_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Login_WithNonexistentUser_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Login_WithValidCredentials_ReturnsOkWithAuthResponse.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Logout_WithInvalidRefreshToken_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Logout_WithValidRefreshToken_ReturnsOk.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Refresh_WithInvalidRefreshToken_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Refresh_WithValidRefreshToken_ReturnsOkWithNewTokens.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Register_WithDuplicateLogin_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Register_WithInvalidEmail_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Register_WithValidRequest_ReturnsOkWithAuthResponse.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+      <None Update="Controllers\AuthControllerTests.Register_WithWeakPassword_ReturnsBadRequest.verified.json">
+        <DependentUpon>AuthControllerTests.cs</DependentUpon>
+      </None>
+    </ItemGroup>
     
 </Project>

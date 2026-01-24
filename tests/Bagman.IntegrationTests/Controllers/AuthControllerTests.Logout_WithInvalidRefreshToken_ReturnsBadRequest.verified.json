@@ -1,0 +1,16 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/auth/logout",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "RefreshToken": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "message": "Wylogowano pomyślnie"
+    }
+  }
+]

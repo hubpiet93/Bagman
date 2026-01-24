@@ -1,8 +1,0 @@
-﻿{
-  StatusCode: OK 200,
-  User: {
-    Login: refreshuser
-  },
-  HasNewAccessToken: true,
-  AccessTokenChanged: true
-}

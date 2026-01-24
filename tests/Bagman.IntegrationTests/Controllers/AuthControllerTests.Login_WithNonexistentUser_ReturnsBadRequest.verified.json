@@ -1,0 +1,26 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Test@12345"
+    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "Bad Request",
+      "status": 400,
+      "traceId": "{Scrubbed}",
+      "errors": [
+        {
+          "errorCode": "Auth.InvalidCredentials",
+          "description": "Nieprawidłowy login lub hasło"
+        }
+      ]
+    }
+  }
+]

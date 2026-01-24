@@ -1,4 +1,0 @@
-﻿{
-  StatusCode: Unauthorized 401,
-  HasContent: false
-}
