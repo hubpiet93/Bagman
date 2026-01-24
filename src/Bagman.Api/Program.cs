@@ -27,13 +27,12 @@ builder.Services.AddSwaggerGen();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazorApp", policy =>
-    {
-        policy.WithOrigins("https://localhost:5002")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
+    options.AddPolicy("AllowAll", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
 });
 
 builder.Services.AddApplicationDbContext(builder.Configuration.GetConnectionString("Postgres"));
@@ -77,7 +76,7 @@ app.MapScalarApiReference(options =>
 });
 
 app.UseHttpsRedirection();
-app.UseCors("AllowBlazorApp");
+app.UseCors("AllowAll");
 
 // Add validation exception middleware BEFORE authentication/authorization
 app.UseMiddleware<ValidationExceptionMiddleware>();

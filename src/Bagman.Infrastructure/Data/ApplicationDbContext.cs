@@ -197,10 +197,6 @@ public class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("scheduled");
 
-            entity.Property(e => e.Started)
-                .HasColumnName("started")
-                .HasDefaultValue(false);
-
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at");
 

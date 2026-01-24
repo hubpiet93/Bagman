@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bagman.Domain.Models;
 
@@ -16,9 +17,9 @@ public class Match
 
     [StringLength(10)] public string? Result { get; set; }
 
-    [StringLength(20)] public string Status { get; set; } = "scheduled"; // scheduled, in_progress, finished
+    [StringLength(20)] public string Status { get; set; } = "scheduled";
 
-    public bool Started { get; set; }
+    [NotMapped] public bool Started => DateTime.UtcNow >= MatchDateTime;
 
     public DateTime CreatedAt { get; set; }
 

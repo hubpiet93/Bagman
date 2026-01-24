@@ -40,7 +40,6 @@ public class MatchService : IMatchService
             Country2 = country2,
             MatchDateTime = matchDateTime,
             Status = "scheduled",
-            Started = false,
             CreatedAt = DateTime.UtcNow
         };
 

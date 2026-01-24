@@ -2,7 +2,7 @@ to create migration
 
 ```shell
 cd ../../..
-dotnet ef migrations add AddTablesAndMatches --project 'src/Bagman.Infrastructure' --startup-project 'src/Bagman.Api' --output-dir 'Data/Migrations'
+dotnet ef migrations add RemoveMatchStartedFlag --project 'src/Bagman.Infrastructure' --startup-project 'src/Bagman.Api' --output-dir 'Data/Migrations'
 ```
 
 to update database

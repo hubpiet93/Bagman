@@ -432,4 +432,59 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Assert
         await VerifyHttpRecording();
     }
+
+    [Fact]
+    public async Task GetMatch_StartedFalse_ForFutureDateTime()
+    {
+        // Arrange
+        var (tableId, adminToken) = await CreateTableAsAdmin("match_started_future", "Creator@12345", "Started Future Table");
+        var createMatchRequest = new CreateMatchRequest
+        {
+            Country1 = "Poland",
+            Country2 = "Germany",
+            MatchDateTime = DateTime.UtcNow.AddHours(2)
+        };
+        var matchContent = new StringContent(JsonConvert.SerializeObject(createMatchRequest), Encoding.UTF8, "application/json");
+        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches") { Content = matchContent };
+        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        var creationResponse = await HttpClient.SendAsync(createRequest);
+
+        // Act
+        var metchResult = JsonConvert.DeserializeObject<MatchResponse>(await creationResponse.Content.ReadAsStringAsync());
+        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{metchResult.Id}");
+        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        await HttpClient.SendAsync(getRequest);
+
+        // Assert (snapshot)
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetMatch_StartedTrue_ForPastDateTime()
+    {
+        // Arrange
+        var (tableId, adminToken) = await CreateTableAsAdmin("match_started_past", "Creator@12345", "Started Past Table");
+        var createMatchRequest = new CreateMatchRequest
+        {
+            Country1 = "France",
+            Country2 = "Italy",
+            MatchDateTime = DateTime.UtcNow.AddSeconds(10)
+        };
+        var matchContent = new StringContent(JsonConvert.SerializeObject(createMatchRequest), Encoding.UTF8, "application/json");
+        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches") { Content = matchContent };
+        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        var creationResponse = await HttpClient.SendAsync(createRequest);
+
+        //Delay to ensure match time is in the past
+        await Task.Delay(TimeSpan.FromSeconds(15));
+        
+        // Act
+        var matchResult = JsonConvert.DeserializeObject<MatchResponse>(await creationResponse.Content.ReadAsStringAsync());
+        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchResult.Id}");
+        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        await HttpClient.SendAsync(getRequest);
+
+        // Assert (snapshot)
+        await VerifyHttpRecording();
+    }
 }

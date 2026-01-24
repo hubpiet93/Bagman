@@ -47,7 +47,8 @@ public class MatchesController : AppControllerBase
 
         return CreatedAtAction(nameof(GetMatchDetails), new
         {
-            tableId, matchId = result.Value.Id
+            tableId,
+            matchId = result.Value.Id
         }, response);
     }
 
