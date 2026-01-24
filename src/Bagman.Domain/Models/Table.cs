@@ -6,21 +6,13 @@ public class Table
 {
     public Guid Id { get; set; }
 
-    [Required]
-    [StringLength(100)]
-    public string Name { get; set; } = string.Empty;
+    [Required] [StringLength(100)] public string Name { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(255)]
-    public string PasswordHash { get; set; } = string.Empty;
+    [Required] [StringLength(255)] public string PasswordHash { get; set; } = string.Empty;
 
-    [Required]
-    [Range(1, int.MaxValue)]
-    public int MaxPlayers { get; set; }
+    [Required] [Range(1, int.MaxValue)] public int MaxPlayers { get; set; }
 
-    [Required]
-    [Range(0, double.MaxValue)]
-    public decimal Stake { get; set; }
+    [Required] [Range(0, double.MaxValue)] public decimal Stake { get; set; }
 
     public Guid CreatedBy { get; set; }
 

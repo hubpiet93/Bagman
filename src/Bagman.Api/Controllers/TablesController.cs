@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Bagman.Api.Controllers;
 
@@ -11,8 +11,8 @@ namespace Bagman.Api.Controllers;
 [Authorize]
 public class TablesController : AppControllerBase
 {
-    private readonly ITableService _tableService;
     private readonly IAuthService _authService;
+    private readonly ITableService _tableService;
 
     public TablesController(ITableService tableService, IAuthService authService)
     {
@@ -74,7 +74,7 @@ public class TablesController : AppControllerBase
             IsSecretMode = tableResult.Value.IsSecretMode
         };
 
-        return CreatedAtAction(nameof(GetTableDetails), new { tableId = tableResult.Value.Id }, createdResponse);
+        return CreatedAtAction(nameof(GetTableDetails), new {tableId = tableResult.Value.Id}, createdResponse);
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class TablesController : AppControllerBase
             return MapErrors(getTableResult.Errors);
 
         if (getTableResult.Value == null)
-            return NotFound(new { message = "Stół nie został znaleziony" });
+            return NotFound(new {message = "Stół nie został znaleziony"});
 
         var tableId = getTableResult.Value.Id;
 
@@ -172,13 +172,15 @@ public class TablesController : AppControllerBase
             MaxPlayers = table.MaxPlayers,
             Stake = table.Stake,
             CreatedAt = table.CreatedAt,
-            Members = table.Members.Select(m => new TableMemberResponse
-            {
-                UserId = m.UserId,
-                Login = m.User?.Login ?? "Unknown",
-                IsAdmin = m.IsAdmin,
-                JoinedAt = m.JoinedAt
-            }).ToList()
+            Members = table.Members
+                .OrderBy(m => m.JoinedAt)
+                .Select(m => new TableMemberResponse
+                {
+                    UserId = m.UserId,
+                    Login = m.User?.Login ?? "Unknown",
+                    IsAdmin = m.IsAdmin,
+                    JoinedAt = m.JoinedAt
+                }).ToList()
         };
 
         return Ok(response);
@@ -215,7 +217,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new { message = "Successfully left table" });
+        return Ok(new {message = "Successfully left table"});
     }
 
     /// <summary>
@@ -232,7 +234,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new { message = "Admin role granted" });
+        return Ok(new {message = "Admin role granted"});
     }
 
     /// <summary>
@@ -249,7 +251,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new { message = "Admin role revoked" });
+        return Ok(new {message = "Admin role revoked"});
     }
 
     private Guid? GetUserId()

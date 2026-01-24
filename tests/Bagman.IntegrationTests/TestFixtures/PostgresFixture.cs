@@ -1,11 +1,10 @@
 using Testcontainers.PostgreSql;
-using Xunit;
 
 namespace Bagman.IntegrationTests.TestFixtures;
 
 /// <summary>
-/// Postgres database fixture using TestContainers.
-/// Manages lifecycle of a PostgreSQL container for integration tests.
+///     Postgres database fixture using TestContainers.
+///     Manages lifecycle of a PostgreSQL container for integration tests.
 /// </summary>
 public class PostgresFixture : IAsyncLifetime
 {

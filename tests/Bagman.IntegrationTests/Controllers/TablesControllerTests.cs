@@ -1,8 +1,9 @@
+using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.TestFixtures;
+using Newtonsoft.Json;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -12,9 +13,9 @@ public class TablesTestsCollection : ICollectionFixture<PostgresFixture>
 }
 
 /// <summary>
-/// Integration tests for TablesController actions using TestContainers for PostgreSQL.
-/// Tests Create Table, Join Table, Get Tables, Get Table Details, Leave Table, and Admin management.
-/// Uses collection fixture to share one PostgreSQL container across all tests in the class.
+///     Integration tests for TablesController actions using TestContainers for PostgreSQL.
+///     Tests Create Table, Join Table, Get Tables, Get Table Details, Leave Table, and Admin management.
+///     Uses collection fixture to share one PostgreSQL container across all tests in the class.
 /// </summary>
 [Collection("Tables Tests")]
 public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
@@ -33,8 +34,10 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         await Dispose();
     }
 
-    private static string Unique(string prefix) =>
-        $"{prefix}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+    private static string Unique(string prefix)
+    {
+        return $"{prefix}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+    }
 
     private async Task<(string Token, Guid UserId, string Login)> RegisterAndGetToken(
         string loginPrefix,
@@ -57,7 +60,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(registerBody);
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
         return (authResponse!.AccessToken, authResponse.User.Id, login);
     }
@@ -314,7 +317,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Act
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/tables");
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            new AuthenticationHeaderValue("Bearer", token);
 
         await HttpClient.SendAsync(request);
 
@@ -367,7 +370,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Act
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{createdTable!.Id}");
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", creatorToken);
 
         await HttpClient.SendAsync(request);
 
@@ -422,7 +425,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Act
         var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{createdTable!.Id}/members");
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", leaveToken);
+            new AuthenticationHeaderValue("Bearer", leaveToken);
 
         await HttpClient.SendAsync(request);
 
@@ -490,7 +493,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = grantContent
         };
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", creatorToken);
 
         await HttpClient.SendAsync(request);
 
@@ -558,14 +561,14 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = grantContent
         };
         grantHttpRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", creatorToken);
 
         await HttpClient.SendAsync(grantHttpRequest);
 
         // Act - Revoke admin
         var revokeRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{createdTable.Id}/admins/{memberId}");
         revokeRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", creatorToken);
 
         await HttpClient.SendAsync(revokeRequest);
 

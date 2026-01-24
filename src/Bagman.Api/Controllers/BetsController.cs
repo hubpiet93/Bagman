@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Bagman.Api.Controllers;
 
@@ -41,7 +41,11 @@ public class BetsController : AppControllerBase
             EditedAt = result.Value.EditedAt
         };
 
-        return CreatedAtAction(nameof(GetUserBet), new { tableId = tableId, matchId = matchId }, response);
+        return CreatedAtAction(nameof(GetUserBet), new
+        {
+            tableId,
+            matchId
+        }, response);
     }
 
     /// <summary>
@@ -82,7 +86,7 @@ public class BetsController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new { message = "Bet deleted successfully" });
+        return Ok(new {message = "Bet deleted successfully"});
     }
 
     private Guid? GetUserId()

@@ -3,10 +3,12 @@
 ## Przegląd
 
 W projekcie zostały zaimplementowane kompleksowe testy integracyjne dla `AuthController` z wykorzystaniem:
+
 - **TestContainers** - do zarządzania bazą danych PostgreSQL
 - **Verify** - do snapshot testów weryfikujących strukturę odpowiedzi API
 
 Testy weryfikują wszystkie akcje kontrolera:
+
 - **Register** - rejestracja nowego użytkownika
 - **Login** - logowanie użytkownika
 - **Refresh** - odświeżanie tokenu dostępu
@@ -27,6 +29,7 @@ public class PostgresFixture : IAsyncLifetime
 ```
 
 **Cechy:**
+
 - Implementuje `IAsyncLifetime` do zarządzania inicjalizacją i czyszczeniem zasobów
 - Tworzy nową instancję bazy danych dla każdego zestawu testów
 - Zwraca connection string dla komponentów testowych
@@ -44,6 +47,7 @@ public class AuthTestWebApplicationFactory : WebApplicationFactory<Program>
 ```
 
 **Cechy:**
+
 - Rozszerza `WebApplicationFactory<Program>`
 - Konfiguruje `ApplicationDbContext` z testową bazą danych
 - Zapewnia izolację testów poprzez dedykowane bazy danych
@@ -100,30 +104,36 @@ await Verify(new
 ## Pokrycie Testami
 
 ### Register Action
+
 1. **Register_WithValidRequest_ReturnsOkWithAuthResponse** - Rejestracja z prawidłowymi danymi
 2. **Register_WithDuplicateLogin_ReturnsBadRequest** - Duplikat loginu
 3. **Register_WithInvalidEmail_ReturnsBadRequest** - Nieprawidłowy email
 4. **Register_WithWeakPassword_ReturnsBadRequest** - Słabe hasło
 
 ### Login Action
+
 1. **Login_WithValidCredentials_ReturnsOkWithAuthResponse** - Logowanie z prawidłowymi poświadczeniami
 2. **Login_WithInvalidPassword_ReturnsBadRequest** - Nieprawidłowe hasło
 3. **Login_WithNonexistentUser_ReturnsBadRequest** - Użytkownik nie istnieje
 
 ### Refresh Action
+
 1. **Refresh_WithValidRefreshToken_ReturnsOkWithNewTokens** - Odświeżenie z prawidłowym tokenem
 2. **Refresh_WithInvalidRefreshToken_ReturnsBadRequest** - Nieprawidłowy token
 
 ### Logout Action
+
 1. **Logout_WithValidRefreshToken_ReturnsOk** - Wylogowanie z prawidłowym tokenem
 2. **Logout_WithInvalidRefreshToken_ReturnsBadRequest** - Nieprawidłowy token
 
 ### End-to-End
+
 1. **FullAuthenticationFlow_RegisterLoginRefreshLogout_Succeeds** - Pełny przepływ autentykacji
 
 ## Uruchamianie Testów
 
 ### Wymagania
+
 - Docker (do uruchamiania kontenera PostgreSQL)
 - .NET 10.0 SDK
 
@@ -148,9 +158,10 @@ dotnet test tests/Bagman.IntegrationTests/Bagman.IntegrationTests.csproj -- --ve
 
 ### Snapshots
 
-Snapshot testy zapisują swoją oczekiwaną zawartość w plikach `.verified.txt` w katalogu `__snapshots__`. 
+Snapshot testy zapisują swoją oczekiwaną zawartość w plikach `.verified.txt` w katalogu `__snapshots__`.
 
 Po uruchomieniu testów po raz pierwszy:
+
 1. Testy mogą się nie powieść (brak snapshote)
 2. Zostaną utworzone pliki `.received.txt`
 3. Developer porównuje i zatwierdza zmiany
@@ -160,15 +171,15 @@ Po uruchomieniu testów po raz pierwszy:
 
 Projekt testów korzysta z:
 
-| Pakiet | Wersja | Przeznaczenie |
-|--------|--------|---------------|
-| Testcontainers | 4.10.0 | Zarządzanie kontenerami Docker |
-| Testcontainers.PostgreSql | 4.10.0 | Kontener PostgreSQL |
-| Microsoft.AspNetCore.Mvc.Testing | 10.0.1 | WebApplicationFactory |
-| xunit | 2.9.0 | Framework testowy |
-| Verify.Xunit | 26.0.0 | Snapshot testing |
-| FluentAssertions | 6.12.0 | Assertion library (do logiki nie-snapshot) |
-| Moq | 4.20.70 | Mocking framework |
+| Pakiet                           | Wersja  | Przeznaczenie                              |
+|----------------------------------|---------|--------------------------------------------|
+| Testcontainers                   | 4.10.0  | Zarządzanie kontenerami Docker             |
+| Testcontainers.PostgreSql        | 4.10.0  | Kontener PostgreSQL                        |
+| Microsoft.AspNetCore.Mvc.Testing | 10.0.1  | WebApplicationFactory                      |
+| xunit                            | 2.9.0   | Framework testowy                          |
+| Verify.Xunit                     | 26.0.0  | Snapshot testing                           |
+| FluentAssertions                 | 6.12.0  | Assertion library (do logiki nie-snapshot) |
+| Moq                              | 4.20.70 | Mocking framework                          |
 
 ## Architektura Testów
 

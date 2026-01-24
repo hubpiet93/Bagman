@@ -1,7 +1,7 @@
 using System.Text;
-using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
 using Bagman.IntegrationTests.TestFixtures;
+using Newtonsoft.Json;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -11,9 +11,9 @@ public class AuthTestsCollection : ICollectionFixture<PostgresFixture>
 }
 
 /// <summary>
-/// Integration tests for AuthController actions using TestContainers for PostgreSQL.
-/// Tests Register, Login, Refresh Token, and Logout endpoints with snapshot testing.
-/// Uses collection fixture to share one PostgreSQL container across all tests in the class.
+///     Integration tests for AuthController actions using TestContainers for PostgreSQL.
+///     Tests Register, Login, Refresh Token, and Logout endpoints with snapshot testing.
+///     Uses collection fixture to share one PostgreSQL container across all tests in the class.
 /// </summary>
 [Collection("Auth Tests")]
 public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime

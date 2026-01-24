@@ -14,8 +14,7 @@ public class UserStats
 
     public int PoolsWon { get; set; }
 
-    [Range(0, double.MaxValue)]
-    public decimal TotalWon { get; set; }
+    [Range(0, double.MaxValue)] public decimal TotalWon { get; set; }
 
     public DateTime UpdatedAt { get; set; }
 

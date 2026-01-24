@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Bagman.IntegrationTests.TestFixtures;
 
 /// <summary>
-/// Custom WebApplicationFactory for Auth integration tests.
-/// Configures the web application with a test database.
+///     Custom WebApplicationFactory for Auth integration tests.
+///     Configures the web application with a test database.
 /// </summary>
 public class AuthTestWebApplicationFactory : WebApplicationFactory<Program>
 {
@@ -24,13 +24,10 @@ public class AuthTestWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             // Remove the existing DbContext registration
-            var dbContextDescriptor = services.FirstOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+            var dbContextDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
 
             if (dbContextDescriptor != null)
-            {
                 services.Remove(dbContextDescriptor);
-            }
 
             // Add test database context with test connection string
             services.AddDbContext<ApplicationDbContext>(options =>

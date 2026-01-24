@@ -149,7 +149,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<TableMember>(entity =>
         {
             entity.ToTable("table_members");
-            entity.HasKey(e => new { e.UserId, e.TableId }).HasName("pk_table_members");
+            entity.HasKey(e => new {e.UserId, e.TableId}).HasName("pk_table_members");
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.TableId).HasColumnName("table_id");
@@ -239,7 +239,7 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("edited_at");
 
             // Unique constraint on (user_id, match_id)
-            entity.HasIndex(e => new { e.UserId, e.MatchId })
+            entity.HasIndex(e => new {e.UserId, e.MatchId})
                 .IsUnique()
                 .HasDatabaseName("uk_bets_user_match");
 
@@ -284,7 +284,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<PoolWinner>(entity =>
         {
             entity.ToTable("pool_winners");
-            entity.HasKey(e => new { e.PoolId, e.UserId }).HasName("pk_pool_winners");
+            entity.HasKey(e => new {e.PoolId, e.UserId}).HasName("pk_pool_winners");
 
             entity.Property(e => e.PoolId).HasColumnName("pool_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -298,7 +298,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<UserStats>(entity =>
         {
             entity.ToTable("user_stats");
-            entity.HasKey(e => new { e.UserId, e.TableId }).HasName("pk_user_stats");
+            entity.HasKey(e => new {e.UserId, e.TableId}).HasName("pk_user_stats");
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.TableId).HasColumnName("table_id");

@@ -1,8 +1,9 @@
+using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.TestFixtures;
+using Newtonsoft.Json;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -12,9 +13,9 @@ public class BetsTestsCollection : ICollectionFixture<PostgresFixture>
 }
 
 /// <summary>
-/// Integration tests for BetsController actions using TestContainers for PostgreSQL.
-/// Tests Place Bet, Get User Bet, and Delete Bet operations.
-/// Bets are per user-match combination with unique constraint enforcement.
+///     Integration tests for BetsController actions using TestContainers for PostgreSQL.
+///     Tests Place Bet, Get User Bet, and Delete Bet operations.
+///     Bets are per user-match combination with unique constraint enforcement.
 /// </summary>
 [Collection("Bets Tests")]
 public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
@@ -41,8 +42,8 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Make logins unique to avoid conflicts when tests run against the same DB instance
         // Use shorter suffix to keep login length within validation limits
-        var creatorLoginUnique = $"{creatorLogin}_{Guid.NewGuid().ToString("N").Substring(0,8)}";
-        var playerLoginUnique = $"{playerLogin}_{Guid.NewGuid().ToString("N").Substring(0,8)}";
+        var creatorLoginUnique = $"{creatorLogin}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        var playerLoginUnique = $"{playerLogin}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
 
         // Create table
         var createTableRequest = new CreateTableRequest
@@ -80,7 +81,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var creatorLoginResponse = await HttpClient.PostAsync("/api/auth/login", creatorLoginContent);
         var creatorLoginBody = await creatorLoginResponse.Content.ReadAsStringAsync();
-        var creatorAuthResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(creatorLoginBody);
+        var creatorAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(creatorLoginBody);
         var creatorToken = creatorAuthResponse!.AccessToken;
 
         // Register player to get token and id, then join the table
@@ -98,7 +99,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var playerRegisterResponse = await HttpClient.PostAsync("/api/auth/register", playerRegisterContent);
         var playerRegisterBody = await playerRegisterResponse.Content.ReadAsStringAsync();
-        var playerAuthResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(playerRegisterBody);
+        var playerAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(playerRegisterBody);
 
         var playerToken = playerAuthResponse!.AccessToken;
         var playerId = playerAuthResponse.User.Id;
@@ -136,7 +137,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = matchContent
         };
         createMatchHttpRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", creatorToken);
 
         var createMatchResponse = await HttpClient.SendAsync(createMatchHttpRequest);
         var createMatchBody = await createMatchResponse.Content.ReadAsStringAsync();
@@ -168,7 +169,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = betContent
         };
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         // Act
         await HttpClient!.SendAsync(request);
@@ -200,7 +201,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = betContent
         };
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         // Act
         await HttpClient!.SendAsync(request);
@@ -232,7 +233,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = betContent
         };
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         // Act
         await HttpClient!.SendAsync(request);
@@ -265,7 +266,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = initialBetContent
         };
         initialRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient!.SendAsync(initialRequest);
 
@@ -285,7 +286,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = updatedBetContent
         };
         updateRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient.SendAsync(updateRequest);
 
@@ -316,14 +317,14 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = betContent
         };
         placeRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient!.SendAsync(placeRequest);
 
         // Act - Get bet
         var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchId}/bets/my");
         getRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient.SendAsync(getRequest);
 
@@ -342,7 +343,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Act - Get bet without placing one
         var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchId}/bets/my");
         getRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient!.SendAsync(getRequest);
 
@@ -374,14 +375,14 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = betContent
         };
         placeRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient!.SendAsync(placeRequest);
 
         // Act - Delete bet
         var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{tableId}/matches/{matchId}/bets");
         deleteRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient.SendAsync(deleteRequest);
 
@@ -400,7 +401,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Act - Delete bet without placing one
         var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{tableId}/matches/{matchId}/bets");
         deleteRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", playerToken);
+            new AuthenticationHeaderValue("Bearer", playerToken);
 
         await HttpClient!.SendAsync(deleteRequest);
 
@@ -431,7 +432,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var creatorRegisterResponse = await HttpClient!.PostAsync("/api/auth/register", creatorRegisterContent);
         var creatorRegisterBody = await creatorRegisterResponse.Content.ReadAsStringAsync();
-        var creatorAuthResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(creatorRegisterBody);
+        var creatorAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(creatorRegisterBody);
         var creatorToken = creatorAuthResponse!.AccessToken;
 
         var player1RegisterRequest = new RegisterRequest
@@ -448,7 +449,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var player1RegisterResponse = await HttpClient.PostAsync("/api/auth/register", player1RegisterContent);
         var player1RegisterBody = await player1RegisterResponse.Content.ReadAsStringAsync();
-        var player1AuthResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(player1RegisterBody);
+        var player1AuthResponse = JsonConvert.DeserializeObject<AuthResponse>(player1RegisterBody);
         var player1Token = player1AuthResponse!.AccessToken;
 
         var player2RegisterRequest = new RegisterRequest
@@ -465,7 +466,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var player2RegisterResponse = await HttpClient.PostAsync("/api/auth/register", player2RegisterContent);
         var player2RegisterBody = await player2RegisterResponse.Content.ReadAsStringAsync();
-        var player2AuthResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(player2RegisterBody);
+        var player2AuthResponse = JsonConvert.DeserializeObject<AuthResponse>(player2RegisterBody);
         var player2Token = player2AuthResponse!.AccessToken;
 
         // Create table
@@ -539,7 +540,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Content = matchContent
         };
         createMatchHttpRequest.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", creatorToken);
 
         var createMatchResponse = await HttpClient.SendAsync(createMatchHttpRequest);
         var createMatchBody = await createMatchResponse.Content.ReadAsStringAsync();
@@ -561,7 +562,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
                 "application/json")
         };
         bet1Request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", player1Token);
+            new AuthenticationHeaderValue("Bearer", player1Token);
 
         var bet2Request = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches/{matchId}/bets")
         {
@@ -571,7 +572,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
                 "application/json")
         };
         bet2Request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", player2Token);
+            new AuthenticationHeaderValue("Bearer", player2Token);
 
         await HttpClient.SendAsync(bet1Request);
         await HttpClient.SendAsync(bet2Request);

@@ -6,7 +6,7 @@ public class RecordedHttpMessageConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
     {
-        return objectType. Name == "LoggedSend";
+        return objectType.Name == "LoggedSend";
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -33,13 +33,9 @@ public class RecordedHttpMessageConverter : JsonConverter
             writer.WritePropertyName(prop.Name);
 
             if (prop.Name == "RequestContent" || prop.Name == "ResponseContent")
-            {
                 WriteJsonProperty(writer, serializer, propValue as string);
-            }
             else
-            {
                 serializer.Serialize(writer, propValue);
-            }
         }
 
         writer.WriteEndObject();
@@ -47,7 +43,7 @@ public class RecordedHttpMessageConverter : JsonConverter
 
     private void WriteJsonProperty(JsonWriter writer, JsonSerializer serializer, string content)
     {
-        if (string. IsNullOrWhiteSpace(content))
+        if (string.IsNullOrWhiteSpace(content))
         {
             writer.WriteNull();
             return;

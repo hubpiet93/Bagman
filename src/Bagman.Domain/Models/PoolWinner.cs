@@ -8,8 +8,7 @@ public class PoolWinner
 
     public Guid UserId { get; set; }
 
-    [Range(0, double.MaxValue)]
-    public decimal AmountWon { get; set; }
+    [Range(0, double.MaxValue)] public decimal AmountWon { get; set; }
 
     // Navigation properties
     public virtual Pool? Pool { get; set; }

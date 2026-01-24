@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Bagman.Domain.Models;
 
 public class TableMember

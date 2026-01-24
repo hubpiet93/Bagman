@@ -1,3 +1,4 @@
+using System.Text;
 using Bagman.Api.Middleware;
 using Bagman.Api.Validators;
 using Bagman.Infrastructure;
@@ -6,7 +7,6 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);

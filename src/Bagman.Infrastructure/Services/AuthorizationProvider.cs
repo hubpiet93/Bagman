@@ -116,15 +116,12 @@ public class AuthorizationProvider : IAuthorizationProvider
 
         // Remove refresh token from persistent store
         var result = await _userRepository.RemoveRefreshTokenAsync(refreshToken);
-        
+
         // Even if token doesn't exist, consider logout successful (idempotent operation)
         if (result.IsError)
-        {
-            _logger.LogWarning("Failed to remove refresh token during logout: {Code}", 
+            _logger.LogWarning("Failed to remove refresh token during logout: {Code}",
                 result.FirstError.Code);
-            // Don't return error - logout is considered successful if token is already gone
-        }
-
+        // Don't return error - logout is considered successful if token is already gone
         return Result.Success;
     }
 

@@ -8,11 +8,9 @@ public class Pool
 
     public Guid MatchId { get; set; }
 
-    [Range(0, double.MaxValue)]
-    public decimal Amount { get; set; }
+    [Range(0, double.MaxValue)] public decimal Amount { get; set; }
 
-    [StringLength(20)]
-    public string Status { get; set; } = "active"; // active, won, rollover, expired
+    [StringLength(20)] public string Status { get; set; } = "active"; // active, won, rollover, expired
 
     public DateTime CreatedAt { get; set; }
 

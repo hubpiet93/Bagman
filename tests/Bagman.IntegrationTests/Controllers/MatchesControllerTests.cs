@@ -1,26 +1,26 @@
+using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.TestFixtures;
+using Newtonsoft.Json;
 
 namespace Bagman.IntegrationTests.Controllers;
 
 [CollectionDefinition("Matches Tests")]
-public class MatchesTestsCollection : ICollectionFixture<TestFixtures.PostgresFixture>
+public class MatchesTestsCollection : ICollectionFixture<PostgresFixture>
 {
 }
 
 /// <summary>
-/// Integration tests for MatchesController actions using TestContainers for PostgreSQL.
-/// Tests Create Match, Get Match, Update Match, Delete Match, and Set Match Result.
-/// Only table administrators can manage matches.
+///     Integration tests for MatchesController actions using TestContainers for PostgreSQL.
+///     Tests Create Match, Get Match, Update Match, Delete Match, and Set Match Result.
+///     Only table administrators can manage matches.
 /// </summary>
 [Collection("Matches Tests")]
 public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-
-    public MatchesControllerTests(PostgresFixture postgresFixture): base(postgresFixture)
+    public MatchesControllerTests(PostgresFixture postgresFixture) : base(postgresFixture)
     {
     }
 
@@ -37,7 +37,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
     private async Task<(Guid TableId, string CreatorToken)> CreateTableAsAdmin(string creatorLogin, string creatorPassword, string tableName)
     {
         // Ensure login is unique per test run to avoid collisions
-        var creatorLoginUnique = $"{creatorLogin}_{Guid.NewGuid().ToString("N").Substring(0,8)}";
+        var creatorLoginUnique = $"{creatorLogin}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
 
         // Create table (endpoint auto-registers creator)
         var createTableRequest = new CreateTableRequest
@@ -57,10 +57,10 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var createResponse = await HttpClient!.PostAsync("/api/tables", createTableContent);
         var createBody = await createResponse.Content.ReadAsStringAsync();
-        
+
         if (!createResponse.IsSuccessStatusCode)
             throw new Exception($"Failed to create table: {createResponse.StatusCode} - {createBody}");
-        
+
         var tableResponse = JsonConvert.DeserializeObject<TableResponse>(createBody);
 
         // Login creator to obtain token
@@ -80,7 +80,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         if (!loginResponse.IsSuccessStatusCode)
             throw new Exception($"Failed to login creator after table creation: {loginResponse.StatusCode} - {loginBody}");
 
-        var authResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(loginBody);
+        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(loginBody);
         var creatorToken = authResponse!.AccessToken;
 
         return (tableResponse!.Id, creatorToken);
@@ -108,11 +108,11 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         // Act
         await HttpClient.SendAsync(request);
-        
+
         // Assert
         await VerifyHttpRecording();
     }
@@ -139,7 +139,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         // Act
         await HttpClient.SendAsync(request);
@@ -170,7 +170,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         // Act
         await HttpClient!.SendAsync(request);
@@ -201,25 +201,25 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        createRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         var createResponse = await HttpClient!.SendAsync(createRequest);
         var createBody = await createResponse.Content.ReadAsStringAsync();
-        
+
         if (!createResponse.IsSuccessStatusCode)
             throw new Exception($"Failed to create match: {createResponse.StatusCode} - {createBody}");
-        
+
         var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
 
         // Act - Get match
         var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{createdMatch!.Id}");
-        getRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
         var response = await HttpClient.SendAsync(getRequest);
         var responseBody = await response.Content.ReadAsStringAsync();
-        
+
         if (!response.IsSuccessStatusCode)
             throw new Exception($"Failed to get match: {response.StatusCode} - {responseBody}");
-        
+
         // Assert
         await VerifyHttpRecording();
     }
@@ -246,7 +246,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        createRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         var createResponse = await HttpClient!.SendAsync(createRequest);
         var createBody = await createResponse.Content.ReadAsStringAsync();
@@ -269,7 +269,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = updateContent
         };
-        updateRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        updateRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
         await HttpClient.SendAsync(updateRequest);
         await VerifyHttpRecording();
     }
@@ -296,19 +296,19 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        createRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         var createResponse = await HttpClient!.SendAsync(createRequest);
         var createBody = await createResponse.Content.ReadAsStringAsync();
-        
+
         if (!createResponse.IsSuccessStatusCode)
             throw new Exception($"Failed to create match: {createResponse.StatusCode} - {createBody}");
-        
+
         var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
 
         // Act - Delete match
         var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{tableId}/matches/{createdMatch!.Id}");
-        deleteRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        deleteRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
         await HttpClient.SendAsync(deleteRequest);
         await VerifyHttpRecording();
     }
@@ -335,14 +335,14 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        createRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
         var createResponse = await HttpClient!.SendAsync(createRequest);
         var createBody = await createResponse.Content.ReadAsStringAsync();
-        
+
         if (!createResponse.IsSuccessStatusCode)
             throw new Exception($"Failed to create match: {createResponse.StatusCode} - {createBody}");
-        
+
         var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
 
         // Act - Set result
@@ -361,7 +361,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = resultContent
         };
-        resultHttpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+        resultHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
         await HttpClient.SendAsync(resultHttpRequest);
         await VerifyHttpRecording();
     }
@@ -388,7 +388,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var memberRegisterResponse = await HttpClient!.PostAsync("/api/auth/register", memberRegisterContent);
         var memberRegisterBody = await memberRegisterResponse.Content.ReadAsStringAsync();
-        var memberAuthResponse = JsonConvert.DeserializeObject<Contracts.Models.Auth.AuthResponse>(memberRegisterBody);
+        var memberAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(memberRegisterBody);
 
         var memberToken = memberAuthResponse!.AccessToken;
 
@@ -425,7 +425,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             Content = matchContent
         };
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", memberToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", memberToken);
 
         await HttpClient.SendAsync(request);
 

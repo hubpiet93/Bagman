@@ -10,9 +10,7 @@ public class Bet
 
     public Guid MatchId { get; set; }
 
-    [Required]
-    [StringLength(10)]
-    public string Prediction { get; set; } = string.Empty;
+    [Required] [StringLength(10)] public string Prediction { get; set; } = string.Empty;
 
     public DateTime EditedAt { get; set; }
 

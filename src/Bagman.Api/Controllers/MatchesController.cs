@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Bagman.Api.Controllers;
 
@@ -45,7 +45,10 @@ public class MatchesController : AppControllerBase
             CreatedAt = result.Value.CreatedAt
         };
 
-        return CreatedAtAction(nameof(GetMatchDetails), new { tableId = tableId, matchId = result.Value.Id }, response);
+        return CreatedAtAction(nameof(GetMatchDetails), new
+        {
+            tableId, matchId = result.Value.Id
+        }, response);
     }
 
     /// <summary>
@@ -89,7 +92,7 @@ public class MatchesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new { message = "Match updated successfully" });
+        return Ok(new {message = "Match updated successfully"});
     }
 
     /// <summary>
@@ -106,7 +109,7 @@ public class MatchesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new { message = "Match deleted successfully" });
+        return Ok(new {message = "Match deleted successfully"});
     }
 
     /// <summary>
@@ -125,7 +128,7 @@ public class MatchesController : AppControllerBase
         if (setResultResponse.IsError)
             return MapErrors(setResultResponse.Errors);
 
-        return Ok(new { message = "Match result set successfully" });
+        return Ok(new {message = "Match result set successfully"});
     }
 
     private Guid? GetUserId()

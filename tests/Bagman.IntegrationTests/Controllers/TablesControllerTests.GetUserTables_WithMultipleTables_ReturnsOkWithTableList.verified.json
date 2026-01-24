@@ -90,21 +90,21 @@
     "ResponseHeaders": {},
     "ResponseContent": [
       {
-        "id": "Guid_5",
-        "name": "Table Two Guid_4",
-        "maxPlayers": 10,
-        "stake": 100.0,
-        "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_4",
-        "isSecretMode": false
-      },
-      {
         "id": "Guid_3",
         "name": "Table One Guid_2",
         "maxPlayers": 5,
         "stake": 50.0,
         "createdBy": "Guid_1",
         "createdAt": "DateTimeOffset_3",
+        "isSecretMode": false
+      },
+      {
+        "id": "Guid_5",
+        "name": "Table Two Guid_4",
+        "maxPlayers": 10,
+        "stake": 100.0,
+        "createdBy": "Guid_1",
+        "createdAt": "DateTimeOffset_4",
         "isSecretMode": false
       }
     ]

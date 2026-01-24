@@ -7,6 +7,7 @@ Konwertowałem testy integracyjne dla AuthController z tradycyjnych asercji Flue
 ## Dlaczego Snapshot Testing?
 
 ### Problemy z tradycyjnym podejściem (FluentAssertions)
+
 ```csharp
 // Stare podejście - wiele asercji
 authResponse.Should().NotBeNull();
@@ -19,11 +20,13 @@ authResponse.User.IsActive.Should().BeTrue();
 ```
 
 **Wady:**
+
 - Dużo powtarzalnego kodu
 - Trudne w utrzymaniu gdy zmienia się struktura odpowiedzi
 - Nie widać całości struktury na pierwszy rzut oka
 
 ### Nowe podejście (Snapshot Testing)
+
 ```csharp
 // Nowe podejście - jedno stwierdzenie
 await Verify(new
@@ -42,6 +45,7 @@ await Verify(new
 ```
 
 **Zalety:**
+
 - Mniej kodu
 - Jasna struktura
 - Automatyczne porównanie
@@ -50,16 +54,19 @@ await Verify(new
 ## Zmiany w Kodzie
 
 ### 1. Dodane Zależności (`.csproj`)
+
 - **Verify.Xunit** (26.0.0) - Snapshot testing framework
 - Zaktualizowany **xunit** do 2.9.0 dla kompatybilności
 
 ### 2. Nowe Pliki
 
 #### `ModuleInitializer.cs`
+
 - Punkt wejścia dla konfiguracji Verify
 - Przygotowane dla przyszłych ustawień
 
 #### `README_INTEGRATION_TESTS.md` (aktualizacja)
+
 - Dokumentacja snapshot testing
 - Instrukcje zarządzania snapshots
 - Komendy dla zatwierdzania zmian
@@ -67,6 +74,7 @@ await Verify(new
 ### 3. Zmienione Testy (11 testów)
 
 Każdy test został zmieniony z:
+
 ```csharp
 response.StatusCode.Should().Be(HttpStatusCode.OK);
 authResponse.User.Login.Should().Be("testuser");
@@ -74,6 +82,7 @@ authResponse.User.Login.Should().Be("testuser");
 ```
 
 Na:
+
 ```csharp
 await Verify(new
 {
@@ -117,6 +126,7 @@ dotnet test tests/Bagman.IntegrationTests/ -- --verify-mode Interactive
 ## Zachowywanie FluentAssertions
 
 W niektórych testach pozostawiłem FluentAssertions dla logiki krytycznej:
+
 ```csharp
 registerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 ```
