@@ -4,7 +4,12 @@ WORKDIR /src
 COPY . .
 
 RUN dotnet restore
-RUN dotnet publish src/Bagman.Api/Bagman.Api.csproj -c Release -o /app/publish
+
+RUN dotnet build -c Release
+
+RUN dotnet test tests/Bagman.IntegrationTests/Bagman.IntegrationTests.csproj -c Release --no-build --verbosity normal
+
+RUN dotnet publish src/Bagman.Api/Bagman.Api.csproj -c Release -o /app/publish --no-build
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app

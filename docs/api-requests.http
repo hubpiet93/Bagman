@@ -5,7 +5,8 @@
 ### KONFIGURACJA
 ### ========================================
 
-@baseUrl = http://localhost:5000/api
+###@baseUrl = http://localhost:5000/api
+@baseUrl = https://bagman-production.up.railway.app/api
 @authToken = {{login.response.body.accessToken}}
 @refreshToken = 4crticmsmw7t
 
