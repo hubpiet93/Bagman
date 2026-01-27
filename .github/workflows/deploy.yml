@@ -1,7 +1,12 @@
-name: Build, Test and Deploy to Railway
+name: CI - Build and Test
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 env:
   DOTNET_VERSION: '10.0.x'
@@ -26,18 +31,3 @@ jobs:
 
       - name: Run Integration Tests
         run: dotnet test tests/Bagman.IntegrationTests/Bagman.IntegrationTests.csproj --no-build --configuration Release --verbosity normal
-
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
-
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE }}
