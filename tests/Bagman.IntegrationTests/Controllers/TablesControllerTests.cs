@@ -575,4 +575,106 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Assert
         await VerifyHttpRecording();
     }
+
+    [Fact]
+    public async Task AuthorizedCreateTable_WithValidTokenAndRequest_ReturnsCreated()
+    {
+        // Arrange
+        var (token, _, _) = await RegisterAndGetToken("auth_create_user", "Pass@12345", "authcreate");
+        var request = new AuthorizedCreateTableRequest
+        {
+            TableName = $"Authorized Table {Guid.NewGuid()}",
+            TablePassword = "AuthTablePass@123",
+            MaxPlayers = 10,
+            Stake = 25m
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+        var http = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = content };
+        http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        await HttpClient!.SendAsync(http);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task AuthorizedCreateTable_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var request = new AuthorizedCreateTableRequest
+        {
+            TableName = $"NoToken Table {Guid.NewGuid()}",
+            TablePassword = "NoTokenPass@123",
+            MaxPlayers = 5,
+            Stake = 10m
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+
+        // Act
+        await HttpClient!.PostAsync("/api/tables/create", content);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task AuthorizedCreateTable_WithDuplicateName_ReturnsConflict409()
+    {
+        // Arrange
+        var (token, _, _) = await RegisterAndGetToken("dup_create_user", "Pass@12345", "dupcreate");
+        var tableName = $"Duplicate Name Table {Guid.NewGuid()}";
+        var first = new AuthorizedCreateTableRequest
+        {
+            TableName = tableName,
+            TablePassword = "DupPass@123",
+            MaxPlayers = 5,
+            Stake = 10m
+        };
+        var firstContent = new StringContent(JsonConvert.SerializeObject(first), Encoding.UTF8, "application/json");
+        var firstHttp = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = firstContent };
+        firstHttp.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        await HttpClient!.SendAsync(firstHttp);
+
+        var second = new AuthorizedCreateTableRequest
+        {
+            TableName = tableName,
+            TablePassword = "DupPass@123",
+            MaxPlayers = 5,
+            Stake = 10m
+        };
+        var secondContent = new StringContent(JsonConvert.SerializeObject(second), Encoding.UTF8, "application/json");
+        var secondHttp = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = secondContent };
+        secondHttp.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        await HttpClient.SendAsync(secondHttp);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task AuthorizedCreateTable_WithInvalidData_ReturnsBadRequest()
+    {
+        // Arrange
+        var (token, _, _) = await RegisterAndGetToken("invalid_create_user", "Pass@12345", "invalidcreate");
+        var request = new AuthorizedCreateTableRequest
+        {
+            TableName = "", // invalid
+            TablePassword = "", // invalid
+            MaxPlayers = 0, // invalid
+            Stake = -1m // invalid
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+        var http = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = content };
+        http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        await HttpClient!.SendAsync(http);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
 }

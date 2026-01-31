@@ -45,6 +45,34 @@ public class CreateTableRequestValidator : AbstractValidator<CreateTableRequest>
     }
 }
 
+public class AuthorizedCreateTableRequestValidator : AbstractValidator<AuthorizedCreateTableRequest>
+{
+    public AuthorizedCreateTableRequestValidator()
+    {
+        RuleFor(x => x.TableName)
+            .NotEmpty()
+            .WithMessage("Nazwa stołu jest wymagana")
+            .MaximumLength(100)
+            .WithMessage("Nazwa stołu nie może mieć więcej niż 100 znaków");
+
+        RuleFor(x => x.TablePassword)
+            .NotEmpty()
+            .WithMessage("Hasło stołu jest wymagane")
+            .MaximumLength(255)
+            .WithMessage("Hasło nie może mieć więcej niż 255 znaków");
+
+        RuleFor(x => x.MaxPlayers)
+            .GreaterThan(0)
+            .WithMessage("Maksymalna liczba graczy musi być większa niż 0")
+            .LessThanOrEqualTo(1000)
+            .WithMessage("Maksymalna liczba graczy nie może przekraczać 1000");
+
+        RuleFor(x => x.Stake)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Stawka nie może być ujemna");
+    }
+}
+
 public class JoinTableRequestValidator : AbstractValidator<JoinTableRequest>
 {
     public JoinTableRequestValidator()

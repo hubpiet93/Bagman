@@ -3,6 +3,7 @@ using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Bagman.Api.Controllers;
 
@@ -75,6 +76,47 @@ public class TablesController : AppControllerBase
         };
 
         return CreatedAtAction(nameof(GetTableDetails), new {tableId = tableResult.Value.Id}, createdResponse);
+    }
+
+    /// <summary>
+    ///     Utworzenie nowego stołu z użyciem istniejącego użytkownika
+    /// </summary>
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateTableAuthorized([FromBody] AuthorizedCreateTableRequest request)
+    {
+        var userId = GetUserId();
+        if (!userId.HasValue)
+            return Unauthorized();
+
+        // Check if table with the same name already exists
+        var existingTable = await _tableService.GetTableByNameAsync(request.TableName);
+        if (!existingTable.IsError && existingTable.Value != null)
+            return Conflict(new {code = "Table.DuplicateName", message = "Stół o podanej nazwie już istnieje"});
+
+        // Create the table
+        var result = await _tableService.CreateTableAsync(
+            request.TableName,
+            request.TablePassword,
+            request.MaxPlayers,
+            request.Stake,
+            userId.Value
+        );
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        var createdResponse = new TableResponse
+        {
+            Id = result.Value.Id,
+            Name = result.Value.Name,
+            MaxPlayers = result.Value.MaxPlayers,
+            Stake = result.Value.Stake,
+            CreatedBy = result.Value.CreatedBy,
+            CreatedAt = result.Value.CreatedAt,
+            IsSecretMode = result.Value.IsSecretMode
+        };
+
+        return CreatedAtAction(nameof(GetTableDetails), new {tableId = result.Value.Id}, createdResponse);
     }
 
     /// <summary>
@@ -258,9 +300,13 @@ public class TablesController : AppControllerBase
 
     private Guid? GetUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (Guid.TryParse(userIdClaim, out var userId))
-            return userId;
+        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        if (Guid.TryParse(subClaim, out var userIdFromSub))
+            return userIdFromSub;
+
+        var nameIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (Guid.TryParse(nameIdClaim, out var userIdFromNameId))
+            return userIdFromNameId;
 
         return null;
     }

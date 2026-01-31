@@ -1,0 +1,19 @@
+﻿[
+  {
+    "RequestUri": "http://localhost/api/tables/create",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "TableName": "NoToken Table Guid_1",
+      "TablePassword": "NoTokenPass@123",
+      "MaxPlayers": 5,
+      "Stake": 10.0
+    },
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {
+      "WWW-Authenticate": "Bearer"
+    },
+    "ResponseContent": null
+  }
+]

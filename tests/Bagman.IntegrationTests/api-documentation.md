@@ -1,5 +1,5 @@
 # prompt do AI o stworzenie dokumentacji API
-Na bazie snapshotów, które są w katalogu `tests/Bagman.IntegrationTests/Controllers`, wygeneruj dokumentację API w formacie markdown. Dokumentacja powinna zawierać opis każdego endpointu, metodę HTTP, ścieżkę, wymagane parametry, przykładowe zapytania i odpowiedzi oraz kody statusu HTTP. Upewnij się, że dokumentacja jest czytelna i dobrze sformatowana.
+Na bazie snapshotów, wygeneruj dokumentację API w formacie markdown. Dokumentacja powinna zawierać opis każdego endpointu, metodę HTTP, ścieżkę, wymagane parametry, przykładowe zapytania i odpowiedzi oraz kody statusu HTTP. Upewnij się, że dokumentacja jest czytelna i dobrze sformatowana.
 Wykorzystaj wskazówkę o tym, w jaki sposób powstały snsnapshoty
 - Kazdy test wykonuje różne zapytania http do endpointów API Bagman w celu odwzorowania określonego scenariusza. Snapshot zapisuje pełne nagranie wysztkich zapytań i odpowiedzi HTTP wykonanych podczas testu.
 - ze snapshotów wymazane są różne dane np. Tokeny autoryzacyjne, dane użytkowników itp. aby dokumentacja nie zawierała wrażliwych informacji.
@@ -17,7 +17,10 @@ Oczekiwania co do dokumentacji
   - Kody statusu HTTP
   - Opis typów w zapytaniach i odpowiedziach (jeśli istnieją)
 - Dokumentacja powinna zawierać wyłącznie unikalne endpointy (bez duplikatów).
+- Osobno opisz typy błędów ich kody oraz kiedy mogą wystąpić
+- Dokumentacja powinna być w pliku .md i sformatowana w markdown.
 
+Pamiętaj aby całą dokumentację zwrócić mi w jednym pliku tak abym mógł to w łatwt y sposób skopiować i zapisać jako plik markdown.
 
 # Dokumentacja API Bagman
 

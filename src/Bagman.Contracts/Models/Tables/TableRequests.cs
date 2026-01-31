@@ -10,6 +10,14 @@ public record CreateTableRequest
     public required decimal Stake { get; init; }
 }
 
+public record AuthorizedCreateTableRequest
+{
+    public required string TableName { get; init; }
+    public required string TablePassword { get; init; }
+    public required int MaxPlayers { get; init; }
+    public required decimal Stake { get; init; }
+}
+
 public record JoinTableRequest
 {
     public required string UserLogin { get; init; }

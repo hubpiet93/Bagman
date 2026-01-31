@@ -5,8 +5,8 @@
 ### KONFIGURACJA
 ### ========================================
 
-###@baseUrl = http://localhost:5000/api
-@baseUrl = https://bagman-production.up.railway.app/api
+@baseUrl = http://localhost:5000/api
+###@baseUrl = https://bagman-production.up.railway.app/api
 @authToken = {{login.response.body.accessToken}}
 @refreshToken = 4crticmsmw7t
 
@@ -32,8 +32,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "login": "testuser3",
-  "password": "Testowanie2027%"
+  "login": "pietruczukhubert0131@gmail.com",
+  "password": "Testowanie2026%"
 }
 
 ### Odświeżenie tokenu
