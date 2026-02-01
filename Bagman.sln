@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Infrastructure", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.IntegrationTests", "tests\Bagman.IntegrationTests\Bagman.IntegrationTests.csproj", "{D665BBB6-D075-46E0-87AC-B32DDB9F5A68}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagman.Application", "src\Bagman.Application\Bagman.Application.csproj", "{C4890C32-9F9F-4E6B-9DB9-ADFF0F13DA76}"
 EndProject
 Global
@@ -104,6 +102,5 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C4890C32-9F9F-4E6B-9DB9-ADFF0F13DA76} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
