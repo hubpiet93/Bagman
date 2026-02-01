@@ -1,6 +1,12 @@
 using System.Security.Claims;
+using Bagman.Application.Common;
+using Bagman.Application.Features.Matches.CreateMatch;
+using Bagman.Application.Features.Matches.DeleteMatch;
+using Bagman.Application.Features.Matches.GetMatchDetails;
+using Bagman.Application.Features.Matches.SetMatchResult;
+using Bagman.Application.Features.Matches.UpdateMatch;
 using Bagman.Contracts.Models.Tables;
-using Bagman.Domain.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +17,11 @@ namespace Bagman.Api.Controllers;
 [Authorize]
 public class MatchesController : AppControllerBase
 {
-    private readonly IMatchService _matchService;
+    private readonly FeatureDispatcher _dispatcher;
 
-    public MatchesController(IMatchService matchService)
+    public MatchesController(FeatureDispatcher dispatcher)
     {
-        _matchService = matchService;
+        _dispatcher = dispatcher;
     }
 
     /// <summary>
@@ -28,7 +34,16 @@ public class MatchesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _matchService.CreateMatchAsync(tableId, request.Country1, request.Country2, request.MatchDateTime, userId.Value);
+        var result = await _dispatcher.HandleAsync<CreateMatchCommand, CreateMatchResult>(
+            new CreateMatchCommand
+            {
+                TableId = tableId,
+                Country1 = request.Country1,
+                Country2 = request.Country2,
+                MatchDateTime = request.MatchDateTime,
+                UserId = userId.Value
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -39,9 +54,9 @@ public class MatchesController : AppControllerBase
             Country1 = result.Value.Country1,
             Country2 = result.Value.Country2,
             MatchDateTime = result.Value.MatchDateTime,
-            Result = result.Value.Result,
+            Result = null,
             Status = result.Value.Status,
-            Started = result.Value.Started,
+            Started = DateTime.UtcNow >= result.Value.MatchDateTime,
             CreatedAt = result.Value.CreatedAt
         };
 
@@ -58,12 +73,11 @@ public class MatchesController : AppControllerBase
     [HttpGet("{matchId}")]
     public async Task<IActionResult> GetMatchDetails(Guid tableId, Guid matchId)
     {
-        var result = await _matchService.GetMatchByIdAsync(matchId);
+        var result = await _dispatcher.HandleAsync<GetMatchDetailsQuery, MatchDetailsResult>(
+            new GetMatchDetailsQuery { MatchId = matchId });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
-
-        if (result.Value == null)
-            return NotFound();
 
         return Ok(new MatchResponse
         {
@@ -74,7 +88,7 @@ public class MatchesController : AppControllerBase
             MatchDateTime = result.Value.MatchDateTime,
             Result = result.Value.Result,
             Status = result.Value.Status,
-            Started = result.Value.Started,
+            Started = DateTime.UtcNow >= result.Value.MatchDateTime,
             CreatedAt = result.Value.CreatedAt
         });
     }
@@ -89,7 +103,16 @@ public class MatchesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _matchService.UpdateMatchAsync(matchId, request.Country1, request.Country2, request.MatchDateTime, userId.Value);
+        var result = await _dispatcher.HandleAsync<UpdateMatchCommand, Success>(
+            new UpdateMatchCommand
+            {
+                MatchId = matchId,
+                Country1 = request.Country1,
+                Country2 = request.Country2,
+                MatchDateTime = request.MatchDateTime,
+                UserId = userId.Value
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -106,7 +129,13 @@ public class MatchesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _matchService.DeleteMatchAsync(matchId, userId.Value);
+        var result = await _dispatcher.HandleAsync<DeleteMatchCommand, Success>(
+            new DeleteMatchCommand
+            {
+                MatchId = matchId,
+                UserId = userId.Value
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -124,7 +153,13 @@ public class MatchesController : AppControllerBase
             return Unauthorized();
 
         var result = $"{request.Score1}:{request.Score2}";
-        var setResultResponse = await _matchService.SetMatchResultAsync(matchId, result, userId.Value);
+        var setResultResponse = await _dispatcher.HandleAsync<SetMatchResultCommand, Success>(
+            new SetMatchResultCommand
+            {
+                MatchId = matchId,
+                Result = result,
+                UserId = userId.Value
+            });
 
         if (setResultResponse.IsError)
             return MapErrors(setResultResponse.Errors);

@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Refresh_WithValidRefreshToken_ReturnsOkWithNewTokens"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

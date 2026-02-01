@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "PlaceBet_WithDrawPrediction_ReturnsOk"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",

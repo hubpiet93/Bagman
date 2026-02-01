@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "AuthorizedCreateTable_WithValidTokenAndRequest_ReturnsCreated"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

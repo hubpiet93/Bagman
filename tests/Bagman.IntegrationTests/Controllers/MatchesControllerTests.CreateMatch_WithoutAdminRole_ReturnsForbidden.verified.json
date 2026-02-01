@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "CreateMatch_WithoutAdminRole_ReturnsForbidden"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",

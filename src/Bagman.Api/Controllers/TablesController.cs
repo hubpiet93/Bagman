@@ -1,6 +1,16 @@
 using System.Security.Claims;
+using Bagman.Application.Common;
+using Bagman.Application.Features.Tables.CreateTable;
+using Bagman.Application.Features.Tables.GetTableByName;
+using Bagman.Application.Features.Tables.GetTableDetails;
+using Bagman.Application.Features.Tables.GetUserTables;
+using Bagman.Application.Features.Tables.GrantAdmin;
+using Bagman.Application.Features.Tables.JoinTable;
+using Bagman.Application.Features.Tables.LeaveTable;
+using Bagman.Application.Features.Tables.RevokeAdmin;
 using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -13,11 +23,11 @@ namespace Bagman.Api.Controllers;
 public class TablesController : AppControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly ITableService _tableService;
+    private readonly FeatureDispatcher _dispatcher;
 
-    public TablesController(ITableService tableService, IAuthService authService)
+    public TablesController(FeatureDispatcher dispatcher, IAuthService authService)
     {
-        _tableService = tableService;
+        _dispatcher = dispatcher;
         _authService = authService;
     }
 
@@ -53,13 +63,15 @@ public class TablesController : AppControllerBase
         }
 
         // Create table
-        var tableResult = await _tableService.CreateTableAsync(
-            request.TableName,
-            request.TablePassword, // In production, hash this password
-            request.MaxPlayers,
-            request.Stake,
-            userId
-        );
+        var tableResult = await _dispatcher.HandleAsync<CreateTableCommand, CreateTableResult>(
+            new CreateTableCommand
+            {
+                Name = request.TableName,
+                PasswordHash = request.TablePassword,
+                MaxPlayers = request.MaxPlayers,
+                Stake = request.Stake,
+                CreatedBy = userId
+            });
 
         if (tableResult.IsError)
             return MapErrors(tableResult.Errors);
@@ -89,18 +101,22 @@ public class TablesController : AppControllerBase
             return Unauthorized();
 
         // Check if table with the same name already exists
-        var existingTable = await _tableService.GetTableByNameAsync(request.TableName);
+        var existingTable = await _dispatcher.HandleAsync<GetTableByNameQuery, TableBasicResult?>(
+            new GetTableByNameQuery { TableName = request.TableName });
+        
         if (!existingTable.IsError && existingTable.Value != null)
             return Conflict(new {code = "Table.DuplicateName", message = "Stół o podanej nazwie już istnieje"});
 
         // Create the table
-        var result = await _tableService.CreateTableAsync(
-            request.TableName,
-            request.TablePassword,
-            request.MaxPlayers,
-            request.Stake,
-            userId.Value
-        );
+        var result = await _dispatcher.HandleAsync<CreateTableCommand, CreateTableResult>(
+            new CreateTableCommand
+            {
+                Name = request.TableName,
+                PasswordHash = request.TablePassword,
+                MaxPlayers = request.MaxPlayers,
+                Stake = request.Stake,
+                CreatedBy = userId.Value
+            });
 
         if (result.IsError)
             return MapErrors(result.Errors);
@@ -133,7 +149,9 @@ public class TablesController : AppControllerBase
             : loginResult.Value.User.Id;
 
         // Get table by name
-        var getTableResult = await _tableService.GetTableByNameAsync(request.TableName);
+        var getTableResult = await _dispatcher.HandleAsync<GetTableByNameQuery, TableBasicResult?>(
+            new GetTableByNameQuery { TableName = request.TableName });
+        
         if (getTableResult.IsError)
             return MapErrors(getTableResult.Errors);
 
@@ -143,16 +161,25 @@ public class TablesController : AppControllerBase
         var tableId = getTableResult.Value.Id;
 
         // Join table
-        var joinResult = await _tableService.JoinTableAsync(tableId, userId, request.TablePassword);
+        var joinResult = await _dispatcher.HandleAsync<JoinTableCommand, Success>(
+            new JoinTableCommand
+            {
+                TableId = tableId,
+                UserId = userId,
+                Password = request.TablePassword
+            });
+        
         if (joinResult.IsError)
             return MapErrors(joinResult.Errors);
 
         // Get updated table details
-        var tableDetailsResult = await _tableService.GetTableByIdAsync(tableId);
+        var tableDetailsResult = await _dispatcher.HandleAsync<GetTableByNameQuery, TableBasicResult?>(
+            new GetTableByNameQuery { TableName = request.TableName });
+        
         if (tableDetailsResult.IsError)
             return MapErrors(tableDetailsResult.Errors);
 
-        var table = tableDetailsResult.Value;
+        var table = tableDetailsResult.Value!;
         return Ok(new TableResponse
         {
             Id = table!.Id,
@@ -175,7 +202,9 @@ public class TablesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _tableService.GetUserTablesAsync(userId.Value);
+        var result = await _dispatcher.HandleAsync<GetUserTablesQuery, List<UserTableResult>>(
+            new GetUserTablesQuery { UserId = userId.Value });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -201,12 +230,11 @@ public class TablesController : AppControllerBase
     [HttpGet("{tableId}")]
     public async Task<IActionResult> GetTableDetails(Guid tableId)
     {
-        var result = await _tableService.GetTableByIdAsync(tableId);
+        var result = await _dispatcher.HandleAsync<GetTableDetailsQuery, TableDetailResult>(
+            new GetTableDetailsQuery { TableId = tableId });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
-
-        if (result.Value == null)
-            return NotFound();
 
         var table = result.Value;
         var response = new TableDetailResponse
@@ -221,7 +249,7 @@ public class TablesController : AppControllerBase
                 .Select(m => new TableMemberResponse
                 {
                     UserId = m.UserId,
-                    Login = m.User?.Login ?? "Unknown",
+                    Login = m.Login,
                     IsAdmin = m.IsAdmin,
                     JoinedAt = m.JoinedAt
                 }).ToList()
@@ -236,12 +264,11 @@ public class TablesController : AppControllerBase
     [HttpGet("{tableId}/dashboard")]
     public async Task<IActionResult> GetTableDashboard(Guid tableId)
     {
-        var result = await _tableService.GetTableByIdAsync(tableId);
+        var result = await _dispatcher.HandleAsync<GetTableDetailsQuery, TableDetailResult>(
+            new GetTableDetailsQuery { TableId = tableId });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
-
-        if (result.Value == null)
-            return NotFound();
 
         // Return full dashboard data
         return Ok(result.Value);
@@ -257,7 +284,13 @@ public class TablesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _tableService.LeaveTableAsync(tableId, userId.Value);
+        var result = await _dispatcher.HandleAsync<LeaveTableCommand, Success>(
+            new LeaveTableCommand
+            {
+                TableId = tableId,
+                UserId = userId.Value
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -274,7 +307,14 @@ public class TablesController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _tableService.GrantAdminAsync(tableId, userId.Value, request.UserId);
+        var result = await _dispatcher.HandleAsync<GrantAdminCommand, Success>(
+            new GrantAdminCommand
+            {
+                TableId = tableId,
+                RequestingUserId = userId.Value,
+                TargetUserId = request.UserId
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -291,7 +331,14 @@ public class TablesController : AppControllerBase
         if (!currentUserId.HasValue)
             return Unauthorized();
 
-        var result = await _tableService.RevokeAdminAsync(tableId, currentUserId.Value, userId);
+        var result = await _dispatcher.HandleAsync<RevokeAdminCommand, Success>(
+            new RevokeAdminCommand
+            {
+                TableId = tableId,
+                RequestingUserId = currentUserId.Value,
+                TargetUserId = userId
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 

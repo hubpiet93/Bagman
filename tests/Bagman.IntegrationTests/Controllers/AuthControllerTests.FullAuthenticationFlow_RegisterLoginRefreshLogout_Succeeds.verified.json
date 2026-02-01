@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "FullAuthenticationFlow_RegisterLoginRefreshLogout_Succeeds"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

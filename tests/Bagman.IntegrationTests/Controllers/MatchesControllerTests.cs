@@ -4,6 +4,7 @@ using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.TestFixtures;
 using Newtonsoft.Json;
+using Xunit.Abstractions;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -20,7 +21,7 @@ public class MatchesTestsCollection : ICollectionFixture<PostgresFixture>
 [Collection("Matches Tests")]
 public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-    public MatchesControllerTests(PostgresFixture postgresFixture) : base(postgresFixture)
+    public MatchesControllerTests(PostgresFixture postgresFixture, ITestOutputHelper testOutputHelper) : base(postgresFixture, testOutputHelper)
     {
     }
 

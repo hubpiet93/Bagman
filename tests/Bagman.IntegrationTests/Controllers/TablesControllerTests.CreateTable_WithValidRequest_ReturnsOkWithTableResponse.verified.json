@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "CreateTable_WithValidRequest_ReturnsOkWithTableResponse"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",

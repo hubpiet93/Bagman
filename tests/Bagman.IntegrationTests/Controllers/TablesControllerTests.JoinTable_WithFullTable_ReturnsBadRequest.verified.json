@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "JoinTable_WithFullTable_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",

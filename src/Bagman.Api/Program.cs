@@ -1,6 +1,7 @@
 using System.Text;
 using Bagman.Api.Middleware;
 using Bagman.Api.Validators;
+using Bagman.Application;
 using Bagman.Infrastructure;
 using Bagman.Infrastructure.Data;
 using FluentValidation;
@@ -37,6 +38,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddApplicationDbContext(builder.Configuration.GetConnectionString("Postgres"));
 builder.Services.AddDomainServices();
+builder.Services.AddApplication(); // Register feature handlers
 // Add Authentication + Authorization (JWT)
 builder.Services.AddAuthentication(options =>
 {

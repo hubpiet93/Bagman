@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "AuthorizedCreateTable_WithDuplicateName_ReturnsConflict409"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

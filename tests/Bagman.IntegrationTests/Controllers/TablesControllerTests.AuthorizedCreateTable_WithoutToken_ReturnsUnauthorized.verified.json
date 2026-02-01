@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "AuthorizedCreateTable_WithoutToken_ReturnsUnauthorized"
+  },
+  {
     "RequestUri": "http://localhost/api/tables/create",
     "RequestOptions": {},
     "RequestMethod": "POST",

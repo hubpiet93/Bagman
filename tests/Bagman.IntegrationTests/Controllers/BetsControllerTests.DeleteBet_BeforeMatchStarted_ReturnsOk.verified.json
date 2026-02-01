@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "DeleteBet_BeforeMatchStarted_ReturnsOk"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",

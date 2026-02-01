@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Register_WithValidRequest_ReturnsOkWithAuthResponse"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

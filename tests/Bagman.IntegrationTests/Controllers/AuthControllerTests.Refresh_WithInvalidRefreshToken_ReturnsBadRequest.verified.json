@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Refresh_WithInvalidRefreshToken_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/refresh",
     "RequestOptions": {},
     "RequestMethod": "POST",

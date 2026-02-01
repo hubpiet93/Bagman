@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "PlaceBet_MultipleUsersSameBet_BothSucceed"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

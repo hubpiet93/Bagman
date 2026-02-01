@@ -2,6 +2,7 @@ using System.Text;
 using Bagman.Contracts.Models.Auth;
 using Bagman.IntegrationTests.TestFixtures;
 using Newtonsoft.Json;
+using Xunit.Abstractions;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -18,7 +19,7 @@ public class AuthTestsCollection : ICollectionFixture<PostgresFixture>
 [Collection("Auth Tests")]
 public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-    public AuthControllerTests(PostgresFixture postgresFixture) : base(postgresFixture)
+    public AuthControllerTests(PostgresFixture postgresFixture, ITestOutputHelper testOutputHelper) : base(postgresFixture, testOutputHelper)
     {
     }
 

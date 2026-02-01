@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Logout_WithInvalidRefreshToken_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/logout",
     "RequestOptions": {},
     "RequestMethod": "POST",

@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Bagman.Application\Bagman.Application.csproj"/>
         <ProjectReference Include="..\Bagman.Domain\Bagman.Domain.csproj"/>
         <ProjectReference Include="..\Bagman.Infrastructure\Bagman.Infrastructure.csproj"/>
         <ProjectReference Include="..\Bagman.Contracts\Bagman.Contracts.csproj"/>

@@ -1,15 +1,20 @@
+using System.Reflection;
 using Argon;
 using Bagman.Infrastructure.Data;
 using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
 using VerifyTests.Http;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Bagman.IntegrationTests.Controllers;
 
 public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
 {
+    protected string CurrentTestName { get; }
     private readonly PostgresFixture _postgresFixture;
     private readonly VerifySettings _verifySettings = new();
 
@@ -20,12 +25,29 @@ public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
            ?? throw new InvalidOperationException("PostgresFixture not available from factory services.");
 
     protected HttpClient HttpClient { get; private set; }
-
     protected RecordingHandler RecordingHandler { get; private set; }
 
-    protected BaseIntegrationTest(PostgresFixture postgresFixture) : base(postgresFixture.ConnectionString!)
+    protected BaseIntegrationTest(PostgresFixture postgresFixture, ITestOutputHelper output) : base(postgresFixture.ConnectionString!)
     {
         _postgresFixture = postgresFixture;
+        CurrentTestName = ExtractTestDisplayName(output);
+    }
+    
+    private static string? ExtractTestDisplayName(ITestOutputHelper output)
+    {
+        var testField = output.GetType()
+            .GetField("test", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        var test = testField?.GetValue(output);
+
+        var testCaseProperty = test?.GetType()
+            .GetProperty("TestCase", BindingFlags.Instance | BindingFlags.Public);
+
+        var testCase = testCaseProperty?.GetValue(test);
+
+        var displayNameProperty = testCase?.GetType()
+            .GetProperty("DisplayName", BindingFlags.Instance | BindingFlags.Public);
+        return displayNameProperty?.GetValue(testCase) as string;
     }
 
     protected async Task Init()
@@ -49,7 +71,16 @@ public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
 
     protected async Task VerifyHttpRecording()
     {
-        await Verify(RecordingHandler.Sends, _verifySettings)
+        var sends = new List<object>();
+        
+        sends.Add(new 
+        {
+            TestName = CurrentTestName
+        });
+        
+        sends.AddRange(RecordingHandler.Sends);
+        
+        await Verify(sends, _verifySettings)
             .UseStrictJson();
     }
 
