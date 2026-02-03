@@ -13,7 +13,7 @@ public record GetMatchDetailsQuery
 public record MatchDetailsResult
 {
     public required Guid Id { get; init; }
-    public required Guid TableId { get; init; }
+    public required Guid EventTypeId { get; init; }
     public required string Country1 { get; init; }
     public required string Country2 { get; init; }
     public required DateTime MatchDateTime { get; init; }
@@ -40,7 +40,7 @@ public class GetMatchDetailsHandler : IFeatureHandler<GetMatchDetailsQuery, Matc
             .Select(m => new MatchDetailsResult
             {
                 Id = m.Id,
-                TableId = m.TableId,
+                EventTypeId = m.EventTypeId,
                 Country1 = m.Country1.Name,
                 Country2 = m.Country2.Name,
                 MatchDateTime = m.MatchDateTime,

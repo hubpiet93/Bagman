@@ -77,7 +77,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Test Betting Table {Guid.NewGuid()}",
             TablePassword = "TablePass@123",
             MaxPlayers = 10,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var content = new StringContent(
@@ -103,7 +104,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = "", // Empty table name
             TablePassword = "TablePass@123",
             MaxPlayers = 10,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var content = new StringContent(
@@ -129,7 +131,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Test Table {Guid.NewGuid()}",
             TablePassword = "TablePass@123",
             MaxPlayers = 10,
-            Stake = -50m // Negative stake
+            Stake = -50m, // Negative stake
+            EventTypeId = DefaultEventTypeId
         };
 
         var content = new StringContent(
@@ -157,7 +160,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "JoinPass@123",
             MaxPlayers = 5,
-            Stake = 100m
+            Stake = 100m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -201,7 +205,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "CorrectPass@123",
             MaxPlayers = 5,
-            Stake = 100m
+            Stake = 100m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -245,7 +250,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "FullPass@123",
             MaxPlayers = 1, // Creator is already a member
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -289,7 +295,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Table One {Guid.NewGuid()}",
             TablePassword = "Pass@123",
             MaxPlayers = 5,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createRequest2 = new CreateTableRequest
@@ -299,7 +306,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Table Two {Guid.NewGuid()}",
             TablePassword = "Pass@123",
             MaxPlayers = 10,
-            Stake = 100m
+            Stake = 100m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var content1 = new StringContent(
@@ -341,7 +349,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "DetailsPass@123",
             MaxPlayers = 5,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -393,7 +402,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "LeavePass@123",
             MaxPlayers = 5,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -450,7 +460,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "AdminPass@123",
             MaxPlayers = 5,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -518,7 +529,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "RevokePass@123",
             MaxPlayers = 5,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createContent = new StringContent(
@@ -587,7 +599,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Authorized Table {Guid.NewGuid()}",
             TablePassword = "AuthTablePass@123",
             MaxPlayers = 10,
-            Stake = 25m
+            Stake = 25m,
+            EventTypeId = DefaultEventTypeId
         };
         var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         var http = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = content };
@@ -609,7 +622,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"NoToken Table {Guid.NewGuid()}",
             TablePassword = "NoTokenPass@123",
             MaxPlayers = 5,
-            Stake = 10m
+            Stake = 10m,
+            EventTypeId = DefaultEventTypeId
         };
         var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
@@ -631,7 +645,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "DupPass@123",
             MaxPlayers = 5,
-            Stake = 10m
+            Stake = 10m,
+            EventTypeId = DefaultEventTypeId
         };
         var firstContent = new StringContent(JsonConvert.SerializeObject(first), Encoding.UTF8, "application/json");
         var firstHttp = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = firstContent };
@@ -643,7 +658,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = tableName,
             TablePassword = "DupPass@123",
             MaxPlayers = 5,
-            Stake = 10m
+            Stake = 10m,
+            EventTypeId = DefaultEventTypeId
         };
         var secondContent = new StringContent(JsonConvert.SerializeObject(second), Encoding.UTF8, "application/json");
         var secondHttp = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = secondContent };
@@ -666,7 +682,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = "", // invalid
             TablePassword = "", // invalid
             MaxPlayers = 0, // invalid
-            Stake = -1m // invalid
+            Stake = -1m, // invalid
+            EventTypeId = DefaultEventTypeId
         };
         var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
         var http = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = content };

@@ -17,14 +17,14 @@ public class Match
 
     private Match(
         Guid id,
-        Guid tableId,
+        Guid eventTypeId,
         Country country1,
         Country country2,
         DateTime matchDateTime,
         string status)
     {
         Id = id;
-        TableId = tableId;
+        EventTypeId = eventTypeId;
         Country1 = country1;
         Country2 = country2;
         MatchDateTime = matchDateTime;
@@ -33,7 +33,7 @@ public class Match
     }
 
     public Guid Id { get; private set; }
-    public Guid TableId { get; private set; }
+    public Guid EventTypeId { get; private set; }
     public Country Country1 { get; private set; } = null!;
     public Country Country2 { get; private set; } = null!;
     public DateTime MatchDateTime { get; private set; }
@@ -43,12 +43,12 @@ public class Match
     public DateTime CreatedAt { get; private set; }
 
     // Navigation properties
-    public virtual Table? Table { get; private set; }
+    public virtual EventType? EventType { get; private set; }
     public virtual IReadOnlyCollection<Bet> Bets => _bets.AsReadOnly();
     public virtual ICollection<Pool> Pools { get; private set; } = new List<Pool>();
 
     public static ErrorOr<Match> Create(
-        Guid tableId,
+        Guid eventTypeId,
         Country country1,
         Country country2,
         DateTime matchDateTime)
@@ -62,7 +62,7 @@ public class Match
 
         return new Match(
             Guid.NewGuid(),
-            tableId,
+            eventTypeId,
             country1,
             country2,
             matchDateTime,

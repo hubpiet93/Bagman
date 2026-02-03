@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
+using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
 using Newtonsoft.Json;
 using Xunit.Abstractions;
@@ -54,7 +55,8 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Betting Table {Guid.NewGuid()}",
             TablePassword = "BettingPass@123",
             MaxPlayers = 10,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createTableContent = new StringContent(
@@ -120,7 +122,9 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         await HttpClient.PostAsync("/api/tables/join", joinContent);
 
-        // Create match
+        // Get SuperAdmin token and create match
+        var superAdminToken = await GetSuperAdminToken();
+        
         var createMatchRequest = new CreateMatchRequest
         {
             Country1 = "Italy",
@@ -133,12 +137,12 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var createMatchHttpRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
+        var createMatchHttpRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/admin/event-types/{DefaultEventTypeId}/matches")
         {
             Content = matchContent
         };
         createMatchHttpRequest.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", superAdminToken);
 
         var createMatchResponse = await HttpClient.SendAsync(createMatchHttpRequest);
         var createMatchBody = await createMatchResponse.Content.ReadAsStringAsync();
@@ -478,7 +482,8 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Multi Betting Table {Guid.NewGuid()}",
             TablePassword = "MultiPass@123",
             MaxPlayers = 10,
-            Stake = 50m
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createTableContent = new StringContent(
@@ -523,7 +528,9 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         await HttpClient.PostAsync("/api/tables/join", joinContent2);
 
-        // Create match
+        // Get SuperAdmin token and create match
+        var superAdminToken = await GetSuperAdminToken();
+        
         var createMatchRequest = new CreateMatchRequest
         {
             Country1 = "Japan",
@@ -536,12 +543,12 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var createMatchHttpRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
+        var createMatchHttpRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/admin/event-types/{DefaultEventTypeId}/matches")
         {
             Content = matchContent
         };
         createMatchHttpRequest.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", creatorToken);
+            new AuthenticationHeaderValue("Bearer", superAdminToken);
 
         var createMatchResponse = await HttpClient.SendAsync(createMatchHttpRequest);
         var createMatchBody = await createMatchResponse.Content.ReadAsStringAsync();

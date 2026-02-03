@@ -63,14 +63,15 @@
       "TableName": "Admin Table Guid_3",
       "TablePassword": "AdminPass@123",
       "MaxPlayers": 5,
-      "Stake": 50.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_4"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_4"
+      "Location": "http://localhost/api/Tables/Guid_5"
     },
     "ResponseContent": {
-      "id": "Guid_4",
+      "id": "Guid_5",
       "name": "Admin Table Guid_3",
       "maxPlayers": 5,
       "stake": 50.0,
@@ -93,7 +94,7 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_4",
+      "id": "Guid_5",
       "name": "Admin Table Guid_3",
       "maxPlayers": 5,
       "stake": 50.0,
@@ -103,7 +104,7 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_4/admins",
+    "RequestUri": "http://localhost/api/tables/Guid_5/admins",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {

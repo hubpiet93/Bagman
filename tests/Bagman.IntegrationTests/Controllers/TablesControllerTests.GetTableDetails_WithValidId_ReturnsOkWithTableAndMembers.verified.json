@@ -38,14 +38,15 @@
       "TableName": "Details Table Guid_2",
       "TablePassword": "DetailsPass@123",
       "MaxPlayers": 5,
-      "Stake": 50.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_3"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Details Table Guid_2",
       "maxPlayers": 5,
       "stake": 50.0,
@@ -68,7 +69,7 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Details Table Guid_2",
       "maxPlayers": 5,
       "stake": 50.0,
@@ -78,7 +79,7 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_3",
+    "RequestUri": "http://localhost/api/tables/Guid_4",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
@@ -88,7 +89,7 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Details Table Guid_2",
       "maxPlayers": 5,
       "stake": 50.0,
@@ -98,13 +99,13 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_4"
         },
         {
-          "userId": "Guid_4",
+          "userId": "Guid_5",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_4"
+          "joinedAt": "DateTimeOffset_5"
         }
       ]
     }

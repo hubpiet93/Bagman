@@ -15,8 +15,8 @@ public class MatchesTestsCollection : ICollectionFixture<PostgresFixture>
 
 /// <summary>
 ///     Integration tests for MatchesController actions using TestContainers for PostgreSQL.
-///     Tests Create Match, Get Match, Update Match, Delete Match, and Set Match Result.
-///     Only table administrators can manage matches.
+///     Tests Get Match Details.
+///     Note: Match creation/update/deletion is now SuperAdmin-only (see AdminMatchesController tests).
 /// </summary>
 [Collection("Matches Tests")]
 public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
@@ -35,20 +35,21 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         await Dispose();
     }
 
-    private async Task<(Guid TableId, string CreatorToken)> CreateTableAsAdmin(string creatorLogin, string creatorPassword, string tableName)
+    private async Task<(Guid TableId, string UserToken)> CreateTableAndUser(string userLogin, string userPassword, string tableName)
     {
         // Ensure login is unique per test run to avoid collisions
-        var creatorLoginUnique = $"{creatorLogin}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        var userLoginUnique = $"{userLogin}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
 
         // Create table (endpoint auto-registers creator)
         var createTableRequest = new CreateTableRequest
         {
-            UserLogin = creatorLoginUnique,
-            UserPassword = creatorPassword,
+            UserLogin = userLoginUnique,
+            UserPassword = userPassword,
             TableName = tableName,
             TablePassword = "TablePass@123",
             MaxPlayers = 10,
-            Stake = 100m
+            Stake = 100m,
+            EventTypeId = DefaultEventTypeId
         };
 
         var createTableContent = new StringContent(
@@ -64,11 +65,11 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         var tableResponse = JsonConvert.DeserializeObject<TableResponse>(createBody);
 
-        // Login creator to obtain token
+        // Login user to obtain token
         var loginRequest = new LoginRequest
         {
-            Login = creatorLoginUnique,
-            Password = creatorPassword
+            Login = userLoginUnique,
+            Password = userPassword
         };
 
         var loginContent = new StringContent(
@@ -79,25 +80,23 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var loginResponse = await HttpClient.PostAsync("/api/auth/login", loginContent);
         var loginBody = await loginResponse.Content.ReadAsStringAsync();
         if (!loginResponse.IsSuccessStatusCode)
-            throw new Exception($"Failed to login creator after table creation: {loginResponse.StatusCode} - {loginBody}");
+            throw new Exception($"Failed to login user after table creation: {loginResponse.StatusCode} - {loginBody}");
 
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(loginBody);
-        var creatorToken = authResponse!.AccessToken;
+        var userToken = authResponse!.AccessToken;
 
-        return (tableResponse!.Id, creatorToken);
+        return (tableResponse!.Id, userToken);
     }
 
-    [Fact]
-    public async Task CreateMatch_ByTableAdmin_ReturnsCreatedWithMatchResponse()
+    private async Task<Guid> CreateMatchAsSuperAdmin(string country1, string country2, DateTime matchDateTime)
     {
-        // Arrange
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_creator", "Creator@12345", "Match Table");
-
+        var superAdminToken = await GetSuperAdminToken();
+        
         var createMatchRequest = new CreateMatchRequest
         {
-            Country1 = "Poland",
-            Country2 = "Germany",
-            MatchDateTime = DateTime.UtcNow.AddDays(7)
+            Country1 = country1,
+            Country2 = country2,
+            MatchDateTime = matchDateTime
         };
 
         var matchContent = new StringContent(
@@ -105,330 +104,36 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
+        var createMatchHttpRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/admin/event-types/{DefaultEventTypeId}/matches")
         {
             Content = matchContent
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        createMatchHttpRequest.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", superAdminToken);
 
-        // Act
-        await HttpClient.SendAsync(request);
+        var createMatchResponse = await HttpClient.SendAsync(createMatchHttpRequest);
+        var createMatchBody = await createMatchResponse.Content.ReadAsStringAsync();
+        
+        if (!createMatchResponse.IsSuccessStatusCode)
+            throw new Exception($"Failed to create match: {createMatchResponse.StatusCode} - {createMatchBody}");
+            
+        var matchResponse = JsonConvert.DeserializeObject<MatchResponse>(createMatchBody);
 
-        // Assert
-        await VerifyHttpRecording();
-    }
-
-    [Fact]
-    public async Task CreateMatch_WithInvalidCountries_ReturnsBadRequest()
-    {
-        // Arrange
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_invalid", "Creator@12345", "Invalid Match Table");
-
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "Poland",
-            Country2 = "Poland", // Same country
-            MatchDateTime = DateTime.UtcNow.AddDays(7)
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-
-        // Act
-        await HttpClient.SendAsync(request);
-
-        // Assert
-        await VerifyHttpRecording();
-    }
-
-    [Fact]
-    public async Task CreateMatch_WithPastDateTime_ReturnsBadRequest()
-    {
-        // Arrange
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_past", "Creator@12345", "Past Match Table");
-
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "France",
-            Country2 = "Italy",
-            MatchDateTime = DateTime.UtcNow.AddDays(-1) // Past date
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-
-        // Act
-        await HttpClient!.SendAsync(request);
-
-        // Assert
-        await VerifyHttpRecording();
+        return matchResponse!.Id;
     }
 
     [Fact]
     public async Task GetMatch_WithValidId_ReturnsOkWithMatchResponse()
     {
-        // Arrange - Create table and match
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_get", "Creator@12345", "Get Match Table");
-
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "Spain",
-            Country2 = "Portugal",
-            MatchDateTime = DateTime.UtcNow.AddDays(5)
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-
-        var createResponse = await HttpClient!.SendAsync(createRequest);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-
-        if (!createResponse.IsSuccessStatusCode)
-            throw new Exception($"Failed to create match: {createResponse.StatusCode} - {createBody}");
-
-        var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
+        // Arrange - Create table and match via SuperAdmin
+        var (tableId, userToken) = await CreateTableAndUser("match_get", "User@12345", "Get Match Table");
+        var matchId = await CreateMatchAsSuperAdmin("Spain", "Portugal", DateTime.UtcNow.AddDays(5));
 
         // Act - Get match
-        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{createdMatch!.Id}");
-        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        var response = await HttpClient.SendAsync(getRequest);
-        var responseBody = await response.Content.ReadAsStringAsync();
+        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchId}");
+        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
-        if (!response.IsSuccessStatusCode)
-            throw new Exception($"Failed to get match: {response.StatusCode} - {responseBody}");
-
-        // Assert
-        await VerifyHttpRecording();
-    }
-
-    [Fact]
-    public async Task UpdateMatch_BeforeStarted_ReturnsOk()
-    {
-        // Arrange - Create table and match
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_update", "Creator@12345", "Update Match Table");
-
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "Netherlands",
-            Country2 = "Belgium",
-            MatchDateTime = DateTime.UtcNow.AddDays(10)
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-
-        var createResponse = await HttpClient!.SendAsync(createRequest);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-        var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
-
-        // Act - Update match
-        var updateMatchRequest = new UpdateMatchRequest
-        {
-            Country1 = "Netherlands",
-            Country2 = "Austria", // Changed country
-            MatchDateTime = DateTime.UtcNow.AddDays(12)
-        };
-
-        var updateContent = new StringContent(
-            JsonConvert.SerializeObject(updateMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var updateRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/tables/{tableId}/matches/{createdMatch!.Id}")
-        {
-            Content = updateContent
-        };
-        updateRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        await HttpClient.SendAsync(updateRequest);
-        await VerifyHttpRecording();
-    }
-
-    [Fact]
-    public async Task DeleteMatch_BeforeStarted_ReturnsOk()
-    {
-        // Arrange - Create table and match
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_delete", "Creator@12345", "Delete Match Table");
-
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "Greece",
-            Country2 = "Cyprus",
-            MatchDateTime = DateTime.UtcNow.AddDays(15)
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-
-        var createResponse = await HttpClient!.SendAsync(createRequest);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-
-        if (!createResponse.IsSuccessStatusCode)
-            throw new Exception($"Failed to create match: {createResponse.StatusCode} - {createBody}");
-
-        var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
-
-        // Act - Delete match
-        var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{tableId}/matches/{createdMatch!.Id}");
-        deleteRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        await HttpClient.SendAsync(deleteRequest);
-        await VerifyHttpRecording();
-    }
-
-    [Fact]
-    public async Task SetMatchResult_WithValidScore_ReturnsOkAndChangesStatus()
-    {
-        // Arrange - Create table and match
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_result", "Creator@12345", "Result Match Table");
-
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "England",
-            Country2 = "Scotland",
-            MatchDateTime = DateTime.UtcNow.AddDays(3)
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-
-        var createResponse = await HttpClient!.SendAsync(createRequest);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-
-        if (!createResponse.IsSuccessStatusCode)
-            throw new Exception($"Failed to create match: {createResponse.StatusCode} - {createBody}");
-
-        var createdMatch = JsonConvert.DeserializeObject<MatchResponse>(createBody);
-
-        // Act - Set result
-        var setResultRequest = new SetMatchResultRequest
-        {
-            Score1 = "2",
-            Score2 = "1"
-        };
-
-        var resultContent = new StringContent(
-            JsonConvert.SerializeObject(setResultRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var resultHttpRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/tables/{tableId}/matches/{createdMatch!.Id}/result")
-        {
-            Content = resultContent
-        };
-        resultHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        await HttpClient.SendAsync(resultHttpRequest);
-        await VerifyHttpRecording();
-    }
-
-    [Fact]
-    public async Task CreateMatch_WithoutAdminRole_ReturnsForbidden()
-    {
-        // Arrange - Create table, then try to create match with non-admin token
-        var (tableId, creatorToken) = await CreateTableAsAdmin("match_admin_check", "Creator@12345", "Admin Check Table");
-
-        // Register non-admin user
-        var memberLogin = "match_non_admin";
-        var memberRegisterRequest = new RegisterRequest
-        {
-            Login = memberLogin,
-            Password = "Member@12345",
-            Email = $"{memberLogin}@example.com"
-        };
-
-        var memberRegisterContent = new StringContent(
-            JsonConvert.SerializeObject(memberRegisterRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var memberRegisterResponse = await HttpClient!.PostAsync("/api/auth/register", memberRegisterContent);
-        var memberRegisterBody = await memberRegisterResponse.Content.ReadAsStringAsync();
-        var memberAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(memberRegisterBody);
-
-        var memberToken = memberAuthResponse!.AccessToken;
-
-        // Join table as non-admin
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = memberLogin,
-            UserPassword = "Member@12345",
-            TableName = "Admin Check Table",
-            TablePassword = "TablePass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
-
-        // Act - Try to create match with non-admin token
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "Brazil",
-            Country2 = "Argentina",
-            MatchDateTime = DateTime.UtcNow.AddDays(7)
-        };
-
-        var matchContent = new StringContent(
-            JsonConvert.SerializeObject(createMatchRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches")
-        {
-            Content = matchContent
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", memberToken);
-
-        await HttpClient.SendAsync(request);
+        await HttpClient!.SendAsync(getRequest);
 
         // Assert
         await VerifyHttpRecording();
@@ -437,55 +142,40 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task GetMatch_StartedFalse_ForFutureDateTime()
     {
-        // Arrange
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_started_future", "Creator@12345", "Started Future Table");
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "Poland",
-            Country2 = "Germany",
-            MatchDateTime = DateTime.UtcNow.AddHours(2)
-        };
-        var matchContent = new StringContent(JsonConvert.SerializeObject(createMatchRequest), Encoding.UTF8, "application/json");
-        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches") { Content = matchContent };
-        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        var creationResponse = await HttpClient.SendAsync(createRequest);
+        // Arrange - Create table and match with future date
+        var (tableId, userToken) = await CreateTableAndUser("match_started_future", "User@12345", "Started Future Table");
+        var matchId = await CreateMatchAsSuperAdmin("Poland", "Germany", DateTime.UtcNow.AddHours(2));
 
-        // Act
-        var metchResult = JsonConvert.DeserializeObject<MatchResponse>(await creationResponse.Content.ReadAsStringAsync());
-        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{metchResult.Id}");
-        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        await HttpClient.SendAsync(getRequest);
+        // Act - Get match
+        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchId}");
+        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
-        // Assert (snapshot)
+        await HttpClient!.SendAsync(getRequest);
+
+        // Assert
         await VerifyHttpRecording();
     }
 
     [Fact]
     public async Task GetMatch_StartedTrue_ForPastDateTime()
     {
-        // Arrange
-        var (tableId, adminToken) = await CreateTableAsAdmin("match_started_past", "Creator@12345", "Started Past Table");
-        var createMatchRequest = new CreateMatchRequest
-        {
-            Country1 = "France",
-            Country2 = "Italy",
-            MatchDateTime = DateTime.UtcNow.AddSeconds(10)
-        };
-        var matchContent = new StringContent(JsonConvert.SerializeObject(createMatchRequest), Encoding.UTF8, "application/json");
-        var createRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{tableId}/matches") { Content = matchContent };
-        createRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        var creationResponse = await HttpClient.SendAsync(createRequest);
+        // Arrange - Create table and match 
+        // Note: For testing "Started = true", we need a match with datetime in the past relative to now
+        // But CreateMatch validation requires future dates, so we create it with future date first,
+        // then test using a snapshot at a later time. For this test we'll use a date that was future when created.
+        var (tableId, userToken) = await CreateTableAndUser("match_started_past", "User@12345", "Started Past Table");
+        var matchId = await CreateMatchAsSuperAdmin("France", "Italy", DateTime.UtcNow.AddSeconds(5));
 
-        //Delay to ensure match time is in the past
-        await Task.Delay(TimeSpan.FromSeconds(15));
-        
-        // Act
-        var matchResult = JsonConvert.DeserializeObject<MatchResponse>(await creationResponse.Content.ReadAsStringAsync());
-        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchResult.Id}");
-        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
-        await HttpClient.SendAsync(getRequest);
+        // Wait a bit so the match datetime becomes "in the past" relative to current time
+        await Task.Delay(6000);
 
-        // Assert (snapshot)
+        // Act - Get match
+        var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchId}");
+        getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+
+        await HttpClient!.SendAsync(getRequest);
+
+        // Assert
         await VerifyHttpRecording();
     }
 }

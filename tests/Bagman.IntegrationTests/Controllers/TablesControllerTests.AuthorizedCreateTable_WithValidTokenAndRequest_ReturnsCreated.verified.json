@@ -38,14 +38,15 @@
       "TableName": "Authorized Table Guid_2",
       "TablePassword": "AuthTablePass@123",
       "MaxPlayers": 10,
-      "Stake": 25.0
+      "Stake": 25.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_3"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Authorized Table Guid_2",
       "maxPlayers": 10,
       "stake": 25.0,

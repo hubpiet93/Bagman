@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.Bets.DeleteBet;
 using Bagman.Application.Features.Bets.GetUserBet;
 using Bagman.Application.Features.Bets.PlaceBet;
+using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +37,7 @@ public class BetsController : AppControllerBase
         var result = await _dispatcher.HandleAsync<PlaceBetCommand, PlaceBetResult>(
             new PlaceBetCommand
             {
+                TableId = tableId,
                 MatchId = matchId,
                 UserId = userId.Value,
                 Prediction = request.Prediction
@@ -43,14 +46,7 @@ public class BetsController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        var response = new BetResponse
-        {
-            Id = result.Value.Id,
-            UserId = result.Value.UserId,
-            MatchId = result.Value.MatchId,
-            Prediction = result.Value.Prediction,
-            EditedAt = result.Value.EditedAt
-        };
+        var response = result.Value.ToBetResponse();
 
         return CreatedAtAction(nameof(GetUserBet), new
         {
@@ -79,14 +75,7 @@ public class BetsController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new BetResponse
-        {
-            Id = result.Value.Id,
-            UserId = result.Value.UserId,
-            MatchId = result.Value.MatchId,
-            Prediction = result.Value.Prediction,
-            EditedAt = result.Value.EditedAt
-        });
+        return Ok(result.Value.ToBetResponse());
     }
 
     /// <summary>
@@ -109,7 +98,7 @@ public class BetsController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new {message = "Bet deleted successfully"});
+        return Ok(new SuccessResponse("Bet deleted successfully"));
     }
 
     private Guid? GetUserId()

@@ -7,6 +7,7 @@ namespace Bagman.Application.Features.Bets.PlaceBet;
 
 public record PlaceBetCommand
 {
+    public required Guid TableId { get; init; }
     public required Guid MatchId { get; init; }
     public required Guid UserId { get; init; }
     public required string Prediction { get; init; }
@@ -24,16 +25,28 @@ public record PlaceBetResult
 public class PlaceBetHandler : IFeatureHandler<PlaceBetCommand, PlaceBetResult>
 {
     private readonly IMatchRepository _matchRepository;
+    private readonly ITableRepository _tableRepository;
 
-    public PlaceBetHandler(IMatchRepository matchRepository)
+    public PlaceBetHandler(IMatchRepository matchRepository, ITableRepository tableRepository)
     {
         _matchRepository = matchRepository;
+        _tableRepository = tableRepository;
     }
 
     public async Task<ErrorOr<PlaceBetResult>> HandleAsync(
         PlaceBetCommand request,
         CancellationToken cancellationToken = default)
     {
+        // Get table
+        var tableResult = await _tableRepository.GetByIdAsync(request.TableId);
+        if (tableResult.IsError)
+            return tableResult.Errors;
+
+        if (tableResult.Value == null)
+            return Error.NotFound("Table.NotFound", "Stół nie został znaleziony");
+
+        var table = tableResult.Value;
+
         // Get match aggregate
         var matchResult = await _matchRepository.GetByIdAsync(request.MatchId);
         if (matchResult.IsError)
@@ -43,6 +56,12 @@ public class PlaceBetHandler : IFeatureHandler<PlaceBetCommand, PlaceBetResult>
             return Error.NotFound("Match.NotFound", "Mecz nie został znaleziony");
 
         var match = matchResult.Value;
+
+        // Validate match belongs to table's event type
+        if (match.EventTypeId != table.EventTypeId)
+            return Error.Validation(
+                "Match.WrongEventType",
+                "Ten mecz nie należy do typu wydarzenia przypisanego do stołu");
 
         // Create value object
         var predictionResult = Prediction.Create(request.Prediction);

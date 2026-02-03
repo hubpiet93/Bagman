@@ -1,3 +1,5 @@
+using Bagman.Api.Controllers.Mappers;
+using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,20 +26,7 @@ public class AuthController : AppControllerBase
         var result = await _authService.RegisterAsync(request.Login, request.Password, request.Email);
 
         return result.Match<IActionResult>(
-            authResult => Ok(new AuthResponse
-            {
-                AccessToken = authResult.AccessToken,
-                RefreshToken = authResult.RefreshToken,
-                ExpiresAt = authResult.ExpiresAt,
-                User = new UserResponse
-                {
-                    Id = authResult.User.Id,
-                    Login = authResult.User.Login,
-                    Email = authResult.User.Email,
-                    CreatedAt = authResult.User.CreatedAt,
-                    IsActive = authResult.User.IsActive
-                }
-            }),
+            authResult => Ok(authResult.ToAuthResponse()),
             BadRequest
         );
     }
@@ -51,20 +40,7 @@ public class AuthController : AppControllerBase
         var result = await _authService.LoginAsync(request.Login, request.Password);
 
         return result.Match<IActionResult>(
-            authResult => Ok(new AuthResponse
-            {
-                AccessToken = authResult.AccessToken,
-                RefreshToken = authResult.RefreshToken,
-                ExpiresAt = authResult.ExpiresAt,
-                User = new UserResponse
-                {
-                    Id = authResult.User.Id,
-                    Login = authResult.User.Login,
-                    Email = authResult.User.Email,
-                    CreatedAt = authResult.User.CreatedAt,
-                    IsActive = authResult.User.IsActive
-                }
-            }),
+            authResult => Ok(authResult.ToAuthResponse()),
             BadRequest
         );
     }
@@ -78,20 +54,7 @@ public class AuthController : AppControllerBase
         var result = await _authService.RefreshTokenAsync(request.RefreshToken);
 
         return result.Match<IActionResult>(
-            authResult => Ok(new AuthResponse
-            {
-                AccessToken = authResult.AccessToken,
-                RefreshToken = authResult.RefreshToken,
-                ExpiresAt = authResult.ExpiresAt,
-                User = new UserResponse
-                {
-                    Id = authResult.User.Id,
-                    Login = authResult.User.Login,
-                    Email = authResult.User.Email,
-                    CreatedAt = authResult.User.CreatedAt,
-                    IsActive = authResult.User.IsActive
-                }
-            }),
+            authResult => Ok(authResult.ToAuthResponse()),
             BadRequest
         );
     }
@@ -105,7 +68,7 @@ public class AuthController : AppControllerBase
         var result = await _authService.LogoutAsync(request.RefreshToken);
 
         return result.Match<IActionResult>(
-            _ => Ok(new {message = "Wylogowano pomyślnie"}),
+            _ => Ok(new SuccessResponse("Wylogowano pomyślnie")),
             BadRequest
         );
     }

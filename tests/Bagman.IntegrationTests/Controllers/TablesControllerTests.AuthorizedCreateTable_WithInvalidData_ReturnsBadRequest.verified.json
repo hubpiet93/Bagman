@@ -38,7 +38,8 @@
       "TableName": "",
       "TablePassword": "",
       "MaxPlayers": 0,
-      "Stake": -1.0
+      "Stake": -1.0,
+      "EventTypeId": "Guid_2"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},

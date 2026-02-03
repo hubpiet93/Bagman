@@ -38,14 +38,15 @@
       "TableName": "Table One Guid_2",
       "TablePassword": "Pass@123",
       "MaxPlayers": 5,
-      "Stake": 50.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_3"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Table One Guid_2",
       "maxPlayers": 5,
       "stake": 50.0,
@@ -62,18 +63,19 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Pass@12345",
-      "TableName": "Table Two Guid_4",
+      "TableName": "Table Two Guid_5",
       "TablePassword": "Pass@123",
       "MaxPlayers": 10,
-      "Stake": 100.0
+      "Stake": 100.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_5"
+      "Location": "http://localhost/api/Tables/Guid_6"
     },
     "ResponseContent": {
-      "id": "Guid_5",
-      "name": "Table Two Guid_4",
+      "id": "Guid_6",
+      "name": "Table Two Guid_5",
       "maxPlayers": 10,
       "stake": 100.0,
       "createdBy": "Guid_1",
@@ -93,7 +95,7 @@
     "ResponseHeaders": {},
     "ResponseContent": [
       {
-        "id": "Guid_3",
+        "id": "Guid_4",
         "name": "Table One Guid_2",
         "maxPlayers": 5,
         "stake": 50.0,
@@ -102,8 +104,8 @@
         "isSecretMode": false
       },
       {
-        "id": "Guid_5",
-        "name": "Table Two Guid_4",
+        "id": "Guid_6",
+        "name": "Table Two Guid_5",
         "maxPlayers": 10,
         "stake": 100.0,
         "createdBy": "Guid_1",

@@ -13,6 +13,7 @@ public record CreateTableCommand
     public required int MaxPlayers { get; init; }
     public required decimal Stake { get; init; }
     public required Guid CreatedBy { get; init; }
+    public required Guid EventTypeId { get; init; }
 }
 
 public record CreateTableResult
@@ -30,11 +31,16 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
 {
     private readonly ITableRepository _tableRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IEventTypeRepository _eventTypeRepository;
 
-    public CreateTableHandler(ITableRepository tableRepository, IUserRepository userRepository)
+    public CreateTableHandler(
+        ITableRepository tableRepository,
+        IUserRepository userRepository,
+        IEventTypeRepository eventTypeRepository)
     {
         _tableRepository = tableRepository;
         _userRepository = userRepository;
+        _eventTypeRepository = eventTypeRepository;
     }
 
     public async Task<ErrorOr<CreateTableResult>> HandleAsync(
@@ -48,6 +54,17 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
 
         if (userResult.Value == null)
             return Error.NotFound("User.NotFound", "Użytkownik nie został znaleziony");
+
+        // Verify EventType exists and is active
+        var eventTypeResult = await _eventTypeRepository.GetByIdAsync(request.EventTypeId);
+        if (eventTypeResult.IsError)
+            return eventTypeResult.Errors;
+
+        if (eventTypeResult.Value == null)
+            return Error.NotFound("EventType.NotFound", "Typ wydarzenia nie został znaleziony");
+
+        if (!eventTypeResult.Value.IsActive)
+            return Error.Validation("EventType.NotActive", "Typ wydarzenia nie jest aktywny");
 
         // Create value objects
         var tableNameResult = TableName.Create(request.Name);
@@ -65,6 +82,7 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
             request.MaxPlayers,
             stakeResult.Value,
             request.CreatedBy,
+            request.EventTypeId,
             isSecretMode: false);
 
         if (tableResult.IsError)

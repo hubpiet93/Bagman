@@ -17,6 +17,8 @@ public class User
 
     public bool IsActive { get; set; } = true;
 
+    public bool IsSuperAdmin { get; set; } = false;
+
     // Stored password hash (PBKDF2). Nullable to allow external users without password (e.g., OAuth).
     public string? PasswordHash { get; set; }
 

@@ -1,0 +1,101 @@
+﻿[
+  {
+    "TestName": "CreateEventType_WithDuplicateCode_ReturnsConflict"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@123",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Code": "DUPLICATE_CODE",
+      "Name": "First Event",
+      "StartDate": "DateTimeOffset_4"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/event-types?id=Guid_2"
+    },
+    "ResponseContent": {
+      "id": "Guid_2",
+      "code": "DUPLICATE_CODE",
+      "name": "First Event",
+      "startDate": "DateTimeOffset_4",
+      "isActive": true
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Code": "DUPLICATE_CODE",
+      "Name": "Second Event",
+      "StartDate": "DateTimeOffset_5"
+    },
+    "ResponseStatus": "Conflict 409",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "errors": [
+        {
+          "code": "EventType.CodeExists",
+          "description": "Kod wydarzenia już istnieje"
+        }
+      ]
+    }
+  }
+]

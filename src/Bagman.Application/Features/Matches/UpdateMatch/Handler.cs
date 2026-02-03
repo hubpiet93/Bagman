@@ -17,18 +17,29 @@ public record UpdateMatchCommand
 public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, Success>
 {
     private readonly IMatchRepository _matchRepository;
-    private readonly ITableRepository _tableRepository;
+    private readonly IUserRepository _userRepository;
 
-    public UpdateMatchHandler(IMatchRepository matchRepository, ITableRepository tableRepository)
+    public UpdateMatchHandler(IMatchRepository matchRepository, IUserRepository userRepository)
     {
         _matchRepository = matchRepository;
-        _tableRepository = tableRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<ErrorOr<Success>> HandleAsync(
         UpdateMatchCommand request,
         CancellationToken cancellationToken = default)
     {
+        // Verify user is SuperAdmin
+        var userResult = await _userRepository.GetByIdAsync(request.UserId);
+        if (userResult.IsError)
+            return userResult.Errors;
+
+        if (userResult.Value == null)
+            return Error.NotFound("User.NotFound", "Użytkownik nie został znaleziony");
+
+        if (!userResult.Value.IsSuperAdmin)
+            return Error.Forbidden("User.NotSuperAdmin", "Nie masz uprawnień do zarządzania meczami");
+
         // Get match aggregate
         var matchResult = await _matchRepository.GetByIdAsync(request.MatchId);
         if (matchResult.IsError)
@@ -38,17 +49,6 @@ public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, Success>
             return Error.NotFound("Match.NotFound", "Mecz nie został znaleziony");
 
         var match = matchResult.Value;
-
-        // Verify user is admin
-        var tableResult = await _tableRepository.GetByIdAsync(match.TableId);
-        if (tableResult.IsError)
-            return tableResult.Errors;
-
-        if (tableResult.Value == null)
-            return Error.NotFound("Table.NotFound", "Stół nie został znaleziony");
-
-        if (!tableResult.Value.IsUserAdmin(request.UserId))
-            return Error.Forbidden("Table.NotAdmin", "Nie masz uprawnień do wykonania tej czynności");
 
         // Create value objects
         var country1Result = Country.Create(request.Country1);

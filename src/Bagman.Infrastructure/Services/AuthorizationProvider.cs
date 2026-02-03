@@ -171,7 +171,8 @@ public class AuthorizationProvider : IAuthorizationProvider
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.UniqueName, user.Login),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("IsSuperAdmin", user.IsSuperAdmin.ToString().ToLower())
         };
 
         var token = new JwtSecurityToken(

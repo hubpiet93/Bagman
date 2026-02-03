@@ -18,6 +18,7 @@ public static class AppServicesInitializationExtensions
         services.AddScoped<ITableRepository, TableRepository>();
         services.AddScoped<IMatchRepository, MatchRepository>();
         services.AddScoped<IBetRepository, BetRepository>();
+        services.AddScoped<IEventTypeRepository, EfEventTypeRepository>();
         
         // Keep old repositories for compatibility during migration
         services.AddScoped<IUserRepository, EfUserRepository>();

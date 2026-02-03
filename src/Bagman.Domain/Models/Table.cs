@@ -22,6 +22,7 @@ public class Table
         int maxPlayers,
         Money stake,
         Guid createdBy,
+        Guid eventTypeId,
         bool isSecretMode)
     {
         Id = id;
@@ -30,6 +31,7 @@ public class Table
         MaxPlayers = maxPlayers;
         Stake = stake;
         CreatedBy = createdBy;
+        EventTypeId = eventTypeId;
         CreatedAt = DateTime.UtcNow;
         IsSecretMode = isSecretMode;
     }
@@ -40,13 +42,14 @@ public class Table
     public int MaxPlayers { get; private set; }
     public Money Stake { get; private set; } = null!;
     public Guid CreatedBy { get; private set; }
+    public Guid EventTypeId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public bool IsSecretMode { get; private set; }
 
     // Navigation properties
     public virtual User? CreatedByUser { get; private set; }
+    public virtual EventType? EventType { get; private set; }
     public virtual IReadOnlyCollection<TableMember> Members => _members.AsReadOnly();
-    public virtual ICollection<Match> Matches { get; private set; } = new List<Match>();
     public virtual ICollection<UserStats> UserStats { get; private set; } = new List<UserStats>();
 
     public static ErrorOr<Table> Create(
@@ -55,6 +58,7 @@ public class Table
         int maxPlayers,
         Money stake,
         Guid createdBy,
+        Guid eventTypeId,
         bool isSecretMode = false)
     {
         if (maxPlayers < 1)
@@ -71,6 +75,7 @@ public class Table
             maxPlayers,
             stake,
             createdBy,
+            eventTypeId,
             isSecretMode);
 
         // Add creator as admin member

@@ -8,7 +8,7 @@ namespace Bagman.Application.Features.Matches.CreateMatch;
 
 public record CreateMatchCommand
 {
-    public required Guid TableId { get; init; }
+    public required Guid EventTypeId { get; init; }
     public required string Country1 { get; init; }
     public required string Country2 { get; init; }
     public required DateTime MatchDateTime { get; init; }
@@ -18,7 +18,7 @@ public record CreateMatchCommand
 public record CreateMatchResult
 {
     public required Guid Id { get; init; }
-    public required Guid TableId { get; init; }
+    public required Guid EventTypeId { get; init; }
     public required string Country1 { get; init; }
     public required string Country2 { get; init; }
     public required DateTime MatchDateTime { get; init; }
@@ -29,28 +29,41 @@ public record CreateMatchResult
 public class CreateMatchHandler : IFeatureHandler<CreateMatchCommand, CreateMatchResult>
 {
     private readonly IMatchRepository _matchRepository;
-    private readonly ITableRepository _tableRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IEventTypeRepository _eventTypeRepository;
 
-    public CreateMatchHandler(IMatchRepository matchRepository, ITableRepository tableRepository)
+    public CreateMatchHandler(
+        IMatchRepository matchRepository,
+        IUserRepository userRepository,
+        IEventTypeRepository eventTypeRepository)
     {
         _matchRepository = matchRepository;
-        _tableRepository = tableRepository;
+        _userRepository = userRepository;
+        _eventTypeRepository = eventTypeRepository;
     }
 
     public async Task<ErrorOr<CreateMatchResult>> HandleAsync(
         CreateMatchCommand request,
         CancellationToken cancellationToken = default)
     {
-        // Verify user is admin of the table
-        var tableResult = await _tableRepository.GetByIdAsync(request.TableId);
-        if (tableResult.IsError)
-            return tableResult.Errors;
+        // Verify user is SuperAdmin
+        var userResult = await _userRepository.GetByIdAsync(request.UserId);
+        if (userResult.IsError)
+            return userResult.Errors;
 
-        if (tableResult.Value == null)
-            return Error.NotFound("Table.NotFound", "Stół nie został znaleziony");
+        if (userResult.Value == null)
+            return Error.NotFound("User.NotFound", "Użytkownik nie został znaleziony");
 
-        if (!tableResult.Value.IsUserAdmin(request.UserId))
-            return Error.Forbidden("Table.NotAdmin", "Nie masz uprawnień do wykonania tej czynności");
+        if (!userResult.Value.IsSuperAdmin)
+            return Error.Forbidden("User.NotSuperAdmin", "Nie masz uprawnień do zarządzania meczami");
+
+        // Verify EventType exists
+        var eventTypeResult = await _eventTypeRepository.GetByIdAsync(request.EventTypeId);
+        if (eventTypeResult.IsError)
+            return eventTypeResult.Errors;
+
+        if (eventTypeResult.Value == null)
+            return Error.NotFound("EventType.NotFound", "Typ wydarzenia nie został znaleziony");
 
         // Create value objects
         var country1Result = Country.Create(request.Country1);
@@ -63,7 +76,7 @@ public class CreateMatchHandler : IFeatureHandler<CreateMatchCommand, CreateMatc
 
         // Create match aggregate
         var matchResult = Match.Create(
-            request.TableId,
+            request.EventTypeId,
             country1Result.Value,
             country2Result.Value,
             request.MatchDateTime);
@@ -82,7 +95,7 @@ public class CreateMatchHandler : IFeatureHandler<CreateMatchCommand, CreateMatc
         return new CreateMatchResult
         {
             Id = match.Id,
-            TableId = match.TableId,
+            EventTypeId = match.EventTypeId,
             Country1 = match.Country1.Name,
             Country2 = match.Country2.Name,
             MatchDateTime = match.MatchDateTime,

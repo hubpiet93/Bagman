@@ -1,3 +1,5 @@
+using Bagman.Application;
+using Bagman.Infrastructure;
 using Bagman.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

@@ -8,6 +8,7 @@ public record CreateTableRequest
     public required string TablePassword { get; init; }
     public required int MaxPlayers { get; init; }
     public required decimal Stake { get; init; }
+    public required Guid EventTypeId { get; init; }
 }
 
 public record AuthorizedCreateTableRequest
@@ -16,6 +17,7 @@ public record AuthorizedCreateTableRequest
     public required string TablePassword { get; init; }
     public required int MaxPlayers { get; init; }
     public required decimal Stake { get; init; }
+    public required Guid EventTypeId { get; init; }
 }
 
 public record JoinTableRequest

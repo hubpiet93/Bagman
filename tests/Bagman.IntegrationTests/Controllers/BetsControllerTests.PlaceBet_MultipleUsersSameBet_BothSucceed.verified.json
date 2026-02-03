@@ -88,14 +88,15 @@
       "TableName": "Multi Betting Table Guid_4",
       "TablePassword": "MultiPass@123",
       "MaxPlayers": 10,
-      "Stake": 50.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_5"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_5"
+      "Location": "http://localhost/api/Tables/Guid_6"
     },
     "ResponseContent": {
-      "id": "Guid_5",
+      "id": "Guid_6",
       "name": "Multi Betting Table Guid_4",
       "maxPlayers": 10,
       "stake": 50.0,
@@ -118,7 +119,7 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_5",
+      "id": "Guid_6",
       "name": "Multi Betting Table Guid_4",
       "maxPlayers": 10,
       "stake": 50.0,
@@ -141,7 +142,7 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_5",
+      "id": "Guid_6",
       "name": "Multi Betting Table Guid_4",
       "maxPlayers": 10,
       "stake": 50.0,
@@ -151,7 +152,56 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_5/matches",
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@123",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_8",
+      "user": {
+        "id": "Guid_7",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_9",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_10",
+      "user": {
+        "id": "Guid_7",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_9",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_5/matches",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -160,66 +210,64 @@
     "RequestContent": {
       "Country1": "Japan",
       "Country2": "Korea",
-      "MatchDateTime": "DateTimeOffset_8"
+      "MatchDateTime": "DateTimeOffset_11"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_5/matches/Guid_6"
-    },
-    "ResponseContent": {
-      "id": "Guid_6",
-      "tableId": "Guid_5",
-      "country1": "Japan",
-      "country2": "Korea",
-      "matchDateTime": "DateTimeOffset_8",
-      "result": null,
-      "status": "scheduled",
-      "started": false,
-      "createdAt": "DateTimeOffset_9"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_5/matches/Guid_6/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "1:1"
-    },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_5/matches/Guid_6/bets/my"
-    },
-    "ResponseContent": {
-      "id": "Guid_7",
-      "userId": "Guid_2",
-      "matchId": "Guid_6",
-      "prediction": "1:1",
-      "editedAt": "DateTimeOffset_10"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_5/matches/Guid_6/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "1:1"
-    },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_5/matches/Guid_6/bets/my"
+      "Location": "/api/admin/event-types/Guid_5/matches/Guid_8"
     },
     "ResponseContent": {
       "id": "Guid_8",
-      "userId": "Guid_3",
-      "matchId": "Guid_6",
+      "eventTypeId": "Guid_5",
+      "country1": "Japan",
+      "country2": "Korea",
+      "matchDateTime": "DateTimeOffset_11",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_12"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "1:1"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_9",
+      "userId": "Guid_2",
+      "matchId": "Guid_8",
       "prediction": "1:1",
-      "editedAt": "DateTimeOffset_11"
+      "editedAt": "DateTimeOffset_13"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "1:1"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_10",
+      "userId": "Guid_3",
+      "matchId": "Guid_8",
+      "prediction": "1:1",
+      "editedAt": "DateTimeOffset_14"
     }
   }
 ]

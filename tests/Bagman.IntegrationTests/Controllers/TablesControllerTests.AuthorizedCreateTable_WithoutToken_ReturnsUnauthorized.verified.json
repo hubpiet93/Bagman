@@ -11,7 +11,8 @@
       "TableName": "NoToken Table Guid_1",
       "TablePassword": "NoTokenPass@123",
       "MaxPlayers": 5,
-      "Stake": 10.0
+      "Stake": 10.0,
+      "EventTypeId": "Guid_2"
     },
     "ResponseStatus": "Unauthorized 401",
     "ResponseHeaders": {

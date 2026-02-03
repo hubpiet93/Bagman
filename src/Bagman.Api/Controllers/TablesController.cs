@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.Tables.CreateTable;
 using Bagman.Application.Features.Tables.GetTableByName;
@@ -8,6 +9,7 @@ using Bagman.Application.Features.Tables.GrantAdmin;
 using Bagman.Application.Features.Tables.JoinTable;
 using Bagman.Application.Features.Tables.LeaveTable;
 using Bagman.Application.Features.Tables.RevokeAdmin;
+using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
 using ErrorOr;
@@ -70,22 +72,14 @@ public class TablesController : AppControllerBase
                 PasswordHash = request.TablePassword,
                 MaxPlayers = request.MaxPlayers,
                 Stake = request.Stake,
-                CreatedBy = userId
+                CreatedBy = userId,
+                EventTypeId = request.EventTypeId
             });
 
         if (tableResult.IsError)
             return MapErrors(tableResult.Errors);
 
-        var createdResponse = new TableResponse
-        {
-            Id = tableResult.Value.Id,
-            Name = tableResult.Value.Name,
-            MaxPlayers = tableResult.Value.MaxPlayers,
-            Stake = tableResult.Value.Stake,
-            CreatedBy = tableResult.Value.CreatedBy,
-            CreatedAt = tableResult.Value.CreatedAt,
-            IsSecretMode = tableResult.Value.IsSecretMode
-        };
+        var createdResponse = tableResult.Value.ToTableResponse();
 
         return CreatedAtAction(nameof(GetTableDetails), new {tableId = tableResult.Value.Id}, createdResponse);
     }
@@ -115,22 +109,14 @@ public class TablesController : AppControllerBase
                 PasswordHash = request.TablePassword,
                 MaxPlayers = request.MaxPlayers,
                 Stake = request.Stake,
-                CreatedBy = userId.Value
+                CreatedBy = userId.Value,
+                EventTypeId = request.EventTypeId
             });
 
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        var createdResponse = new TableResponse
-        {
-            Id = result.Value.Id,
-            Name = result.Value.Name,
-            MaxPlayers = result.Value.MaxPlayers,
-            Stake = result.Value.Stake,
-            CreatedBy = result.Value.CreatedBy,
-            CreatedAt = result.Value.CreatedAt,
-            IsSecretMode = result.Value.IsSecretMode
-        };
+        var createdResponse = result.Value.ToTableResponse();
 
         return CreatedAtAction(nameof(GetTableDetails), new {tableId = result.Value.Id}, createdResponse);
     }
@@ -180,16 +166,7 @@ public class TablesController : AppControllerBase
             return MapErrors(tableDetailsResult.Errors);
 
         var table = tableDetailsResult.Value!;
-        return Ok(new TableResponse
-        {
-            Id = table!.Id,
-            Name = table.Name,
-            MaxPlayers = table.MaxPlayers,
-            Stake = table.Stake,
-            CreatedBy = table.CreatedBy,
-            CreatedAt = table.CreatedAt,
-            IsSecretMode = table.IsSecretMode
-        });
+        return Ok(table.ToTableResponse());
     }
 
     /// <summary>
@@ -210,16 +187,8 @@ public class TablesController : AppControllerBase
 
         var response = result.Value
             .OrderBy(t => t.CreatedAt)
-            .Select(t => new TableResponse
-            {
-                Id = t.Id,
-                Name = t.Name,
-                MaxPlayers = t.MaxPlayers,
-                Stake = t.Stake,
-                CreatedBy = t.CreatedBy,
-                CreatedAt = t.CreatedAt,
-                IsSecretMode = t.IsSecretMode
-            }).ToList();
+            .Select(t => t.ToTableResponse())
+            .ToList();
 
         return Ok(response);
     }
@@ -236,24 +205,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        var table = result.Value;
-        var response = new TableDetailResponse
-        {
-            Id = table.Id,
-            Name = table.Name,
-            MaxPlayers = table.MaxPlayers,
-            Stake = table.Stake,
-            CreatedAt = table.CreatedAt,
-            Members = table.Members
-                .OrderBy(m => m.JoinedAt)
-                .Select(m => new TableMemberResponse
-                {
-                    UserId = m.UserId,
-                    Login = m.Login,
-                    IsAdmin = m.IsAdmin,
-                    JoinedAt = m.JoinedAt
-                }).ToList()
-        };
+        var response = result.Value.ToTableDetailResponse();
 
         return Ok(response);
     }
@@ -270,8 +222,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        // Return full dashboard data
-        return Ok(result.Value);
+        return Ok(result.Value.ToTableDetailResponse());
     }
 
     /// <summary>
@@ -294,7 +245,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new {message = "Successfully left table"});
+        return Ok(new SuccessResponse("Successfully left table"));
     }
 
     /// <summary>
@@ -318,7 +269,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new {message = "Admin role granted"});
+        return Ok(new SuccessResponse("Admin role granted"));
     }
 
     /// <summary>
@@ -342,7 +293,7 @@ public class TablesController : AppControllerBase
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new {message = "Admin role revoked"});
+        return Ok(new SuccessResponse("Admin role revoked"));
     }
 
     private Guid? GetUserId()

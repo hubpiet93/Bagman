@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
     // Domain models
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; } = null!;
+    public DbSet<EventType> EventTypes { get; set; } = null!;
     public DbSet<Table> Tables { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
     public DbSet<Pool> Pools { get; set; } = null!;
@@ -48,6 +49,10 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("is_active")
                 .HasDefaultValue(true);
 
+            entity.Property(e => e.IsSuperAdmin)
+                .HasColumnName("is_super_admin")
+                .HasDefaultValue(false);
+
             entity.Property(e => e.PasswordHash)
                 .HasColumnName("password_hash")
                 .HasMaxLength(512)
@@ -78,6 +83,45 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
             entity.HasIndex(e => e.UserId).HasDatabaseName("ix_refresh_tokens_user_id");
+        });
+
+        // Configure EventType entity
+        modelBuilder.Entity<EventType>(entity =>
+        {
+            entity.ToTable("event_types");
+            entity.HasKey(e => e.Id).HasName("pk_event_types_id");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            
+            entity.Property(e => e.Code)
+                .HasColumnName("code")
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(e => e.StartDate)
+                .HasColumnName("start_date")
+                .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                .HasColumnName("is_active")
+                .HasDefaultValue(true);
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at");
+
+            // Unique constraint on Code
+            entity.HasIndex(e => e.Code)
+                .IsUnique()
+                .HasDatabaseName("uk_event_types_code");
+
+            // Index on IsActive for filtering active events
+            entity.HasIndex(e => e.IsActive)
+                .HasDatabaseName("idx_event_types_is_active");
         });
 
         // Configure Table entity
@@ -116,6 +160,8 @@ public class ApplicationDbContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
 
+            entity.Property(e => e.EventTypeId).HasColumnName("event_type_id");
+
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at");
 
@@ -151,10 +197,10 @@ public class ApplicationDbContext : DbContext
             });
 
             // Relationships
-            entity.HasMany(e => e.Matches)
-                .WithOne(m => m.Table)
-                .HasForeignKey(m => m.TableId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.EventType)
+                .WithMany(et => et.Tables)
+                .HasForeignKey(e => e.EventTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.UserStats)
                 .WithOne(s => s.Table)
@@ -172,7 +218,7 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("pk_matches_id");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.TableId).HasColumnName("table_id");
+            entity.Property(e => e.EventTypeId).HasColumnName("event_type_id");
 
             // Value object: Country1
             entity.OwnsOne(e => e.Country1, country =>
@@ -254,13 +300,18 @@ public class ApplicationDbContext : DbContext
             });
 
             // Relationships
+            entity.HasOne(e => e.EventType)
+                .WithMany(et => et.Matches)
+                .HasForeignKey(e => e.EventTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             entity.HasMany(e => e.Pools)
                 .WithOne(p => p.Match)
                 .HasForeignKey(p => p.MatchId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Indexes
-            entity.HasIndex(e => e.TableId).HasDatabaseName("idx_matches_table_id");
+            entity.HasIndex(e => e.EventTypeId).HasDatabaseName("idx_matches_event_type_id");
             entity.HasIndex(e => e.MatchDateTime).HasDatabaseName("idx_matches_datetime");
         });
 
