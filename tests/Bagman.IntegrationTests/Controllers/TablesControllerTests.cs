@@ -695,4 +695,332 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Assert
         await VerifyHttpRecording();
     }
+
+    [Fact]
+    public async Task GetTableDashboard_WithValidMember_ReturnsOkWithDashboardData()
+    {
+        // Arrange - Create table with creator and member
+        var (creatorToken, _, creatorLogin) = await RegisterAndGetToken("dash_creator", "Creator@12345", "dashboard");
+        var (memberToken, _, memberLogin) = await RegisterAndGetToken("dash_member", "Member@12345", "dashboard");
+
+        var tableName = $"Dashboard Table {Guid.NewGuid()}";
+
+        // Create table
+        var createRequest = new CreateTableRequest
+        {
+            UserLogin = creatorLogin,
+            UserPassword = "Creator@12345",
+            TableName = tableName,
+            TablePassword = "DashPass@123",
+            MaxPlayers = 5,
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
+        };
+
+        var createContent = new StringContent(
+            JsonConvert.SerializeObject(createRequest),
+            Encoding.UTF8,
+            "application/json");
+
+        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
+        var createBody = await createResponse.Content.ReadAsStringAsync();
+        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
+
+        // Join table with member
+        var joinRequest = new JoinTableRequest
+        {
+            UserLogin = memberLogin,
+            UserPassword = "Member@12345",
+            TableName = tableName,
+            TablePassword = "DashPass@123"
+        };
+
+        var joinContent = new StringContent(
+            JsonConvert.SerializeObject(joinRequest),
+            Encoding.UTF8,
+            "application/json");
+
+        await HttpClient.PostAsync("/api/tables/join", joinContent);
+
+        // Act - Get dashboard as member
+        var dashboardRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{createdTable!.Id}/dashboard");
+        dashboardRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", memberToken);
+
+        await HttpClient.SendAsync(dashboardRequest);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var tableId = Guid.NewGuid();
+
+        // Act - Try to get dashboard without token
+        await HttpClient!.GetAsync($"/api/tables/{tableId}/dashboard");
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_AsNonMember_ReturnsForbidden()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await RegisterAndGetToken("dash_creator_forbidden", "Creator@12345", "dashforbid");
+        var (nonMemberToken, _, _) = await RegisterAndGetToken("dash_non_member", "NonMember@12345", "dashforbid");
+
+        var tableName = $"Forbidden Table {Guid.NewGuid()}";
+
+        var createRequest = new CreateTableRequest
+        {
+            UserLogin = creatorLogin,
+            UserPassword = "Creator@12345",
+            TableName = tableName,
+            TablePassword = "ForbidPass@123",
+            MaxPlayers = 5,
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
+        };
+
+        var createContent = new StringContent(
+            JsonConvert.SerializeObject(createRequest),
+            Encoding.UTF8,
+            "application/json");
+
+        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
+        var createBody = await createResponse.Content.ReadAsStringAsync();
+        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
+
+        // Act - Try to get dashboard as non-member
+        var dashboardRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{createdTable!.Id}/dashboard");
+        dashboardRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", nonMemberToken);
+
+        await HttpClient.SendAsync(dashboardRequest);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithNonExistentTable_ReturnsNotFound()
+    {
+        // Arrange
+        var (token, _, _) = await RegisterAndGetToken("dash_nonexistent", "Pass@12345", "dashne");
+        var nonExistentTableId = Guid.NewGuid();
+
+        // Act
+        var dashboardRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{nonExistentTableId}/dashboard");
+        dashboardRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        await HttpClient!.SendAsync(dashboardRequest);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_IncludesTableInfo_Members_AndEmptyData()
+    {
+        // Arrange - Create a table as the only member
+        var (token, _, creatorLogin) = await RegisterAndGetToken("dash_solo", "Pass@12345", "dashsolo");
+
+        var tableName = $"Solo Dashboard Table {Guid.NewGuid()}";
+
+        var createRequest = new CreateTableRequest
+        {
+            UserLogin = creatorLogin,
+            UserPassword = "Pass@12345",
+            TableName = tableName,
+            TablePassword = "SoloPass@123",
+            MaxPlayers = 5,
+            Stake = 100m,
+            EventTypeId = DefaultEventTypeId
+        };
+
+        var createContent = new StringContent(
+            JsonConvert.SerializeObject(createRequest),
+            Encoding.UTF8,
+            "application/json");
+
+        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
+        var createBody = await createResponse.Content.ReadAsStringAsync();
+        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
+
+        // Act - Get dashboard should return table info with empty matches/bets/pools/stats
+        var dashboardRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{createdTable!.Id}/dashboard");
+        dashboardRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        await HttpClient.SendAsync(dashboardRequest);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithFullData_ReturnsMatchesBetsAndStats()
+    {
+        // Arrange - Create table with multiple members
+        var (creatorToken, creatorId, creatorLogin) = await RegisterAndGetToken("fulldata_creator", "Creator@12345", "fulldata");
+        var (member1Token, member1Id, member1Login) = await RegisterAndGetToken("fulldata_member1", "Member1@12345", "fulldata");
+        var (member2Token, member2Id, member2Login) = await RegisterAndGetToken("fulldata_member2", "Member2@12345", "fulldata");
+
+        var tableName = $"Full Data Table {Guid.NewGuid()}";
+
+        // Create table
+        var createRequest = new CreateTableRequest
+        {
+            UserLogin = creatorLogin,
+            UserPassword = "Creator@12345",
+            TableName = tableName,
+            TablePassword = "FullDataPass@123",
+            MaxPlayers = 10,
+            Stake = 50m,
+            EventTypeId = DefaultEventTypeId
+        };
+
+        var createContent = new StringContent(
+            JsonConvert.SerializeObject(createRequest),
+            Encoding.UTF8,
+            "application/json");
+
+        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
+        var createBody = await createResponse.Content.ReadAsStringAsync();
+        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
+
+        // Join table with members
+        var joinRequest1 = new JoinTableRequest
+        {
+            UserLogin = member1Login,
+            UserPassword = "Member1@12345",
+            TableName = tableName,
+            TablePassword = "FullDataPass@123"
+        };
+
+        var joinContent1 = new StringContent(
+            JsonConvert.SerializeObject(joinRequest1),
+            Encoding.UTF8,
+            "application/json");
+
+        await HttpClient.PostAsync("/api/tables/join", joinContent1);
+
+        var joinRequest2 = new JoinTableRequest
+        {
+            UserLogin = member2Login,
+            UserPassword = "Member2@12345",
+            TableName = tableName,
+            TablePassword = "FullDataPass@123"
+        };
+
+        var joinContent2 = new StringContent(
+            JsonConvert.SerializeObject(joinRequest2),
+            Encoding.UTF8,
+            "application/json");
+
+        await HttpClient.PostAsync("/api/tables/join", joinContent2);
+
+        // Get SuperAdmin token and create matches
+        var superAdminToken = await GetSuperAdminToken();
+        
+        // Create 2 matches
+        var match1DateTime = DateTime.UtcNow.AddDays(1);
+        var match2DateTime = DateTime.UtcNow.AddDays(2);
+
+        var createMatch1Request = new CreateMatchRequest
+        {
+            Country1 = "Poland",
+            Country2 = "Spain",
+            MatchDateTime = match1DateTime
+        };
+
+        var matchContent1 = new StringContent(
+            JsonConvert.SerializeObject(createMatch1Request),
+            Encoding.UTF8,
+            "application/json");
+
+        var createMatch1Http = new HttpRequestMessage(HttpMethod.Post, $"/api/admin/event-types/{DefaultEventTypeId}/matches")
+        {
+            Content = matchContent1
+        };
+        createMatch1Http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
+
+        var createMatch1Response = await HttpClient.SendAsync(createMatch1Http);
+        var createMatch1Body = await createMatch1Response.Content.ReadAsStringAsync();
+        var match1 = JsonConvert.DeserializeObject<MatchResponse>(createMatch1Body);
+
+        var createMatch2Request = new CreateMatchRequest
+        {
+            Country1 = "Germany",
+            Country2 = "France",
+            MatchDateTime = match2DateTime
+        };
+
+        var matchContent2 = new StringContent(
+            JsonConvert.SerializeObject(createMatch2Request),
+            Encoding.UTF8,
+            "application/json");
+
+        var createMatch2Http = new HttpRequestMessage(HttpMethod.Post, $"/api/admin/event-types/{DefaultEventTypeId}/matches")
+        {
+            Content = matchContent2
+        };
+        createMatch2Http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
+
+        var createMatch2Response = await HttpClient.SendAsync(createMatch2Http);
+        var createMatch2Body = await createMatch2Response.Content.ReadAsStringAsync();
+        var match2 = JsonConvert.DeserializeObject<MatchResponse>(createMatch2Body);
+
+        // Place bets from different users
+        var bet1Request = new PlaceBetRequest { Prediction = "1:0" };
+        var bet1Content = new StringContent(
+            JsonConvert.SerializeObject(bet1Request),
+            Encoding.UTF8,
+            "application/json");
+
+        var placeBet1Http = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{createdTable!.Id}/matches/{match1!.Id}/bets")
+        {
+            Content = bet1Content
+        };
+        placeBet1Http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", creatorToken);
+        await HttpClient.SendAsync(placeBet1Http);
+
+        // Member 1 bets on match 1
+        var bet2Request = new PlaceBetRequest { Prediction = "2:1" };
+        var bet2Content = new StringContent(
+            JsonConvert.SerializeObject(bet2Request),
+            Encoding.UTF8,
+            "application/json");
+
+        var placeBet2Http = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{createdTable.Id}/matches/{match1.Id}/bets")
+        {
+            Content = bet2Content
+        };
+        placeBet2Http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", member1Token);
+        await HttpClient.SendAsync(placeBet2Http);
+
+        // Member 2 bets on match 2
+        var bet3Request = new PlaceBetRequest { Prediction = "X" };
+        var bet3Content = new StringContent(
+            JsonConvert.SerializeObject(bet3Request),
+            Encoding.UTF8,
+            "application/json");
+
+        var placeBet3Http = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{createdTable.Id}/matches/{match2!.Id}/bets")
+        {
+            Content = bet3Content
+        };
+        placeBet3Http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", member2Token);
+        await HttpClient.SendAsync(placeBet3Http);
+
+        // Act - Get dashboard as creator (should see all members and all bets)
+        var dashboardRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{createdTable.Id}/dashboard");
+        dashboardRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", creatorToken);
+
+        await HttpClient.SendAsync(dashboardRequest);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
 }

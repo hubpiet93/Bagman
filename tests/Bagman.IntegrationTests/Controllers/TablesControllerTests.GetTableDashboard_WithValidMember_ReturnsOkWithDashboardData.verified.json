@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers"
+    "TestName": "GetTableDashboard_WithValidMember_ReturnsOkWithDashboardData"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -28,6 +28,31 @@
     }
   },
   {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true
+      }
+    }
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",
@@ -35,23 +60,23 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
-      "TableName": "Details Table Guid_2",
-      "TablePassword": "DetailsPass@123",
+      "TableName": "Dashboard Table Guid_3",
+      "TablePassword": "DashPass@123",
       "MaxPlayers": 5,
       "Stake": 50.0,
-      "EventTypeId": "Guid_3"
+      "EventTypeId": "Guid_4"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_4"
+      "Location": "http://localhost/api/Tables/Guid_5"
     },
     "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Details Table Guid_2",
+      "id": "Guid_5",
+      "name": "Dashboard Table Guid_3",
       "maxPlayers": 5,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_3",
+      "createdAt": "DateTimeOffset_5",
       "isSecretMode": false
     }
   },
@@ -62,24 +87,24 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Joiner@12345",
-      "TableName": "Details Table Guid_2",
-      "TablePassword": "DetailsPass@123"
+      "UserPassword": "Member@12345",
+      "TableName": "Dashboard Table Guid_3",
+      "TablePassword": "DashPass@123"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Details Table Guid_2",
+      "id": "Guid_5",
+      "name": "Dashboard Table Guid_3",
       "maxPlayers": 5,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_3",
+      "createdAt": "DateTimeOffset_5",
       "isSecretMode": false
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_4",
+    "RequestUri": "http://localhost/api/tables/Guid_5/dashboard",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
@@ -89,23 +114,25 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Details Table Guid_2",
-      "maxPlayers": 5,
-      "stake": 50.0,
-      "createdAt": "DateTimeOffset_3",
+      "table": {
+        "id": "Guid_5",
+        "name": "Dashboard Table Guid_3",
+        "maxPlayers": 5,
+        "stake": 50.0,
+        "createdAt": "DateTimeOffset_5"
+      },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_5"
         },
         {
-          "userId": "Guid_5",
+          "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_4"
+          "joinedAt": "DateTimeOffset_6"
         }
       ]
     }

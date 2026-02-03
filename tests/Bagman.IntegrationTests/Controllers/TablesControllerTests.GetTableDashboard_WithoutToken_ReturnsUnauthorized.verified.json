@@ -1,0 +1,17 @@
+﻿[
+  {
+    "TestName": "GetTableDashboard_WithoutToken_ReturnsUnauthorized"
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_1/dashboard",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {},
+    "RequestContent": null,
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {
+      "WWW-Authenticate": "Bearer"
+    },
+    "ResponseContent": null
+  }
+]

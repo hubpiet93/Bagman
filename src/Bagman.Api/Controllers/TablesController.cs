@@ -3,6 +3,7 @@ using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.Tables.CreateTable;
 using Bagman.Application.Features.Tables.GetTableByName;
+using Bagman.Application.Features.Tables.GetTableDashboard;
 using Bagman.Application.Features.Tables.GetTableDetails;
 using Bagman.Application.Features.Tables.GetUserTables;
 using Bagman.Application.Features.Tables.GrantAdmin;
@@ -216,13 +217,21 @@ public class TablesController : AppControllerBase
     [HttpGet("{tableId}/dashboard")]
     public async Task<IActionResult> GetTableDashboard(Guid tableId)
     {
-        var result = await _dispatcher.HandleAsync<GetTableDetailsQuery, TableDetailResult>(
-            new GetTableDetailsQuery { TableId = tableId });
+        var userId = GetUserId();
+        if (!userId.HasValue)
+            return Unauthorized();
+
+        var result = await _dispatcher.HandleAsync<GetTableDashboardQuery, TableDashboardResult>(
+            new GetTableDashboardQuery 
+            { 
+                TableId = tableId,
+                UserId = userId.Value
+            });
         
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(result.Value.ToTableDetailResponse());
+        return Ok(result.Value.ToTableDashboardResponse());
     }
 
     /// <summary>
