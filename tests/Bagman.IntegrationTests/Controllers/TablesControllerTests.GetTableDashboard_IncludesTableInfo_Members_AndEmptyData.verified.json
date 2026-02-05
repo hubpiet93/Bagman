@@ -34,53 +34,37 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
+      "UserPassword": "Creator@12345",
       "TableName": "Solo Dashboard Table Guid_2",
-      "TablePassword": "SoloPass@123",
-      "MaxPlayers": 5,
-      "Stake": 100.0,
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
       "EventTypeId": "Guid_3"
     },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_4"
-    },
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Solo Dashboard Table Guid_2",
-      "maxPlayers": 5,
-      "stake": 100.0,
-      "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_3",
-      "isSecretMode": false
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+      "title": "Unauthorized",
+      "status": 401,
+      "traceId": "{Scrubbed}"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
+    "RequestUri": "http://localhost/api/tables/Guid_Empty/dashboard",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": null,
-    "ResponseStatus": "OK 200",
+    "ResponseStatus": "NotFound 404",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "table": {
-        "id": "Guid_4",
-        "name": "Solo Dashboard Table Guid_2",
-        "maxPlayers": 5,
-        "stake": 100.0,
-        "createdAt": "DateTimeOffset_3"
-      },
-      "members": [
-        {
-          "userId": "Guid_1",
-          "login": "{Scrubbed}",
-          "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
-        }
-      ]
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
     }
   }
 ]

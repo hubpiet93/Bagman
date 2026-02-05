@@ -36,8 +36,8 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
       "TableName": "Details Table Guid_2",
-      "TablePassword": "DetailsPass@123",
-      "MaxPlayers": 5,
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
       "Stake": 50.0,
       "EventTypeId": "Guid_3"
     },
@@ -48,7 +48,7 @@
     "ResponseContent": {
       "id": "Guid_4",
       "name": "Details Table Guid_2",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
@@ -71,7 +71,7 @@
     "ResponseContent": {
       "id": "Guid_4",
       "name": "Details Table Guid_2",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
@@ -91,7 +91,7 @@
     "ResponseContent": {
       "id": "Guid_4",
       "name": "Details Table Guid_2",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdAt": "DateTimeOffset_3",
       "members": [

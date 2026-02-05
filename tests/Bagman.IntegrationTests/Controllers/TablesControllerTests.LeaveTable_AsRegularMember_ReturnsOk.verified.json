@@ -11,8 +11,8 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
       "TableName": "Leave Table Guid_1",
-      "TablePassword": "LeavePass@123",
-      "MaxPlayers": 5,
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
       "Stake": 50.0,
       "EventTypeId": "Guid_2"
     },
@@ -23,7 +23,7 @@
     "ResponseContent": {
       "id": "Guid_3",
       "name": "Leave Table Guid_1",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_4",
       "createdAt": "DateTimeOffset_1",
@@ -37,7 +37,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Joiner@12345",
+      "Password": "Pass@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -62,7 +62,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Joiner@12345",
+      "UserPassword": "Pass@12345",
       "TableName": "Leave Table Guid_1",
       "TablePassword": "LeavePass@123"
     },
@@ -71,7 +71,7 @@
     "ResponseContent": {
       "id": "Guid_3",
       "name": "Leave Table Guid_1",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_4",
       "createdAt": "DateTimeOffset_1",

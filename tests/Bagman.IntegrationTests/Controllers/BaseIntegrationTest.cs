@@ -27,11 +27,7 @@ public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
 
     private bool _initialized;
 
-    private PostgresFixture PostgresFixture
-        => Services.GetService<PostgresFixture>()
-           ?? throw new InvalidOperationException("PostgresFixture not available from factory services.");
-
-    protected HttpClient? HttpClient { get; private set; }
+    protected HttpClient HttpClient { get; private set; }
     protected RecordingHandler? RecordingHandler { get; private set; }
 
     protected BaseIntegrationTest(PostgresFixture postgresFixture, ITestOutputHelper output) : base(postgresFixture.ConnectionString!)
@@ -93,7 +89,7 @@ public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
 
     protected async Task Dispose()
     {
-        HttpClient?.Dispose();
+        HttpClient.Dispose();
         RecordingHandler?.Dispose();
 
         await base.DisposeAsync();
@@ -136,47 +132,5 @@ public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
                 await Task.Delay(1000);
             }
         }
-    }
-    
-    protected async Task<string> GetSuperAdminToken()
-    {
-        // Register SuperAdmin user via API
-        var registerRequest = new 
-        {
-            Login = SuperAdminLogin,
-            Password = SuperAdminPassword,
-            Email = "superadmin@test.com"
-        };
-
-        var registerContent = new StringContent(
-            Newtonsoft.Json.JsonConvert.SerializeObject(registerRequest),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json"));
-
-        await HttpClient.PostAsync("/api/auth/register", registerContent);
-        
-        // Update user to be SuperAdmin in database
-        using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.ExecuteSqlRawAsync(
-            $"UPDATE users SET is_super_admin = TRUE WHERE login = '{SuperAdminLogin}';");
-        
-        // Login to get token
-        var loginRequest = new 
-        {
-            Login = SuperAdminLogin,
-            Password = SuperAdminPassword
-        };
-
-        var loginContent = new StringContent(
-            Newtonsoft.Json.JsonConvert.SerializeObject(loginRequest),
-            Encoding.UTF8,
-            MediaTypeHeaderValue.Parse("application/json"));
-
-        var loginResponse = await HttpClient.PostAsync("/api/auth/login", loginContent);
-        var loginBody = await loginResponse.Content.ReadAsStringAsync();
-        var authResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(loginBody);
-        
-        return authResponse!.accessToken.ToString();
     }
 }

@@ -50,7 +50,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act
-        await HttpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient.PostAsync("/api/auth/register", content);
 
         // Assert
         await VerifyHttpRecording();
@@ -73,7 +73,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Register first user
-        await HttpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient.PostAsync("/api/auth/register", content);
 
         // Try to register with same login
         var request2 = new RegisterRequest
@@ -112,7 +112,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act
-        await HttpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient.PostAsync("/api/auth/register", content);
 
         // Assert
         await VerifyHttpRecording();
@@ -135,7 +135,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act
-        await HttpClient!.PostAsync("/api/auth/register", content);
+        await HttpClient.PostAsync("/api/auth/register", content);
 
         // Assert
         await VerifyHttpRecording();
@@ -157,7 +157,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        await HttpClient!.PostAsync("/api/auth/register", registerContent);
+        await HttpClient.PostAsync("/api/auth/register", registerContent);
 
         // Act - Login
         var loginRequest = new LoginRequest
@@ -193,7 +193,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        await HttpClient!.PostAsync("/api/auth/register", registerContent);
+        await HttpClient.PostAsync("/api/auth/register", registerContent);
 
         // Act - Login with wrong password
         var loginRequest = new LoginRequest
@@ -229,7 +229,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act
-        await HttpClient!.PostAsync("/api/auth/login", content);
+        await HttpClient.PostAsync("/api/auth/login", content);
 
         // Assert
         await VerifyHttpRecording();
@@ -251,7 +251,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
+        var registerResponse = await HttpClient.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var initialAuthResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
@@ -289,7 +289,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act
-        await HttpClient!.PostAsync("/api/auth/refresh", content);
+        await HttpClient.PostAsync("/api/auth/refresh", content);
 
         // Assert
         await VerifyHttpRecording();
@@ -311,7 +311,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             Encoding.UTF8,
             "application/json");
 
-        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
+        var registerResponse = await HttpClient.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 
@@ -349,7 +349,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act
-        await HttpClient!.PostAsync("/api/auth/logout", content);
+        await HttpClient.PostAsync("/api/auth/logout", content);
 
         // Assert
         await VerifyHttpRecording();
@@ -372,7 +372,7 @@ public class AuthControllerTests : BaseIntegrationTest, IAsyncLifetime
             "application/json");
 
         // Act - Register
-        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
+        var registerResponse = await HttpClient.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var initialAuth = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
 

@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "SuperAdmin@123",
+      "Password": "SuperAdmin@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -34,7 +34,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "SuperAdmin@123"
+      "Password": "SuperAdmin@12345"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},

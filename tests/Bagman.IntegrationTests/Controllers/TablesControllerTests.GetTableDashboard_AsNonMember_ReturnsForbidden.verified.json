@@ -61,8 +61,8 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
       "TableName": "Forbidden Table Guid_3",
-      "TablePassword": "ForbidPass@123",
-      "MaxPlayers": 5,
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
       "Stake": 50.0,
       "EventTypeId": "Guid_4"
     },
@@ -73,7 +73,7 @@
     "ResponseContent": {
       "id": "Guid_5",
       "name": "Forbidden Table Guid_3",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_5",

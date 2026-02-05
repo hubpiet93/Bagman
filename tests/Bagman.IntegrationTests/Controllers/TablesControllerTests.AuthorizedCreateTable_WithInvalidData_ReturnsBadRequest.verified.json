@@ -36,9 +36,9 @@
     },
     "RequestContent": {
       "TableName": "",
-      "TablePassword": "",
-      "MaxPlayers": 0,
-      "Stake": -1.0,
+      "TablePassword": "AuthTablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 25.0,
       "EventTypeId": "Guid_2"
     },
     "ResponseStatus": "BadRequest 400",
@@ -48,17 +48,8 @@
       "title": "One or more validation errors occurred.",
       "status": 400,
       "errors": {
-        "Stake": [
-          "Stawka nie może być ujemna"
-        ],
         "TableName": [
           "Nazwa stołu jest wymagana"
-        ],
-        "MaxPlayers": [
-          "Maksymalna liczba graczy musi być większa niż 0"
-        ],
-        "TablePassword": [
-          "Hasło stołu jest wymagane"
         ]
       },
       "traceId": "{Scrubbed}"

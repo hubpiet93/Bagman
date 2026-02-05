@@ -1,8 +1,7 @@
-using System.Net.Http.Headers;
-using System.Text;
-using Bagman.Contracts.Models.Auth;
+using Bagman.IntegrationTests.Controllers.Endpoints;
+using Bagman.IntegrationTests.Controllers.Endpoints.EventTypes;
+using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
-using Newtonsoft.Json;
 using Xunit.Abstractions;
 
 namespace Bagman.IntegrationTests.Controllers;
@@ -38,10 +37,11 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetActiveEventTypes_WithoutAuthentication_ReturnsOkWithActiveEventTypes()
     {
         // Arrange - Default EventType is already created in InitializeDatabase
-        // Act - Get active EventTypes (public endpoint, no auth)
-        await HttpClient!.GetAsync("/api/event-types");
+        
+        // Act
+        await HttpClient.GetActiveEventTypesAsync();
 
-        // Assert - Should return active EventTypes including the default one
+        // Assert
         await VerifyHttpRecording();
     }
 
@@ -49,28 +49,14 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task CreateEventType_AsSuperAdmin_ReturnsCreatedWithEventType()
     {
         // Arrange
-        var superAdminToken = await GetSuperAdminToken();
-
-        var createRequest = new
-        {
-            Code = "LIGA_MISTRZOW_2026",
-            Name = "Liga Mistrzów 2025/2026",
-            StartDate = DateTime.UtcNow.AddMonths(2)
-        };
-
-        var content = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/admin/event-types")
-        {
-            Content = content
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
 
         // Act
-        await HttpClient!.SendAsync(request);
+        await HttpClient.CreateEventTypeAsync(
+            "LIGA_MISTRZOW_2026",
+            "Liga Mistrzów 2025/2026",
+            DateTime.UtcNow.AddMonths(2),
+            superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -80,48 +66,19 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task CreateEventType_WithDuplicateCode_ReturnsConflict()
     {
         // Arrange
-        var superAdminToken = await GetSuperAdminToken();
-
-        var createFirstRequest = new
-        {
-            Code = "DUPLICATE_CODE",
-            Name = "First Event",
-            StartDate = DateTime.UtcNow.AddMonths(1)
-        };
-
-        var firstContent = new StringContent(
-            JsonConvert.SerializeObject(createFirstRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var firstRequest = new HttpRequestMessage(HttpMethod.Post, "/api/admin/event-types")
-        {
-            Content = firstContent
-        };
-        firstRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
-
-        await HttpClient!.SendAsync(firstRequest);
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        await HttpClient.CreateEventTypeAsync(
+            "DUPLICATE_CODE",
+            "First Event",
+            DateTime.UtcNow.AddMonths(1),
+            superAdminToken);
 
         // Act - Try to create with same code
-        var createSecondRequest = new
-        {
-            Code = "DUPLICATE_CODE",
-            Name = "Second Event",
-            StartDate = DateTime.UtcNow.AddMonths(2)
-        };
-
-        var secondContent = new StringContent(
-            JsonConvert.SerializeObject(createSecondRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var secondRequest = new HttpRequestMessage(HttpMethod.Post, "/api/admin/event-types")
-        {
-            Content = secondContent
-        };
-        secondRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
-
-        await HttpClient.SendAsync(secondRequest);
+        await HttpClient.CreateEventTypeAsync(
+            "DUPLICATE_CODE",
+            "Second Event",
+            DateTime.UtcNow.AddMonths(2),
+            superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -130,44 +87,15 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task CreateEventType_AsRegularUser_ReturnsForbidden()
     {
-        // Arrange - Register regular user (not SuperAdmin)
-        var registerRequest = new RegisterRequest
-        {
-            Login = "regular_user",
-            Password = "Regular@12345",
-            Email = "regular@test.com"
-        };
+        // Arrange
+        var (regularUserToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("regular_user", TestConstants.DefaultUserPassword);
 
-        var registerContent = new StringContent(
-            JsonConvert.SerializeObject(registerRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
-        var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
-        var regularUserToken = authResponse!.AccessToken;
-
-        // Act - Try to create EventType as regular user
-        var createRequest = new
-        {
-            Code = "FORBIDDEN_EVENT",
-            Name = "Forbidden Event",
-            StartDate = DateTime.UtcNow.AddMonths(1)
-        };
-
-        var content = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/admin/event-types")
-        {
-            Content = content
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", regularUserToken);
-
-        await HttpClient.SendAsync(request);
+        // Act
+        await HttpClient.CreateEventTypeAsync(
+            "FORBIDDEN_EVENT",
+            "Forbidden Event",
+            DateTime.UtcNow.AddMonths(1),
+            regularUserToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -176,28 +104,15 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task UpdateEventType_AsSuperAdmin_ReturnsOkWithUpdatedEventType()
     {
-        // Arrange - Use default EventType
-        var superAdminToken = await GetSuperAdminToken();
+        // Arrange
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
 
-        // Act - Update default EventType
-        var updateRequest = new
-        {
-            Name = "Updated Test Event",
-            StartDate = DateTime.UtcNow.AddMonths(2)
-        };
-
-        var updateContent = new StringContent(
-            JsonConvert.SerializeObject(updateRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var updateHttpRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/admin/event-types/{DefaultEventTypeId}")
-        {
-            Content = updateContent
-        };
-        updateHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
-
-        await HttpClient!.SendAsync(updateHttpRequest);
+        // Act
+        await HttpClient.UpdateEventTypeAsync(
+            DefaultEventTypeId,
+            "Updated Test Event",
+            DateTime.UtcNow.AddMonths(2),
+            superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -206,16 +121,11 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task DeactivateEventType_AsSuperAdmin_ReturnsOkWithDeactivatedEventType()
     {
-        // Arrange - Use default EventType created in InitializeDatabase
-        var superAdminToken = await GetSuperAdminToken();
+        // Arrange
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
 
-        // Act - Deactivate default EventType
-        var deactivateRequest = new HttpRequestMessage(
-            HttpMethod.Post, 
-            $"/api/admin/event-types/{DefaultEventTypeId}/deactivate");
-        deactivateRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", superAdminToken);
-
-        await HttpClient!.SendAsync(deactivateRequest);
+        // Act
+        await HttpClient.DeactivateEventTypeAsync(DefaultEventTypeId, superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -224,31 +134,11 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task DeactivateEventType_AsRegularUser_ReturnsForbidden()
     {
-        // Arrange - Register regular user
-        var registerRequest = new RegisterRequest
-        {
-            Login = "regular_user_deactivate",
-            Password = "Regular@12345",
-            Email = "regular_deactivate@test.com"
-        };
+        // Arrange
+        var (regularUserToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("regular_user_deactivate", TestConstants.DefaultUserPassword);
 
-        var registerContent = new StringContent(
-            JsonConvert.SerializeObject(registerRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
-        var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
-        var regularUserToken = authResponse!.AccessToken;
-
-        // Act - Try to deactivate default EventType as regular user
-        var deactivateRequest = new HttpRequestMessage(
-            HttpMethod.Post, 
-            $"/api/admin/event-types/{DefaultEventTypeId}/deactivate");
-        deactivateRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", regularUserToken);
-
-        await HttpClient.SendAsync(deactivateRequest);
+        // Act
+        await HttpClient.DeactivateEventTypeAsync(DefaultEventTypeId, regularUserToken);
 
         // Assert
         await VerifyHttpRecording();

@@ -3,55 +3,51 @@
     "TestName": "GetMatch_StartedFalse_ForFutureDateTime"
   },
   {
-    "RequestUri": "http://localhost/api/tables",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {},
-    "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "User@12345",
-      "TableName": "Started Future Table",
-      "TablePassword": "TablePass@123",
-      "MaxPlayers": 10,
-      "Stake": 100.0,
-      "EventTypeId": "Guid_1"
-    },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_2"
-    },
-    "ResponseContent": {
-      "id": "Guid_2",
-      "name": "Started Future Table",
-      "maxPlayers": 10,
-      "stake": 100.0,
-      "createdBy": "Guid_3",
-      "createdAt": "DateTimeOffset_1",
-      "isSecretMode": false
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/auth/login",
+    "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "User@12345"
+      "Password": "Pass@12345",
+      "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_2",
+      "expiresAt": "DateTimeOffset_1",
       "user": {
-        "id": "Guid_3",
+        "id": "Guid_1",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_3",
+        "createdAt": "DateTimeOffset_2",
         "isActive": true
       }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Test Betting Table Guid_2",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
+    },
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+      "title": "Unauthorized",
+      "status": 401,
+      "traceId": "{Scrubbed}"
     }
   },
   {
@@ -61,7 +57,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "SuperAdmin@123",
+      "Password": "SuperAdmin@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -69,12 +65,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_4",
+      "expiresAt": "DateTimeOffset_3",
       "user": {
         "id": "Guid_4",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_4",
         "isActive": true
       }
     }
@@ -86,25 +82,25 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "SuperAdmin@123"
+      "Password": "SuperAdmin@12345"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_6",
+      "expiresAt": "DateTimeOffset_5",
       "user": {
         "id": "Guid_4",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_4",
         "isActive": true
       }
     }
   },
   {
-    "RequestUri": "http://localhost/api/admin/event-types/Guid_1/matches",
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -113,24 +109,24 @@
     "RequestContent": {
       "Country1": "Poland",
       "Country2": "Germany",
-      "MatchDateTime": "DateTimeOffset_7"
+      "MatchDateTime": "DateTimeOffset_6"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "/api/admin/event-types/Guid_1/matches/Guid_5"
+      "Location": "/api/admin/event-types/Guid_3/matches/Guid_5"
     },
     "ResponseContent": {
       "id": "Guid_5",
-      "eventTypeId": "Guid_1",
+      "eventTypeId": "Guid_3",
       "country1": "Poland",
       "country2": "Germany",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_6",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_7"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_2/matches/Guid_5",
+    "RequestUri": "http://localhost/api/tables/Guid_Empty/matches/Guid_5",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
@@ -141,14 +137,14 @@
     "ResponseHeaders": {},
     "ResponseContent": {
       "id": "Guid_5",
-      "eventTypeId": "Guid_1",
+      "eventTypeId": "Guid_3",
       "country1": "Poland",
       "country2": "Germany",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_6",
       "result": null,
       "status": "scheduled",
       "started": true,
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_7"
     }
   }
 ]

@@ -11,7 +11,7 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
       "TableName": "Full Table Guid_1",
-      "TablePassword": "FullPass@123",
+      "TablePassword": "TablePass@123",
       "MaxPlayers": 1,
       "Stake": 50.0,
       "EventTypeId": "Guid_2"
