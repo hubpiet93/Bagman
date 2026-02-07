@@ -2,6 +2,7 @@ using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.Controllers.Endpoints;
 using Bagman.IntegrationTests.Controllers.Endpoints.Bets;
 using Bagman.IntegrationTests.Controllers.Endpoints.EventTypes;
+using Bagman.IntegrationTests.Controllers.Endpoints.Matches;
 using Bagman.IntegrationTests.Controllers.Endpoints.Tables;
 using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
@@ -595,6 +596,241 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var joinResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<JoinTableResponse>(responseBody);
 
         // Assert - Verify response contains all required fields
+        await VerifyHttpRecording();
+    }
+
+    #endregion
+
+    #region Leaderboard Tests
+
+    /// <summary>
+    ///     Tests for the leaderboard functionality in the dashboard endpoint.
+    /// </summary>
+
+    [Fact]
+    public async Task GetTableDashboard_WithExactHit_ReturnsLeaderboardWithThreePoints()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_exact_creator", "Creator@12345", "lbexact");
+
+        var tableName = $"Leaderboard Exact Hit Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create match with past date (already started)
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Poland", "Spain", DateTime.UtcNow.AddMinutes(-10));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
+
+        // Place bet with exact prediction
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "2:1" }, creatorToken);
+
+        // Set match result (exact match)
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("2:1"), superAdminToken);
+
+        // Act - Get dashboard
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithWinnerHit_ReturnsLeaderboardWithOnePoint()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_winner_creator", "Creator@12345", "lbwinner");
+
+        var tableName = $"Leaderboard Winner Hit Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create match with past date
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Germany", "France", DateTime.UtcNow.AddMinutes(-10));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
+
+        // Place bet - correct winner but wrong score
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "2:0" }, creatorToken);
+
+        // Set match result - same winner but different score
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("1:0"), superAdminToken);
+
+        // Act - Get dashboard
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithMiss_ReturnsLeaderboardWithZeroPoints()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_miss_creator", "Creator@12345", "lbmiss");
+
+        var tableName = $"Leaderboard Miss Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create match with past date
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Italy", "Portugal", DateTime.UtcNow.AddMinutes(-10));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
+
+        // Place bet - home win prediction
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "2:0" }, creatorToken);
+
+        // Set match result - away win (miss)
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("0:1"), superAdminToken);
+
+        // Act - Get dashboard
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithDrawPredictionX_ReturnsWinnerHit()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_draw_creator", "Creator@12345", "lbdraw");
+
+        var tableName = $"Leaderboard Draw Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create match with past date
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("England", "Scotland", DateTime.UtcNow.AddMinutes(-10));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
+
+        // Place bet with "X" for draw
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "X" }, creatorToken);
+
+        // Set match result - draw
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("1:1"), superAdminToken);
+
+        // Act - Get dashboard
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithMultipleUsers_ReturnsSortedLeaderboard()
+    {
+        // Arrange - Create table with multiple members
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_multi_creator", "Creator@12345", "lbmulti");
+        var (member1Token, _, member1Login) = await HttpClient.RegisterAndGetTokenAsync("lb_multi_member1", "Member1@12345", "lbmulti");
+        var (member2Token, _, member2Login) = await HttpClient.RegisterAndGetTokenAsync("lb_multi_member2", "Member2@12345", "lbmulti");
+
+        var tableName = $"Leaderboard Multi Users Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", member1Login, "Member1@12345");
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", member2Login, "Member2@12345");
+
+        // Create matches with past date
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var match1Request = EventTypeMatchCreation.CreateMatchRequest("Brazil", "Argentina", DateTime.UtcNow.AddMinutes(-10));
+        var match2Request = EventTypeMatchCreation.CreateMatchRequest("Chile", "Uruguay", DateTime.UtcNow.AddMinutes(-10));
+        var match1 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, match1Request, superAdminToken);
+        var match2 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, match2Request, superAdminToken);
+
+        // Creator: 2 exact hits = 6 points
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "0:0" }, creatorToken);
+
+        // Member1: 1 exact hit + 1 winner hit = 4 points
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, member1Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "1:1" }, member1Token);
+
+        // Member2: 2 misses = 0 points
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "0:2" }, member2Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "2:0" }, member2Token);
+
+        // Set match results
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match1.Id, MatchResultHelpers.CreateSetResultRequest("2:1"), superAdminToken);
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match2.Id, MatchResultHelpers.CreateSetResultRequest("0:0"), superAdminToken);
+
+        // Act - Get dashboard
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert - Leaderboard should be sorted: creator (6pts), member1 (4pts), member2 (0pts)
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithNoFinishedMatches_ReturnsEmptyLeaderboard()
+    {
+        // Arrange - Create table with members
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_empty_creator", "Creator@12345", "lbempty");
+
+        var tableName = $"Leaderboard Empty Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create match with future date (not started)
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Japan", "Korea", DateTime.UtcNow.AddDays(1));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
+
+        // Place bet on unfinished match
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "1:0" }, creatorToken);
+
+        // Act - Get dashboard (no result set - match not finished)
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert - Leaderboard should be empty since no matches have results
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithMultipleBets_CalculatesAccuracyCorrectly()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_accuracy_creator", "Creator@12345", "lbaccuracy");
+
+        var tableName = $"Leaderboard Accuracy Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create 5 matches with past dates
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var match1 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId,
+            EventTypeMatchCreation.CreateMatchRequest("Match1 Team A", "Match1 Team B", DateTime.UtcNow.AddMinutes(-10)), superAdminToken);
+        var match2 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId,
+            EventTypeMatchCreation.CreateMatchRequest("Match2 Team A", "Match2 Team B", DateTime.UtcNow.AddMinutes(-10)), superAdminToken);
+        var match3 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId,
+            EventTypeMatchCreation.CreateMatchRequest("Match3 Team A", "Match3 Team B", DateTime.UtcNow.AddMinutes(-10)), superAdminToken);
+        var match4 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId,
+            EventTypeMatchCreation.CreateMatchRequest("Match4 Team A", "Match4 Team B", DateTime.UtcNow.AddMinutes(-10)), superAdminToken);
+        var match5 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId,
+            EventTypeMatchCreation.CreateMatchRequest("Match5 Team A", "Match5 Team B", DateTime.UtcNow.AddMinutes(-10)), superAdminToken);
+
+        // Place bets: 2 exact hits, 1 winner hit, 2 misses = 60% accuracy
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, creatorToken); // Exact hit
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "1:0" }, creatorToken); // Exact hit
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match3.Id, new PlaceBetRequest { Prediction = "3:0" }, creatorToken); // Winner hit
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match4.Id, new PlaceBetRequest { Prediction = "2:0" }, creatorToken); // Miss
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match5.Id, new PlaceBetRequest { Prediction = "0:1" }, creatorToken); // Miss
+
+        // Set match results
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match1.Id, MatchResultHelpers.CreateSetResultRequest("2:1"), superAdminToken); // Exact
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match2.Id, MatchResultHelpers.CreateSetResultRequest("1:0"), superAdminToken); // Exact
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match3.Id, MatchResultHelpers.CreateSetResultRequest("2:0"), superAdminToken); // Winner
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match4.Id, MatchResultHelpers.CreateSetResultRequest("0:0"), superAdminToken); // Miss
+        await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match5.Id, MatchResultHelpers.CreateSetResultRequest("1:0"), superAdminToken); // Miss
+
+        // Act - Get dashboard
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert - Accuracy should be 60% (3 correct / 5 total)
+        // Points: 2×3 + 1×1 = 7, ExactHits: 2, WinnerHits: 1, TotalBets: 5, Accuracy: 60.0
         await VerifyHttpRecording();
     }
 

@@ -1,4 +1,6 @@
 using Bagman.Application.Common;
+using Bagman.Domain.Services;
+using Bagman.Domain.ValueObjects;
 using Bagman.Infrastructure.Data;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,7 @@ public record TableDashboardResult
     public required List<BetDetailResult> Bets { get; init; }
     public required List<PoolDetailResult> Pools { get; init; }
     public required List<StatsDetailResult> Stats { get; init; }
+    public required List<LeaderboardEntryResult> Leaderboard { get; init; }
 }
 
 public record MemberDetailResult
@@ -111,6 +114,9 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
         // Get user stats for the table
         var stats = await GetUserStatsAsync(request.TableId, cancellationToken);
 
+        // Calculate leaderboard
+        var leaderboard = CalculateLeaderboard(members, matches, bets);
+
         return new TableDashboardResult
         {
             TableId = table.Id,
@@ -122,7 +128,8 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
             Matches = matches,
             Bets = bets,
             Pools = pools,
-            Stats = stats
+            Stats = stats,
+            Leaderboard = leaderboard
         };
     }
 
@@ -221,5 +228,70 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
                 TotalWon = s.TotalWon
             })
             .ToListAsync(cancellationToken);
+    }
+
+    private List<LeaderboardEntryResult> CalculateLeaderboard(
+        List<MemberDetailResult> members,
+        List<MatchDetailResult> matches,
+        List<BetDetailResult> bets)
+    {
+        // Słownik: matchId -> result
+        var matchResults = matches
+            .Where(m => m.Result != null)
+            .ToDictionary(m => m.Id, m => m.Result!);
+
+        // Grupowanie zakładów po użytkowniku
+        var userBets = bets.GroupBy(b => b.UserId);
+
+        var leaderboard = new List<LeaderboardEntryResult>();
+
+        foreach (var group in userBets)
+        {
+            var userId = group.Key;
+            var member = members.FirstOrDefault(m => m.UserId == userId);
+            if (member == null) continue;
+
+            int points = 0;
+            int exactHits = 0;
+            int winnerHits = 0;
+            int totalBets = 0;
+
+            foreach (var bet in group)
+            {
+                if (!matchResults.TryGetValue(bet.MatchId, out var result))
+                    continue; // Mecz jeszcze nie zakończony
+
+                totalBets++;
+                var betResult = BetScoringService.CalculateResult(bet.Prediction, result);
+
+                points += betResult.Points;
+                if (betResult.Type == BetResultType.ExactHit) exactHits++;
+                if (betResult.Type == BetResultType.WinnerHit) winnerHits++;
+            }
+
+            var accuracy = totalBets > 0
+                ? Math.Round((exactHits + winnerHits) * 100.0 / totalBets, 1)
+                : 0;
+
+            leaderboard.Add(new LeaderboardEntryResult
+            {
+                Position = 0, // Will be set during sorting
+                UserId = userId,
+                Login = member.Login,
+                Points = points,
+                ExactHits = exactHits,
+                WinnerHits = winnerHits,
+                TotalBets = totalBets,
+                Accuracy = accuracy
+            });
+        }
+
+        // Sortowanie i przypisanie pozycji
+        return leaderboard
+            .OrderByDescending(e => e.Points)
+            .ThenByDescending(e => e.ExactHits)
+            .ThenByDescending(e => e.Accuracy)
+            .Select((e, i) => e with { Position = i + 1 })
+            .ToList();
     }
 }

@@ -8,6 +8,19 @@ public record TableDashboardResponse
     public required List<BetInfo> Bets { get; init; }
     public required List<PoolInfo> Pools { get; init; }
     public required List<StatsInfo> Stats { get; init; }
+    public required List<LeaderboardEntry> Leaderboard { get; init; }
+}
+
+public record LeaderboardEntry
+{
+    public required int Position { get; init; }
+    public required Guid UserId { get; init; }
+    public required string Login { get; init; }
+    public required int Points { get; init; }
+    public required int ExactHits { get; init; }
+    public required int WinnerHits { get; init; }
+    public required int TotalBets { get; init; }
+    public required double Accuracy { get; init; }
 }
 
 public record TableInfo

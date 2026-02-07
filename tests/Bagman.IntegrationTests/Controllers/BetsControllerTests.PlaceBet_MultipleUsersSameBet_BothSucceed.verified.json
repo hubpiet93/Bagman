@@ -126,7 +126,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_8"
         }
       ]
     }
@@ -192,12 +192,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_8",
+      "expiresAt": "DateTimeOffset_9",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_10",
         "isActive": true
       }
     }
@@ -216,12 +216,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_10",
+      "expiresAt": "DateTimeOffset_11",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_10",
         "isActive": true
       }
     }
@@ -236,7 +236,7 @@
     "RequestContent": {
       "Country1": "Japan",
       "Country2": "Korea",
-      "MatchDateTime": "DateTimeOffset_11"
+      "MatchDateTime": "DateTimeOffset_12"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -247,9 +247,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Japan",
       "country2": "Korea",
-      "matchDateTime": "DateTimeOffset_11",
+      "matchDateTime": "DateTimeOffset_12",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_12"
+      "createdAt": "DateTimeOffset_13"
     }
   },
   {
@@ -271,7 +271,7 @@
       "userId": "Guid_5",
       "matchId": "Guid_8",
       "prediction": "1:1",
-      "editedAt": "DateTimeOffset_13"
+      "editedAt": "DateTimeOffset_14"
     }
   },
   {
@@ -293,7 +293,7 @@
       "userId": "Guid_6",
       "matchId": "Guid_8",
       "prediction": "1:1",
-      "editedAt": "DateTimeOffset_14"
+      "editedAt": "DateTimeOffset_15"
     }
   }
 ]

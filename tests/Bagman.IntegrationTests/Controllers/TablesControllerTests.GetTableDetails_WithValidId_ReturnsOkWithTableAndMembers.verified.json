@@ -102,7 +102,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_4"
+          "joinedAt": "DateTimeOffset_3"
         }
       ]
     }

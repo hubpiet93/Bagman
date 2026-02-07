@@ -105,6 +105,9 @@ public static class TablesControllerMappers
                 .ToList(),
             Stats = result.Stats
                 .Select(s => s.ToStatsInfo())
+                .ToList(),
+            Leaderboard = result.Leaderboard
+                .Select(l => l.ToLeaderboardEntry())
                 .ToList()
         };
     }
@@ -166,6 +169,21 @@ public static class TablesControllerMappers
             BetsPlaced = result.BetsPlaced,
             PoolsWon = result.PoolsWon,
             TotalWon = result.TotalWon
+        };
+    }
+
+    public static LeaderboardEntry ToLeaderboardEntry(this LeaderboardEntryResult result)
+    {
+        return new LeaderboardEntry
+        {
+            Position = result.Position,
+            UserId = result.UserId,
+            Login = result.Login,
+            Points = result.Points,
+            ExactHits = result.ExactHits,
+            WinnerHits = result.WinnerHits,
+            TotalBets = result.TotalBets,
+            Accuracy = result.Accuracy
         };
     }
 }

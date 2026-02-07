@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithFullData_ReturnsMatchesBetsAndStats"
+    "TestName": "GetTableDashboard_WithMultipleUsers_ReturnsSortedLeaderboard"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -85,7 +85,7 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
-      "TableName": "Full Data Table Guid_4",
+      "TableName": "Leaderboard Multi Users Table Guid_4",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
@@ -97,7 +97,7 @@
     },
     "ResponseContent": {
       "id": "Guid_6",
-      "name": "Full Data Table Guid_4",
+      "name": "Leaderboard Multi Users Table Guid_4",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -113,14 +113,14 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Member1@12345",
-      "TableName": "Full Data Table Guid_4",
+      "TableName": "Leaderboard Multi Users Table Guid_4",
       "TablePassword": "TablePass@123"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
       "id": "Guid_6",
-      "name": "Full Data Table Guid_4",
+      "name": "Leaderboard Multi Users Table Guid_4",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -136,14 +136,14 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Member2@12345",
-      "TableName": "Full Data Table Guid_4",
+      "TableName": "Leaderboard Multi Users Table Guid_4",
       "TablePassword": "TablePass@123"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
       "id": "Guid_6",
-      "name": "Full Data Table Guid_4",
+      "name": "Leaderboard Multi Users Table Guid_4",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -208,22 +208,22 @@
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
-      "Country1": "Poland",
-      "Country2": "Spain",
+      "Country1": "Brazil",
+      "Country2": "Argentina",
       "MatchDateTime": "DateTimeOffset_11"
     },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "/api/admin/event-types/Guid_5/matches/Guid_8"
-    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_8",
-      "eventTypeId": "Guid_5",
-      "country1": "Poland",
-      "country2": "Spain",
-      "matchDateTime": "DateTimeOffset_11",
-      "status": "scheduled",
-      "createdAt": "DateTimeOffset_12"
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "One or more validation errors occurred.",
+      "status": 400,
+      "errors": {
+        "MatchDateTime": [
+          "Data meczu musi być w przyszłości"
+        ]
+      },
+      "traceId": "{Scrubbed}"
     }
   },
   {
@@ -234,48 +234,26 @@
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
-      "Country1": "Germany",
-      "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_13"
+      "Country1": "Chile",
+      "Country2": "Uruguay",
+      "MatchDateTime": "DateTimeOffset_12"
     },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "/api/admin/event-types/Guid_5/matches/Guid_9"
-    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_9",
-      "eventTypeId": "Guid_5",
-      "country1": "Germany",
-      "country2": "France",
-      "matchDateTime": "DateTimeOffset_13",
-      "status": "scheduled",
-      "createdAt": "DateTimeOffset_14"
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "One or more validation errors occurred.",
+      "status": 400,
+      "errors": {
+        "MatchDateTime": [
+          "Data meczu musi być w przyszłości"
+        ]
+      },
+      "traceId": "{Scrubbed}"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "1:0"
-    },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets/my"
-    },
-    "ResponseContent": {
-      "id": "Guid_10",
-      "userId": "Guid_1",
-      "matchId": "Guid_8",
-      "prediction": "1:0",
-      "editedAt": "DateTimeOffset_15"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets",
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_Empty/bets",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -284,38 +262,146 @@
     "RequestContent": {
       "Prediction": "2:1"
     },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets/my"
-    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_11",
-      "userId": "Guid_2",
-      "matchId": "Guid_8",
-      "prediction": "2:1",
-      "editedAt": "DateTimeOffset_16"
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_9/bets",
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_Empty/bets",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
-      "Prediction": "X"
+      "Prediction": "0:0"
     },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_9/bets/my"
-    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_12",
-      "userId": "Guid_3",
-      "matchId": "Guid_9",
-      "prediction": "X",
-      "editedAt": "DateTimeOffset_17"
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_Empty/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "2:1"
+    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_Empty/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "1:1"
+    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_Empty/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "0:2"
+    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_Empty/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "2:0"
+    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Result": "2:1"
+    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Result": "0:0"
+    },
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
     }
   },
   {
@@ -331,7 +417,7 @@
     "ResponseContent": {
       "table": {
         "id": "Guid_6",
-        "name": "Full Data Table Guid_4",
+        "name": "Leaderboard Multi Users Table Guid_4",
         "maxPlayers": 10,
         "stake": 50.0,
         "createdAt": "DateTimeOffset_7"
@@ -341,92 +427,19 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_18"
+          "joinedAt": "DateTimeOffset_7"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_19"
+          "joinedAt": "DateTimeOffset_13"
         },
         {
           "userId": "Guid_3",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_20"
-        }
-      ],
-      "matches": [
-        {
-          "id": "Guid_8",
-          "country1": "Poland",
-          "country2": "Spain",
-          "matchDateTime": "DateTimeOffset_11",
-          "result": null,
-          "isStarted": false
-        },
-        {
-          "id": "Guid_9",
-          "country1": "Germany",
-          "country2": "France",
-          "matchDateTime": "DateTimeOffset_13",
-          "result": null,
-          "isStarted": false
-        }
-      ],
-      "bets": [
-        {
-          "id": "Guid_10",
-          "userId": "Guid_1",
-          "matchId": "Guid_8",
-          "prediction": "1:0",
-          "editedAt": "DateTimeOffset_15"
-        },
-        {
-          "id": "Guid_11",
-          "userId": "Guid_2",
-          "matchId": "Guid_8",
-          "prediction": "2:1",
-          "editedAt": "DateTimeOffset_16"
-        },
-        {
-          "id": "Guid_12",
-          "userId": "Guid_3",
-          "matchId": "Guid_9",
-          "prediction": "X",
-          "editedAt": "DateTimeOffset_17"
-        }
-      ],
-      "leaderboard": [
-        {
-          "position": 1,
-          "userId": "Guid_1",
-          "login": "{Scrubbed}",
-          "points": 0,
-          "exactHits": 0,
-          "winnerHits": 0,
-          "totalBets": 0,
-          "accuracy": 0
-        },
-        {
-          "position": 2,
-          "userId": "Guid_2",
-          "login": "{Scrubbed}",
-          "points": 0,
-          "exactHits": 0,
-          "winnerHits": 0,
-          "totalBets": 0,
-          "accuracy": 0
-        },
-        {
-          "position": 3,
-          "userId": "Guid_3",
-          "login": "{Scrubbed}",
-          "points": 0,
-          "exactHits": 0,
-          "winnerHits": 0,
-          "totalBets": 0,
-          "accuracy": 0
+          "joinedAt": "DateTimeOffset_14"
         }
       ]
     }
