@@ -18,7 +18,7 @@ public class EventTypesTestsCollection : ICollectionFixture<PostgresFixture>
 [Collection("EventTypes Tests")]
 public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-    public EventTypesControllerTests(PostgresFixture postgresFixture, ITestOutputHelper testOutputHelper) 
+    public EventTypesControllerTests(PostgresFixture postgresFixture, ITestOutputHelper testOutputHelper)
         : base(postgresFixture, testOutputHelper)
     {
     }
@@ -37,9 +37,9 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetActiveEventTypes_WithoutAuthentication_ReturnsOkWithActiveEventTypes()
     {
         // Arrange - Default EventType is already created in InitializeDatabase
-        
+
         // Act
-        await HttpClient.GetActiveEventTypesAsync();
+        await HttpClient.GetActiveEventTypesAsync<HttpResponseMessage>();
 
         // Assert
         await VerifyHttpRecording();
@@ -50,13 +50,13 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
-
-        // Act
-        await HttpClient.CreateEventTypeAsync(
+        var request = EventTypeOperationHelpers.CreateEventTypeRequest(
             "LIGA_MISTRZOW_2026",
             "Liga Mistrzów 2025/2026",
-            DateTime.UtcNow.AddMonths(2),
-            superAdminToken);
+            DateTime.UtcNow.AddMonths(2));
+
+        // Act
+        await HttpClient.CreateEventTypeAsync<HttpResponseMessage>(request, superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -67,18 +67,18 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
-        await HttpClient.CreateEventTypeAsync(
+        var request1 = EventTypeOperationHelpers.CreateEventTypeRequest(
             "DUPLICATE_CODE",
             "First Event",
-            DateTime.UtcNow.AddMonths(1),
-            superAdminToken);
+            DateTime.UtcNow.AddMonths(1));
+        await HttpClient.CreateEventTypeAsync<HttpResponseMessage>(request1, superAdminToken);
 
         // Act - Try to create with same code
-        await HttpClient.CreateEventTypeAsync(
+        var request2 = EventTypeOperationHelpers.CreateEventTypeRequest(
             "DUPLICATE_CODE",
             "Second Event",
-            DateTime.UtcNow.AddMonths(2),
-            superAdminToken);
+            DateTime.UtcNow.AddMonths(2));
+        await HttpClient.CreateEventTypeAsync<HttpResponseMessage>(request2, superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -89,13 +89,13 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         var (regularUserToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("regular_user", TestConstants.DefaultUserPassword);
-
-        // Act
-        await HttpClient.CreateEventTypeAsync(
+        var request = EventTypeOperationHelpers.CreateEventTypeRequest(
             "FORBIDDEN_EVENT",
             "Forbidden Event",
-            DateTime.UtcNow.AddMonths(1),
-            regularUserToken);
+            DateTime.UtcNow.AddMonths(1));
+
+        // Act
+        await HttpClient.CreateEventTypeAsync<HttpResponseMessage>(request, regularUserToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -106,13 +106,12 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var request = EventTypeOperationHelpers.CreateUpdateEventTypeRequest(
+            "Updated Test Event",
+            DateTime.UtcNow.AddMonths(2));
 
         // Act
-        await HttpClient.UpdateEventTypeAsync(
-            DefaultEventTypeId,
-            "Updated Test Event",
-            DateTime.UtcNow.AddMonths(2),
-            superAdminToken);
+        await HttpClient.UpdateEventTypeAsync<HttpResponseMessage>(DefaultEventTypeId, request, superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -125,7 +124,7 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
 
         // Act
-        await HttpClient.DeactivateEventTypeAsync(DefaultEventTypeId, superAdminToken);
+        await HttpClient.DeactivateEventTypeAsync<HttpResponseMessage>(DefaultEventTypeId, superAdminToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -138,7 +137,7 @@ public class EventTypesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (regularUserToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("regular_user_deactivate", TestConstants.DefaultUserPassword);
 
         // Act
-        await HttpClient.DeactivateEventTypeAsync(DefaultEventTypeId, regularUserToken);
+        await HttpClient.DeactivateEventTypeAsync<HttpResponseMessage>(DefaultEventTypeId, regularUserToken);
 
         // Assert
         await VerifyHttpRecording();

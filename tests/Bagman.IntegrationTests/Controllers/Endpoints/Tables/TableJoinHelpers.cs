@@ -1,79 +1,112 @@
 using Bagman.Contracts.Models.Tables;
-using Bagman.IntegrationTests.Controllers.Endpoints;
 using Bagman.IntegrationTests.Helpers;
 
 namespace Bagman.IntegrationTests.Controllers.Endpoints.Tables;
 
 /// <summary>
 ///     Helper methods for joining tables in endpoint tests.
+///     Each method is generic and can return HttpResponseMessage (for snapshot testing)
+///     or a concrete type (for deserialization).
 /// </summary>
 public static class TableJoinHelpers
 {
+    private const string LegacyJoinEndpoint = "/api/tables/join";
+    private const string AuthorizedJoinEndpoint = "/api/tables/{0}/join";
+
     /// <summary>
-    ///     Joins a table with a new user (no registration required).
-    ///     For snapshot testing - doesn't deserialize the response.
+    ///     Joins a table via the legacy /api/tables/join endpoint.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
+    /// <param name="request">The join table request containing user credentials and table details.</param>
+    /// <param name="token">Optional Bearer token (typically null for this legacy endpoint).</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> JoinTableAsync<T>(
+        this HttpClient client,
+        JoinTableRequest request,
+        string? token = null) where T : class
+    {
+        return client.PostAsync<T>(LegacyJoinEndpoint, request, token);
+    }
+
+    /// <summary>
+    ///     Joins a table via the authorized /api/tables/{tableId}/join endpoint.
+    /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
+    /// <param name="client">The HttpClient instance.</param>
+    /// <param name="tableId">The ID of the table to join.</param>
+    /// <param name="request">The authorized join request containing the table password.</param>
+    /// <param name="token">Optional Bearer token for authentication. When null, no Authorization header is added.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> JoinTableAuthorizedAsync<T>(
+        this HttpClient client,
+        Guid tableId,
+        JoinTableAuthorizedRequest request,
+        string? token = null) where T : class
+    {
+        var endpoint = string.Format(AuthorizedJoinEndpoint, tableId);
+        return client.PostAsync<T>(endpoint, request, token);
+    }
+
+    #region Request Factory Methods
+
+    /// <summary>
+    ///     Creates a default JoinTableRequest with sensible test defaults.
+    /// </summary>
     /// <param name="tableName">The name of the table to join.</param>
     /// <param name="tablePassword">The password of the table.</param>
     /// <param name="userLogin">Optional user login (default: generates unique).</param>
-    /// <returns>HttpResponseMessage from the join endpoint.</returns>
-    public static async Task<HttpResponseMessage> JoinTableNoRegisterAsync(
-        this HttpClient client,
+    /// <param name="userPassword">Optional user password (default: TestConstants.JoinerPassword).</param>
+    /// <returns>A JoinTableRequest with sensible defaults.</returns>
+    public static JoinTableRequest CreateJoinTableRequest(
         string tableName,
         string tablePassword,
-        string? userLogin = null)
+        string? userLogin = null,
+        string? userPassword = null)
     {
-        var request = new JoinTableRequest
+        return new JoinTableRequest
         {
             UserLogin = userLogin ?? Unique("joining_user"),
-            UserPassword = TestConstants.JoinerPassword,
+            UserPassword = userPassword ?? TestConstants.JoinerPassword,
             TableName = tableName,
             TablePassword = tablePassword
         };
-
-        return await client.PostAsJsonWithoutDeserializeAsync("/api/tables/join", request);
     }
 
     /// <summary>
-    ///     Joins a table with wrong password (for validation testing).
-    ///     For snapshot testing - doesn't deserialize the response.
+    ///     Creates a JoinTableAuthorizedRequest.
     /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableName">The name of the table to join.</param>
-    /// <param name="password">The correct table password (used to confirm it's wrong).</param>
-    /// <returns>HttpResponseMessage from the join endpoint.</returns>
-    public static async Task<HttpResponseMessage> JoinTableAsync(
-        this HttpClient client,
-        string tableName,
-        string password)
+    /// <param name="password">The table password.</param>
+    /// <returns>A JoinTableAuthorizedRequest.</returns>
+    public static JoinTableAuthorizedRequest CreateJoinTableAuthorizedRequest(string password)
     {
-        var request = new JoinTableRequest
-        {
-            UserLogin = Unique("joiner_wrong_pass"),
-            UserPassword = TestConstants.JoinerPassword,
-            TableName = tableName,
-            TablePassword = TestConstants.WrongPassword // Intentionally wrong
-        };
-
-        return await client.PostAsJsonWithoutDeserializeAsync("/api/tables/join", request);
+        return new JoinTableAuthorizedRequest { Password = password };
     }
+
+    private static string Unique(string prefix) =>
+        AuthEndpointsHelpers.Unique(prefix);
+
+    #endregion
+
+    #region Scenario Helpers
 
     /// <summary>
     ///     Joins a table as an already-registered user.
+    ///     This is a convenience method that wraps JoinTableAsync with an existing user's credentials.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableName">The name of the table to join.</param>
     /// <param name="tablePassword">The password of the table.</param>
     /// <param name="userLogin">The login of the already-registered user.</param>
     /// <param name="userPassword">The password of the already-registered user.</param>
-    /// <returns>HttpResponseMessage from the join endpoint.</returns>
-    public static async Task<HttpResponseMessage> JoinTableAsExistingUserAsync(
+    /// <returns>Response of type T.</returns>
+    public static Task<T> JoinTableAsExistingUserAsync<T>(
         this HttpClient client,
         string tableName,
         string tablePassword,
         string userLogin,
-        string userPassword)
+        string userPassword) where T : class
     {
         var request = new JoinTableRequest
         {
@@ -82,12 +115,12 @@ public static class TableJoinHelpers
             TableName = tableName,
             TablePassword = tablePassword
         };
-
-        return await client.PostAsJsonWithoutDeserializeAsync("/api/tables/join", request);
+        return client.JoinTableAsync<T>(request);
     }
 
     /// <summary>
     ///     Joins a table with a new user and returns the user token, user ID, and login.
+    ///     This is a multi-step scenario helper, not a simple endpoint wrapper.
     /// </summary>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableName">The name of the table to join.</param>
@@ -102,91 +135,11 @@ public static class TableJoinHelpers
     {
         var (token, userId, login) = await client.RegisterAndGetTokenAsync(userPrefix, TestConstants.DefaultUserPassword);
 
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = login,
-            UserPassword = TestConstants.DefaultUserPassword,
-            TableName = tableName,
-            TablePassword = tablePassword
-        };
-
-        await client.PostAsJsonAsync<dynamic>("/api/tables/join", joinRequest);
+        var joinRequest = CreateJoinTableRequest(tableName, tablePassword, login, TestConstants.DefaultUserPassword);
+        await client.JoinTableAsync<dynamic>(joinRequest);
 
         return (token, userId, login);
     }
 
-    /// <summary>
-    ///     Generates a unique string by delegating to AuthEndpointsHelpers.
-    ///     Useful for creating unique logins.
-    /// </summary>
-    /// <param name="prefix">The prefix for the unique string.</param>
-    /// <returns>A unique string in format "prefix_guidshortened".</returns>
-    private static string Unique(string prefix)
-    {
-        return AuthEndpointsHelpers.Unique(prefix);
-    }
-
-    /// <summary>
-    ///     Joins a table as an authenticated user using the authorized endpoint.
-    ///     For snapshot testing - doesn't deserialize the response.
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table to join.</param>
-    /// <param name="tablePassword">The password of the table.</param>
-    /// <param name="token">The authentication token of the user.</param>
-    /// <returns>HttpResponseMessage from the authorized join endpoint.</returns>
-    public static async Task<HttpResponseMessage> JoinTableAuthorizedAsync(
-        this HttpClient client,
-        Guid tableId,
-        string tablePassword,
-        string token)
-    {
-        var request = new JoinTableAuthorizedRequest
-        {
-            Password = tablePassword
-        };
-
-        return await client.PostAsJsonWithoutDeserializeAsync($"/api/tables/{tableId}/join", request, token);
-    }
-
-    /// <summary>
-    ///     Joins a table as an authenticated user with wrong password for validation testing.
-    ///     For snapshot testing - doesn't deserialize the response.
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table to join.</param>
-    /// <param name="token">The authentication token of the user.</param>
-    /// <returns>HttpResponseMessage from the authorized join endpoint.</returns>
-    public static async Task<HttpResponseMessage> JoinTableAuthorizedWithWrongPasswordAsync(
-        this HttpClient client,
-        Guid tableId,
-        string token)
-    {
-        var request = new JoinTableAuthorizedRequest
-        {
-            Password = TestConstants.WrongPassword
-        };
-
-        return await client.PostAsJsonWithoutDeserializeAsync($"/api/tables/{tableId}/join", request, token);
-    }
-
-    /// <summary>
-    ///     Joins a table as an authenticated user without token (should return unauthorized).
-    ///     For snapshot testing - doesn't deserialize the response.
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table to join.</param>
-    /// <param name="tablePassword">The password of the table.</param>
-    /// <returns>HttpResponseMessage from the authorized join endpoint.</returns>
-    public static async Task<HttpResponseMessage> JoinTableAuthorizedWithoutTokenAsync(
-        this HttpClient client,
-        Guid tableId,
-        string tablePassword)
-    {
-        var request = new JoinTableAuthorizedRequest
-        {
-            Password = tablePassword
-        };
-
-        return await client.PostAsJsonWithoutDeserializeAsync($"/api/tables/{tableId}/join", request);
-    }}
+    #endregion
+}

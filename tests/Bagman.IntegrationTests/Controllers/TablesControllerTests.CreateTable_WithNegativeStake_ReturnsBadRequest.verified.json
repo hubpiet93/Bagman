@@ -9,8 +9,8 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
-      "TableName": "Test Table Guid_1",
+      "UserPassword": "Creator@12345",
+      "TableName": "Negative Stake Table Guid_1",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": -50.0,

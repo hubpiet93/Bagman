@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
+      "UserPassword": "Creator@12345",
       "TableName": "",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,

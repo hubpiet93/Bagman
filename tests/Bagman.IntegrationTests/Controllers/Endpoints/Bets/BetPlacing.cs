@@ -1,128 +1,73 @@
-using System.Net.Http.Headers;
 using Bagman.Contracts.Models.Tables;
 
 namespace Bagman.IntegrationTests.Controllers.Endpoints.Bets;
 
+/// <summary>
+///     Helper methods for bet operations in endpoint tests.
+///     Each method is generic and can return HttpResponseMessage (for snapshot testing)
+///     or a concrete type (for deserialization).
+/// </summary>
 public static class BetPlacing
 {
-    /// <summary>
-    ///     Places a bet on a specific match in a table (for snapshot testing).
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table.</param>
-    /// <param name="matchId">The ID of the match to bet on.</param>
-    /// <param name="prediction">The prediction for the bet.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>HttpResponseMessage for snapshot testing.</returns>
-    public static async Task<HttpResponseMessage> PlaceBetForTableAsync(
-        this HttpClient client,
-        Guid tableId,
-        Guid matchId,
-        string prediction,
-        string token)
-    {
-        var request = new PlaceBetRequest { Prediction = prediction };
-        return await client.PostAsJsonWithoutDeserializeAsync(
-            $"/api/tables/{tableId}/matches/{matchId}/bets",
-            request,
-            token);
-    }
+    private const string BetEndpoint = "/api/tables/{0}/matches/{1}/bets";
+    private const string MyBetEndpoint = "/api/tables/{0}/matches/{1}/bets/my";
+
     /// <summary>
     ///     Places a bet on a specific match in a table.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableId">The ID of the table.</param>
     /// <param name="matchId">The ID of the match to bet on.</param>
-    /// <param name="prediction">The prediction for the bet.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>The response from the bet placement operation.</returns>
-    public static async Task<dynamic> PlaceBetAsync(
+    /// <param name="request">The bet placement request containing the prediction.</param>
+    /// <param name="token">Optional Bearer token for authentication. When null, no Authorization header is added.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> PlaceBetAsync<T>(
         this HttpClient client,
         Guid tableId,
         Guid matchId,
-        string prediction,
-        string token)
+        PlaceBetRequest request,
+        string? token = null) where T : class
     {
-        var request = new PlaceBetRequest { Prediction = prediction };
-        return await client.PostAsJsonAsync<dynamic>(
-            $"/api/tables/{tableId}/matches/{matchId}/bets",
-            request,
-            token);
-    }
-
-    /// <summary>
-    ///     Gets a specific bet placed by the user on a match (for snapshot testing).
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table.</param>
-    /// <param name="matchId">The ID of the match.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>HttpResponseMessage for snapshot testing.</returns>
-    public static async Task<HttpResponseMessage> GetUserBetForTableAsync(
-        this HttpClient client,
-        Guid tableId,
-        Guid matchId,
-        string token)
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/matches/{matchId}/bets/my");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        return await client.SendAsync(request);
+        var endpoint = string.Format(BetEndpoint, tableId, matchId);
+        return client.PostAsync<T>(endpoint, request, token);
     }
 
     /// <summary>
     ///     Gets a specific bet placed by the user on a match.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableId">The ID of the table.</param>
     /// <param name="matchId">The ID of the match.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>The bet details.</returns>
-    public static async Task<dynamic> GetUserBetAsync(
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> GetUserBetAsync<T>(
         this HttpClient client,
         Guid tableId,
         Guid matchId,
-        string token)
+        string? token = null) where T : class
     {
-        return await client.GetAsJsonAsync<dynamic>(
-            $"/api/tables/{tableId}/matches/{matchId}/bets",
-            token);
+        var endpoint = string.Format(MyBetEndpoint, tableId, matchId);
+        return client.GetAsync<T>(endpoint, token);
     }
 
     /// <summary>
     ///     Deletes a bet placed by the user on a match.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableId">The ID of the table.</param>
     /// <param name="matchId">The ID of the match.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>The response from the delete operation.</returns>
-    public static async Task<dynamic> DeleteBetAsync(
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> DeleteBetAsync<T>(
         this HttpClient client,
         Guid tableId,
         Guid matchId,
-        string token)
+        string? token = null) where T : class
     {
-        return await client.DeleteAsJsonAsync<dynamic>(
-            $"/api/tables/{tableId}/matches/{matchId}/bets",
-            token);
-    }
-
-    /// <summary>
-    ///     Deletes a bet placed by the user on a match (for snapshot testing).
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table.</param>
-    /// <param name="matchId">The ID of the match.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>HttpResponseMessage for snapshot testing.</returns>
-    public static async Task<HttpResponseMessage> DeleteBetForTableAsync(
-        this HttpClient client,
-        Guid tableId,
-        Guid matchId,
-        string token)
-    {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{tableId}/matches/{matchId}/bets");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        return await client.SendAsync(request);
+        var endpoint = string.Format(BetEndpoint, tableId, matchId);
+        return client.DeleteAsync<T>(endpoint, token);
     }
 }

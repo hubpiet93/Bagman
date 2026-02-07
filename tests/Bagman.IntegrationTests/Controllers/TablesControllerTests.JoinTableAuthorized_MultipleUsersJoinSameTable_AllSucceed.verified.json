@@ -201,7 +201,7 @@
           "userId": "Guid_4",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_1"
+          "joinedAt": "DateTimeOffset_11"
         },
         {
           "userId": "Guid_5",

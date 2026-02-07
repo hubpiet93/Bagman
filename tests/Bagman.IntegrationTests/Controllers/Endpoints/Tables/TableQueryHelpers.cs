@@ -4,55 +4,54 @@ namespace Bagman.IntegrationTests.Controllers.Endpoints.Tables;
 
 /// <summary>
 ///     Helper methods for querying table data in endpoint tests.
+///     Each method is generic and can return HttpResponseMessage (for snapshot testing)
+///     or a concrete type (for deserialization).
 /// </summary>
 public static class TableQueryHelpers
 {
     /// <summary>
     ///     Gets the list of tables for the authenticated user.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>The list of user tables.</returns>
-    public static async Task<dynamic> GetUserTablesAsync(this HttpClient client, string token)
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> GetUserTablesAsync<T>(
+        this HttpClient client,
+        string? token = null) where T : class
     {
-        return await client.GetAsJsonAsync<dynamic>("/api/tables", token);
+        return client.GetAsync<T>("/api/tables", token);
     }
 
     /// <summary>
     ///     Gets the details of a specific table with all member information.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or TableResponse for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableId">The ID of the table.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>The table response containing table details and member list.</returns>
-    public static async Task<TableResponse> GetTableDetailsAsync(this HttpClient client, Guid tableId, string token)
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> GetTableDetailsAsync<T>(
+        this HttpClient client,
+        Guid tableId,
+        string? token = null) where T : class
     {
-        return await client.GetAsJsonAsync<TableResponse>($"/api/tables/{tableId}", token);
+        return client.GetAsync<T>($"/api/tables/{tableId}", token);
     }
 
     /// <summary>
     ///     Gets the table dashboard for the authenticated user.
     /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="tableId">The ID of the table.</param>
-    /// <param name="token">The Bearer token for authentication.</param>
-    /// <returns>The table dashboard containing table info, members, matches, and bets.</returns>
-    public static async Task<dynamic> GetTableDashboardAsync(this HttpClient client, Guid tableId, string token)
-    {
-        return await client.GetAsJsonAsync<dynamic>($"/api/tables/{tableId}/dashboard", token);
-    }
-
-    /// <summary>
-    ///     Gets the table dashboard without authentication token (for testing unauthorized requests).
-    /// </summary>
-    /// <param name="client">The HttpClient instance.</param>
-    /// <param name="tableId">The ID of the table.</param>
-    /// <returns>HttpResponseMessage from the endpoint.</returns>
-    public static async Task<HttpResponseMessage> GetTableDashboardWithoutTokenAsync(
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> GetTableDashboardAsync<T>(
         this HttpClient client,
-        Guid tableId)
+        Guid tableId,
+        string? token = null) where T : class
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{tableId}/dashboard");
-        return await client.SendAsync(request);
+        return client.GetAsync<T>($"/api/tables/{tableId}/dashboard", token);
     }
 }

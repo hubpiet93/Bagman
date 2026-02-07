@@ -1,3 +1,4 @@
+using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.Helpers;
 
 namespace Bagman.IntegrationTests.Controllers.Endpoints.Tables;
@@ -9,6 +10,7 @@ public static class TableScenarioHelpers
 {
     /// <summary>
     ///     Creates a table as a registered user and returns table ID, user token, and user login.
+    ///     This is a multi-step scenario helper that registers a user, then creates a table.
     /// </summary>
     /// <param name="client">The HttpClient instance.</param>
     /// <param name="eventTypeId">The event type ID for the table.</param>
@@ -26,11 +28,13 @@ public static class TableScenarioHelpers
         var password = userPassword ?? TestConstants.DefaultUserPassword;
         var (token, _, login) = await client.RegisterAndGetTokenAsync(userPrefix, password);
 
-        var table = await client.CreateTableAsync(
+        var request = TableCreationHelpers.CreateDefaultTableRequest(
             eventTypeId,
             userLogin: login,
             tableName: tableName,
             userPassword: password);
+
+        var table = await client.CreateTableAsync<TableResponse>(request);
 
         return (table.Id, token, login);
     }

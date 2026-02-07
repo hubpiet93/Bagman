@@ -1,10 +1,10 @@
+using Bagman.Contracts.Models.Tables;
 using Bagman.IntegrationTests.Controllers.Endpoints;
 using Bagman.IntegrationTests.Controllers.Endpoints.EventTypes;
 using Bagman.IntegrationTests.Controllers.Endpoints.Matches;
 using Bagman.IntegrationTests.Controllers.Endpoints.Tables;
 using Bagman.IntegrationTests.TestFixtures;
 using Xunit.Abstractions;
-using static Bagman.IntegrationTests.Controllers.Endpoints.Matches.MatchQueryHelpers;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -41,10 +41,11 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Arrange
         var (tableId, token, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "match_get");
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
-        var match = await HttpClient.CreateMatchAsync(DefaultEventTypeId, "Spain", "Portugal", superAdminToken, DateTime.UtcNow.AddDays(5));
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Spain", "Portugal", DateTime.UtcNow.AddDays(5));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Act
-        await HttpClient.GetMatchForTableAsync(tableId, match.Id, token);
+        await HttpClient.GetMatchAsync<HttpResponseMessage>(tableId, match.Id, token);
 
         // Assert
         await VerifyHttpRecording();
@@ -56,10 +57,11 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Arrange
         var (tableId, token, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "match_started_future");
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
-        var match = await HttpClient.CreateMatchAsync(DefaultEventTypeId, "Poland", "Germany", superAdminToken, DateTime.UtcNow.AddHours(2));
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Poland", "Germany", DateTime.UtcNow.AddHours(2));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Act
-        await HttpClient.GetMatchForTableAsync(tableId, match.Id, token);
+        await HttpClient.GetMatchAsync<HttpResponseMessage>(tableId, match.Id, token);
 
         // Assert
         await VerifyHttpRecording();
@@ -72,13 +74,14 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Create match with date close to now, then wait for it to become "past"
         var (tableId, token, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "match_started_past");
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
-        var match = await HttpClient.CreateMatchAsync(DefaultEventTypeId, "France", "Italy", superAdminToken, DateTime.UtcNow.AddSeconds(5));
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("France", "Italy", DateTime.UtcNow.AddSeconds(5));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Wait for match datetime to become "in the past" relative to current time
         await Task.Delay(6000);
 
         // Act
-        await HttpClient.GetMatchForTableAsync(tableId, match.Id, token);
+        await HttpClient.GetMatchAsync<HttpResponseMessage>(tableId, match.Id, token);
 
         // Assert
         await VerifyHttpRecording();
