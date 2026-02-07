@@ -1,0 +1,54 @@
+﻿[
+  {
+    "TestName": "JoinTableAuthorized_InvalidRequest_ReturnsBadRequest"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Joiner@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_2/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Password": ""
+    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "One or more validation errors occurred.",
+      "status": 400,
+      "errors": {
+        "Password": [
+          "Hasło stołu jest wymagane"
+        ]
+      },
+      "traceId": "{Scrubbed}"
+    }
+  }
+]

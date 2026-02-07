@@ -17,13 +17,14 @@ public class User
 
     public bool IsActive { get; set; } = true;
 
+    public bool IsSuperAdmin { get; set; } = false;
+
     // Stored password hash (PBKDF2). Nullable to allow external users without password (e.g., OAuth).
     public string? PasswordHash { get; set; }
 
     // Navigation properties
-    public virtual ICollection<TableMember> TableMemberships { get; set; } = new List<TableMember>();
+    // Note: TableMemberships and Bets are owned by Table and Match aggregates, so no direct navigation
     public virtual ICollection<Table> CreatedTables { get; set; } = new List<Table>();
-    public virtual ICollection<Bet> Bets { get; set; } = new List<Bet>();
     public virtual ICollection<UserStats> Stats { get; set; } = new List<UserStats>();
     public virtual ICollection<PoolWinner> PoolWinnings { get; set; } = new List<PoolWinner>();
 }

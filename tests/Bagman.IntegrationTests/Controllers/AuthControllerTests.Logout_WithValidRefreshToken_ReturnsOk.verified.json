@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Logout_WithValidRefreshToken_ReturnsOk"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

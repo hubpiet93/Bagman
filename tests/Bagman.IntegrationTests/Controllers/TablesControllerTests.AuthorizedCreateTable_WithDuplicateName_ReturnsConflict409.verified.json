@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "AuthorizedCreateTable_WithDuplicateName_ReturnsConflict409"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",
@@ -33,19 +36,20 @@
     },
     "RequestContent": {
       "TableName": "Duplicate Name Table Guid_2",
-      "TablePassword": "DupPass@123",
-      "MaxPlayers": 5,
-      "Stake": 10.0
+      "TablePassword": "AuthTablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 25.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_3"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Duplicate Name Table Guid_2",
-      "maxPlayers": 5,
-      "stake": 10.0,
+      "maxPlayers": 10,
+      "stake": 25.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
       "isSecretMode": false
@@ -60,9 +64,10 @@
     },
     "RequestContent": {
       "TableName": "Duplicate Name Table Guid_2",
-      "TablePassword": "DupPass@123",
-      "MaxPlayers": 5,
-      "Stake": 10.0
+      "TablePassword": "AuthTablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 25.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Conflict 409",
     "ResponseHeaders": {},

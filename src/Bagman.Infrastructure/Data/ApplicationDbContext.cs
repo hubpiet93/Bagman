@@ -1,4 +1,5 @@
 using Bagman.Domain.Models;
+using Bagman.Domain.Common.ValueObjects;
 using Bagman.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,9 @@ public class ApplicationDbContext : DbContext
     // Domain models
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; } = null!;
+    public DbSet<EventType> EventTypes { get; set; } = null!;
     public DbSet<Table> Tables { get; set; } = null!;
-    public DbSet<TableMember> TableMembers { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
-    public DbSet<Bet> Bets { get; set; } = null!;
     public DbSet<Pool> Pools { get; set; } = null!;
     public DbSet<PoolWinner> PoolWinners { get; set; } = null!;
     public DbSet<UserStats> UserStats { get; set; } = null!;
@@ -49,25 +49,19 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("is_active")
                 .HasDefaultValue(true);
 
+            entity.Property(e => e.IsSuperAdmin)
+                .HasColumnName("is_super_admin")
+                .HasDefaultValue(false);
+
             entity.Property(e => e.PasswordHash)
                 .HasColumnName("password_hash")
                 .HasMaxLength(512)
                 .IsRequired(false);
 
-            // Relationships
-            entity.HasMany(e => e.TableMemberships)
-                .WithOne(tm => tm.User)
-                .HasForeignKey(tm => tm.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            // Relationships (TableMemberships and Bets are owned by Table and Match aggregates)
             entity.HasMany(e => e.CreatedTables)
                 .WithOne(t => t.CreatedByUser)
                 .HasForeignKey(t => t.CreatedBy)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasMany(e => e.Bets)
-                .WithOne(b => b.User)
-                .HasForeignKey(b => b.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasMany(e => e.Stats)
@@ -91,6 +85,45 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.UserId).HasDatabaseName("ix_refresh_tokens_user_id");
         });
 
+        // Configure EventType entity
+        modelBuilder.Entity<EventType>(entity =>
+        {
+            entity.ToTable("event_types");
+            entity.HasKey(e => e.Id).HasName("pk_event_types_id");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            
+            entity.Property(e => e.Code)
+                .HasColumnName("code")
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(e => e.StartDate)
+                .HasColumnName("start_date")
+                .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                .HasColumnName("is_active")
+                .HasDefaultValue(true);
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at");
+
+            // Unique constraint on Code
+            entity.HasIndex(e => e.Code)
+                .IsUnique()
+                .HasDatabaseName("uk_event_types_code");
+
+            // Index on IsActive for filtering active events
+            entity.HasIndex(e => e.IsActive)
+                .HasDatabaseName("idx_event_types_is_active");
+        });
+
         // Configure Table entity
         modelBuilder.Entity<Table>(entity =>
         {
@@ -98,10 +131,15 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("pk_tables_id");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasColumnName("name")
-                .IsRequired()
-                .HasMaxLength(100);
+            
+            // Value object: TableName
+            entity.OwnsOne(e => e.Name, name =>
+            {
+                name.Property(n => n.Value)
+                    .HasColumnName("name")
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
 
             entity.Property(e => e.PasswordHash)
                 .HasColumnName("password_hash")
@@ -112,11 +150,17 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("max_players")
                 .IsRequired();
 
-            entity.Property(e => e.Stake)
-                .HasColumnName("stake")
-                .HasPrecision(10, 2);
+            // Value object: Money (Stake)
+            entity.OwnsOne(e => e.Stake, stake =>
+            {
+                stake.Property(s => s.Amount)
+                    .HasColumnName("stake")
+                    .HasPrecision(10, 2);
+            });
 
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+
+            entity.Property(e => e.EventTypeId).HasColumnName("event_type_id");
 
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at");
@@ -125,16 +169,38 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("is_secret_mode")
                 .HasDefaultValue(false);
 
-            // Relationships
-            entity.HasMany(e => e.Members)
-                .WithOne(tm => tm.Table)
-                .HasForeignKey(tm => tm.TableId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Owned entities: TableMembers collection (use backing field for proper change tracking)
+            entity.OwnsMany(e => e.Members, member =>
+            {
+                member.ToTable("table_members");
+                member.WithOwner(m => m.Table)
+                    .HasForeignKey(m => m.TableId);
+                
+                member.HasKey(nameof(TableMember.UserId), nameof(TableMember.TableId));
+                
+                member.Property(m => m.UserId).HasColumnName("user_id");
+                member.Property(m => m.TableId).HasColumnName("table_id");
+                member.Property(m => m.IsAdmin)
+                    .HasColumnName("is_admin")
+                    .HasDefaultValue(false);
+                member.Property(m => m.JoinedAt).HasColumnName("joined_at");
+                
+                // Navigation to User (owned by Table aggregate)
+                member.HasOne(m => m.User)
+                    .WithMany()
+                    .HasForeignKey(m => m.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes
+                member.HasIndex(m => m.UserId).HasDatabaseName("idx_table_members_user_id");
+                member.HasIndex(m => m.TableId).HasDatabaseName("idx_table_members_table_id");
+            });
 
-            entity.HasMany(e => e.Matches)
-                .WithOne(m => m.Table)
-                .HasForeignKey(m => m.TableId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Relationships
+            entity.HasOne(e => e.EventType)
+                .WithMany(et => et.Tables)
+                .HasForeignKey(e => e.EventTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.UserStats)
                 .WithOne(s => s.Table)
@@ -145,26 +211,6 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.CreatedBy).HasDatabaseName("idx_tables_created_by");
         });
 
-        // Configure TableMember entity
-        modelBuilder.Entity<TableMember>(entity =>
-        {
-            entity.ToTable("table_members");
-            entity.HasKey(e => new {e.UserId, e.TableId}).HasName("pk_table_members");
-
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.TableId).HasColumnName("table_id");
-            entity.Property(e => e.IsAdmin)
-                .HasColumnName("is_admin")
-                .HasDefaultValue(false);
-
-            entity.Property(e => e.JoinedAt)
-                .HasColumnName("joined_at");
-
-            // Indexes
-            entity.HasIndex(e => e.UserId).HasDatabaseName("idx_table_members_user_id");
-            entity.HasIndex(e => e.TableId).HasDatabaseName("idx_table_members_table_id");
-        });
-
         // Configure Match entity
         modelBuilder.Entity<Match>(entity =>
         {
@@ -172,25 +218,37 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("pk_matches_id");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.TableId).HasColumnName("table_id");
+            entity.Property(e => e.EventTypeId).HasColumnName("event_type_id");
 
-            entity.Property(e => e.Country1)
-                .HasColumnName("country_1")
-                .IsRequired()
-                .HasMaxLength(100);
+            // Value object: Country1
+            entity.OwnsOne(e => e.Country1, country =>
+            {
+                country.Property(c => c.Name)
+                    .HasColumnName("country_1")
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
 
-            entity.Property(e => e.Country2)
-                .HasColumnName("country_2")
-                .IsRequired()
-                .HasMaxLength(100);
+            // Value object: Country2
+            entity.OwnsOne(e => e.Country2, country =>
+            {
+                country.Property(c => c.Name)
+                    .HasColumnName("country_2")
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
 
             entity.Property(e => e.MatchDateTime)
                 .HasColumnName("match_datetime");
 
-            entity.Property(e => e.Result)
-                .HasColumnName("result")
-                .HasMaxLength(10)
-                .IsRequired(false);
+            // Value object: Score (Result)
+            entity.OwnsOne(e => e.Result, result =>
+            {
+                result.Property(r => r.Value)
+                    .HasColumnName("result")
+                    .HasMaxLength(10)
+                    .IsRequired(false);
+            });
 
             entity.Property(e => e.Status)
                 .HasColumnName("status")
@@ -200,11 +258,52 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at");
 
+            // Owned entities: Bets collection (use backing field for proper change tracking)
+            entity.OwnsMany(e => e.Bets, bet =>
+            {
+                bet.ToTable("bets");
+                bet.WithOwner(b => b.Match)
+                    .HasForeignKey(b => b.MatchId);
+                
+                bet.HasKey(nameof(Bet.Id));
+                bet.Property(b => b.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedOnAdd();  // CRITICAL: Auto-generate Guid for new bets
+                bet.Property(b => b.UserId).HasColumnName("user_id");
+                bet.Property(b => b.MatchId).HasColumnName("match_id");
+                
+                // Value object: Prediction
+                bet.OwnsOne(b => b.Prediction, prediction =>
+                {
+                    prediction.Property(p => p.Value)
+                        .HasColumnName("prediction")
+                        .IsRequired()
+                        .HasMaxLength(10);
+                });
+                
+                bet.Property(b => b.EditedAt).HasColumnName("edited_at");
+                
+                // Navigation to User (owned by Match aggregate)
+                bet.HasOne(b => b.User)
+                    .WithMany()
+                    .HasForeignKey(b => b.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                // Unique constraint
+                bet.HasIndex(b => new { b.UserId, b.MatchId })
+                    .IsUnique()
+                    .HasDatabaseName("uk_bets_user_match");
+                
+                // Indexes
+                bet.HasIndex(b => b.UserId).HasDatabaseName("idx_bets_user_id");
+                bet.HasIndex(b => b.MatchId).HasDatabaseName("idx_bets_match_id");
+            });
+
             // Relationships
-            entity.HasMany(e => e.Bets)
-                .WithOne(b => b.Match)
-                .HasForeignKey(b => b.MatchId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.EventType)
+                .WithMany(et => et.Matches)
+                .HasForeignKey(e => e.EventTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.Pools)
                 .WithOne(p => p.Match)
@@ -212,36 +311,8 @@ public class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Indexes
-            entity.HasIndex(e => e.TableId).HasDatabaseName("idx_matches_table_id");
+            entity.HasIndex(e => e.EventTypeId).HasDatabaseName("idx_matches_event_type_id");
             entity.HasIndex(e => e.MatchDateTime).HasDatabaseName("idx_matches_datetime");
-        });
-
-        // Configure Bet entity
-        modelBuilder.Entity<Bet>(entity =>
-        {
-            entity.ToTable("bets");
-            entity.HasKey(e => e.Id).HasName("pk_bets_id");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.MatchId).HasColumnName("match_id");
-
-            entity.Property(e => e.Prediction)
-                .HasColumnName("prediction")
-                .IsRequired()
-                .HasMaxLength(10);
-
-            entity.Property(e => e.EditedAt)
-                .HasColumnName("edited_at");
-
-            // Unique constraint on (user_id, match_id)
-            entity.HasIndex(e => new {e.UserId, e.MatchId})
-                .IsUnique()
-                .HasDatabaseName("uk_bets_user_match");
-
-            // Indexes
-            entity.HasIndex(e => e.UserId).HasDatabaseName("idx_bets_user_id");
-            entity.HasIndex(e => e.MatchId).HasDatabaseName("idx_bets_match_id");
         });
 
         // Configure Pool entity

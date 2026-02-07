@@ -61,17 +61,9 @@ public class SetMatchResultRequestValidator : AbstractValidator<SetMatchResultRe
 {
     public SetMatchResultRequestValidator()
     {
-        RuleFor(x => x.Score1)
+        RuleFor(x => x.Result)
             .NotEmpty()
-            .WithMessage("Wynik pierwszej drużyny jest wymagany")
-            .Matches(@"^\d+$")
-            .WithMessage("Wynik musi być liczbą");
-
-        RuleFor(x => x.Score2)
-            .NotEmpty()
-            .WithMessage("Wynik drugiej drużyny jest wymagany")
-            .Matches(@"^\d+$")
-            .WithMessage("Wynik musi być liczbą");
+            .WithMessage("Wynik meczu jest wymagany");
     }
 }
 

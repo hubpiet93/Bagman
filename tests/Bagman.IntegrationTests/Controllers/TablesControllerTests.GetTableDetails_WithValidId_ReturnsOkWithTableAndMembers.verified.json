@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",
@@ -33,18 +36,19 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
       "TableName": "Details Table Guid_2",
-      "TablePassword": "DetailsPass@123",
-      "MaxPlayers": 5,
-      "Stake": 50.0
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_3"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Details Table Guid_2",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
@@ -62,20 +66,23 @@
       "TableName": "Details Table Guid_2",
       "TablePassword": "DetailsPass@123"
     },
-    "ResponseStatus": "OK 200",
+    "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_3",
-      "name": "Details Table Guid_2",
-      "maxPlayers": 5,
-      "stake": 50.0,
-      "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_3",
-      "isSecretMode": false
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "Bad Request",
+      "status": 400,
+      "traceId": "{Scrubbed}",
+      "errors": [
+        {
+          "errorCode": "Table.InvalidPassword",
+          "description": "Nieprawidłowe hasło do stołu"
+        }
+      ]
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_3",
+    "RequestUri": "http://localhost/api/tables/Guid_4",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
@@ -85,9 +92,9 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_3",
+      "id": "Guid_4",
       "name": "Details Table Guid_2",
-      "maxPlayers": 5,
+      "maxPlayers": 10,
       "stake": 50.0,
       "createdAt": "DateTimeOffset_3",
       "members": [
@@ -95,13 +102,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_4"
-        },
-        {
-          "userId": "Guid_4",
-          "login": "{Scrubbed}",
-          "isAdmin": false,
-          "joinedAt": "DateTimeOffset_5"
+          "joinedAt": "DateTimeOffset_3"
         }
       ]
     }

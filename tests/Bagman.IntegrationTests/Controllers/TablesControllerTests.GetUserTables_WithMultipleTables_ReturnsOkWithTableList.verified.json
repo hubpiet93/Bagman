@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "GetUserTables_WithMultipleTables_ReturnsOkWithTableList"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",
@@ -25,54 +28,56 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables",
+    "RequestUri": "http://localhost/api/tables/create",
     "RequestOptions": {},
     "RequestMethod": "POST",
-    "RequestHeaders": {},
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
     "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
-      "TableName": "Table One Guid_2",
-      "TablePassword": "Pass@123",
-      "MaxPlayers": 5,
-      "Stake": 50.0
+      "TableName": "Authorized Table Guid_2",
+      "TablePassword": "AuthTablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 25.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_3"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_3",
-      "name": "Table One Guid_2",
-      "maxPlayers": 5,
-      "stake": 50.0,
+      "id": "Guid_4",
+      "name": "Authorized Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 25.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
       "isSecretMode": false
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables",
+    "RequestUri": "http://localhost/api/tables/create",
     "RequestOptions": {},
     "RequestMethod": "POST",
-    "RequestHeaders": {},
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
     "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
-      "TableName": "Table Two Guid_4",
-      "TablePassword": "Pass@123",
+      "TableName": "Authorized Table Guid_5",
+      "TablePassword": "AuthTablePass@123",
       "MaxPlayers": 10,
-      "Stake": 100.0
+      "Stake": 25.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_5"
+      "Location": "http://localhost/api/Tables/Guid_6"
     },
     "ResponseContent": {
-      "id": "Guid_5",
-      "name": "Table Two Guid_4",
+      "id": "Guid_6",
+      "name": "Authorized Table Guid_5",
       "maxPlayers": 10,
-      "stake": 100.0,
+      "stake": 25.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_4",
       "isSecretMode": false
@@ -90,19 +95,19 @@
     "ResponseHeaders": {},
     "ResponseContent": [
       {
-        "id": "Guid_3",
-        "name": "Table One Guid_2",
-        "maxPlayers": 5,
-        "stake": 50.0,
+        "id": "Guid_4",
+        "name": "Authorized Table Guid_2",
+        "maxPlayers": 10,
+        "stake": 25.0,
         "createdBy": "Guid_1",
         "createdAt": "DateTimeOffset_3",
         "isSecretMode": false
       },
       {
-        "id": "Guid_5",
-        "name": "Table Two Guid_4",
+        "id": "Guid_6",
+        "name": "Authorized Table Guid_5",
         "maxPlayers": 10,
-        "stake": 100.0,
+        "stake": 25.0,
         "createdBy": "Guid_1",
         "createdAt": "DateTimeOffset_4",
         "isSecretMode": false

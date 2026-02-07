@@ -1,0 +1,86 @@
+﻿[
+  {
+    "TestName": "GetTableDashboard_IncludesTableInfo_Members_AndEmptyData"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Pass@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Pass@12345",
+      "TableName": "Solo Dashboard Table Guid_2",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_4"
+    },
+    "ResponseContent": {
+      "id": "Guid_4",
+      "name": "Solo Dashboard Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "table": {
+        "id": "Guid_4",
+        "name": "Solo Dashboard Table Guid_2",
+        "maxPlayers": 10,
+        "stake": 50.0,
+        "createdAt": "DateTimeOffset_3"
+      },
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_3"
+        }
+      ]
+    }
+  }
+]

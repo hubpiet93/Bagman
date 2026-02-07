@@ -13,19 +13,20 @@ public static class AppServicesInitializationExtensions
         // Auth services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAuthorizationProvider, AuthorizationProvider>();
+        
+        // Password hashing
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-        // Repositories
+        // Generic Repositories (new DDD implementation)
+        services.AddScoped<ITableRepository, TableRepository>();
+        services.AddScoped<IMatchRepository, MatchRepository>();
+        services.AddScoped<IBetRepository, BetRepository>();
+        services.AddScoped<IEventTypeRepository, EfEventTypeRepository>();
+        
+        // Keep old repositories for compatibility during migration
         services.AddScoped<IUserRepository, EfUserRepository>();
-        services.AddScoped<ITableRepository, EfTableRepository>();
-        services.AddScoped<IMatchRepository, EfMatchRepository>();
-        services.AddScoped<IBetRepository, EfBetRepository>();
         services.AddScoped<IPoolRepository, EfPoolRepository>();
         services.AddScoped<IUserStatsRepository, EfUserStatsRepository>();
-
-        // Domain Services
-        services.AddScoped<ITableService, TableService>();
-        services.AddScoped<IMatchService, MatchService>();
-        services.AddScoped<IBetService, BetService>();
 
         return services;
     }

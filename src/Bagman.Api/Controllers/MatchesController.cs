@@ -1,6 +1,9 @@
 using System.Security.Claims;
+using Bagman.Api.Controllers.Mappers;
+using Bagman.Application.Common;
+using Bagman.Application.Features.Matches.GetMatchDetails;
 using Bagman.Contracts.Models.Tables;
-using Bagman.Domain.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,45 +14,11 @@ namespace Bagman.Api.Controllers;
 [Authorize]
 public class MatchesController : AppControllerBase
 {
-    private readonly IMatchService _matchService;
+    private readonly FeatureDispatcher _dispatcher;
 
-    public MatchesController(IMatchService matchService)
+    public MatchesController(FeatureDispatcher dispatcher)
     {
-        _matchService = matchService;
-    }
-
-    /// <summary>
-    ///     Dodanie nowego meczu (tylko admin)
-    /// </summary>
-    [HttpPost]
-    public async Task<IActionResult> CreateMatch(Guid tableId, [FromBody] CreateMatchRequest request)
-    {
-        var userId = GetUserId();
-        if (!userId.HasValue)
-            return Unauthorized();
-
-        var result = await _matchService.CreateMatchAsync(tableId, request.Country1, request.Country2, request.MatchDateTime, userId.Value);
-        if (result.IsError)
-            return MapErrors(result.Errors);
-
-        var response = new MatchResponse
-        {
-            Id = result.Value.Id,
-            TableId = result.Value.TableId,
-            Country1 = result.Value.Country1,
-            Country2 = result.Value.Country2,
-            MatchDateTime = result.Value.MatchDateTime,
-            Result = result.Value.Result,
-            Status = result.Value.Status,
-            Started = result.Value.Started,
-            CreatedAt = result.Value.CreatedAt
-        };
-
-        return CreatedAtAction(nameof(GetMatchDetails), new
-        {
-            tableId,
-            matchId = result.Value.Id
-        }, response);
+        _dispatcher = dispatcher;
     }
 
     /// <summary>
@@ -58,86 +27,12 @@ public class MatchesController : AppControllerBase
     [HttpGet("{matchId}")]
     public async Task<IActionResult> GetMatchDetails(Guid tableId, Guid matchId)
     {
-        var result = await _matchService.GetMatchByIdAsync(matchId);
+        var result = await _dispatcher.HandleAsync<GetMatchDetailsQuery, MatchDetailsResult>(
+            new GetMatchDetailsQuery { MatchId = matchId });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        if (result.Value == null)
-            return NotFound();
-
-        return Ok(new MatchResponse
-        {
-            Id = result.Value.Id,
-            TableId = result.Value.TableId,
-            Country1 = result.Value.Country1,
-            Country2 = result.Value.Country2,
-            MatchDateTime = result.Value.MatchDateTime,
-            Result = result.Value.Result,
-            Status = result.Value.Status,
-            Started = result.Value.Started,
-            CreatedAt = result.Value.CreatedAt
-        });
-    }
-
-    /// <summary>
-    ///     Aktualizacja meczu (tylko admin, przed rozpoczęciem)
-    /// </summary>
-    [HttpPut("{matchId}")]
-    public async Task<IActionResult> UpdateMatch(Guid tableId, Guid matchId, [FromBody] UpdateMatchRequest request)
-    {
-        var userId = GetUserId();
-        if (!userId.HasValue)
-            return Unauthorized();
-
-        var result = await _matchService.UpdateMatchAsync(matchId, request.Country1, request.Country2, request.MatchDateTime, userId.Value);
-        if (result.IsError)
-            return MapErrors(result.Errors);
-
-        return Ok(new {message = "Match updated successfully"});
-    }
-
-    /// <summary>
-    ///     Usunięcie meczu (tylko admin, przed rozpoczęciem)
-    /// </summary>
-    [HttpDelete("{matchId}")]
-    public async Task<IActionResult> DeleteMatch(Guid tableId, Guid matchId)
-    {
-        var userId = GetUserId();
-        if (!userId.HasValue)
-            return Unauthorized();
-
-        var result = await _matchService.DeleteMatchAsync(matchId, userId.Value);
-        if (result.IsError)
-            return MapErrors(result.Errors);
-
-        return Ok(new {message = "Match deleted successfully"});
-    }
-
-    /// <summary>
-    ///     Wprowadzenie wyniku meczu (tylko admin)
-    /// </summary>
-    [HttpPut("{matchId}/result")]
-    public async Task<IActionResult> SetMatchResult(Guid tableId, Guid matchId, [FromBody] SetMatchResultRequest request)
-    {
-        var userId = GetUserId();
-        if (!userId.HasValue)
-            return Unauthorized();
-
-        var result = $"{request.Score1}:{request.Score2}";
-        var setResultResponse = await _matchService.SetMatchResultAsync(matchId, result, userId.Value);
-
-        if (setResultResponse.IsError)
-            return MapErrors(setResultResponse.Errors);
-
-        return Ok(new {message = "Match result set successfully"});
-    }
-
-    private Guid? GetUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (Guid.TryParse(userIdClaim, out var userId))
-            return userId;
-
-        return null;
+        return Ok(result.Value.ToMatchResponse());
     }
 }

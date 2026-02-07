@@ -1,14 +1,18 @@
 ﻿[
   {
+    "TestName": "AuthorizedCreateTable_WithoutToken_ReturnsUnauthorized"
+  },
+  {
     "RequestUri": "http://localhost/api/tables/create",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {},
     "RequestContent": {
-      "TableName": "NoToken Table Guid_1",
-      "TablePassword": "NoTokenPass@123",
-      "MaxPlayers": 5,
-      "Stake": 10.0
+      "TableName": "Authorized Table Guid_1",
+      "TablePassword": "AuthTablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 25.0,
+      "EventTypeId": "Guid_2"
     },
     "ResponseStatus": "Unauthorized 401",
     "ResponseHeaders": {

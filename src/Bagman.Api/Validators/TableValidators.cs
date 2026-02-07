@@ -104,3 +104,15 @@ public class GrantAdminRequestValidator : AbstractValidator<GrantAdminRequest>
             .WithMessage("ID użytkownika jest wymagane");
     }
 }
+
+public class JoinTableAuthorizedRequestValidator : AbstractValidator<JoinTableAuthorizedRequest>
+{
+    public JoinTableAuthorizedRequestValidator()
+    {
+        RuleFor(x => x.Password)
+            .NotEmpty()
+            .WithMessage("Hasło stołu jest wymagane")
+            .MaximumLength(255)
+            .WithMessage("Hasło nie może mieć więcej niż 255 znaków");
+    }
+}

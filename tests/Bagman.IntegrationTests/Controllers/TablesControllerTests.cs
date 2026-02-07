@@ -1,9 +1,14 @@
-using System.Net.Http.Headers;
-using System.Text;
-using Bagman.Contracts.Models.Auth;
 using Bagman.Contracts.Models.Tables;
+using Bagman.IntegrationTests.Controllers.Endpoints;
+using Bagman.IntegrationTests.Controllers.Endpoints.Bets;
+using Bagman.IntegrationTests.Controllers.Endpoints.EventTypes;
+using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
-using Newtonsoft.Json;
+using Xunit.Abstractions;
+using static Bagman.IntegrationTests.Controllers.Endpoints.Tables.TableCreationHelpers;
+using static Bagman.IntegrationTests.Controllers.Endpoints.Tables.TableJoinHelpers;
+using static Bagman.IntegrationTests.Controllers.Endpoints.Tables.TableMembershipHelpers;
+using static Bagman.IntegrationTests.Controllers.Endpoints.Tables.TableQueryHelpers;
 
 namespace Bagman.IntegrationTests.Controllers;
 
@@ -20,7 +25,7 @@ public class TablesTestsCollection : ICollectionFixture<PostgresFixture>
 [Collection("Tables Tests")]
 public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
 {
-    public TablesControllerTests(PostgresFixture postgresFixture) : base(postgresFixture)
+    public TablesControllerTests(PostgresFixture postgresFixture, ITestOutputHelper testOutputHelper) : base(postgresFixture, testOutputHelper)
     {
     }
 
@@ -34,58 +39,11 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         await Dispose();
     }
 
-    private static string Unique(string prefix)
-    {
-        return $"{prefix}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
-    }
-
-    private async Task<(string Token, Guid UserId, string Login)> RegisterAndGetToken(
-        string loginPrefix,
-        string password,
-        string emailPrefix = "test")
-    {
-        var login = Unique(loginPrefix);
-
-        var registerRequest = new RegisterRequest
-        {
-            Login = login,
-            Password = password,
-            Email = $"{emailPrefix}+{login}@example.com"
-        };
-
-        var registerContent = new StringContent(
-            JsonConvert.SerializeObject(registerRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var registerResponse = await HttpClient!.PostAsync("/api/auth/register", registerContent);
-        var registerBody = await registerResponse.Content.ReadAsStringAsync();
-        var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
-
-        return (authResponse!.AccessToken, authResponse.User.Id, login);
-    }
-
     [Fact]
-    public async Task CreateTable_WithValidRequest_ReturnsOkWithTableResponse()
+    public async Task CreateTable_WithValidRequest_ReturnsCreatedWithTableResponse()
     {
-        // Arrange
-        var request = new CreateTableRequest
-        {
-            UserLogin = Unique("creator_user"),
-            UserPassword = "Creator@12345",
-            TableName = $"Test Betting Table {Guid.NewGuid()}",
-            TablePassword = "TablePass@123",
-            MaxPlayers = 10,
-            Stake = 50m
-        };
-
-        var content = new StringContent(
-            JsonConvert.SerializeObject(request),
-            Encoding.UTF8,
-            "application/json");
-
         // Act
-        await HttpClient!.PostAsync("/api/tables", content);
+        await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId);
 
         // Assert
         await VerifyHttpRecording();
@@ -94,24 +52,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task CreateTable_WithInvalidTableName_ReturnsBadRequest()
     {
-        // Arrange
-        var request = new CreateTableRequest
-        {
-            UserLogin = Unique("user_invalid_table"),
-            UserPassword = "Pass@12345",
-            TableName = "", // Empty table name
-            TablePassword = "TablePass@123",
-            MaxPlayers = 10,
-            Stake = 50m
-        };
-
-        var content = new StringContent(
-            JsonConvert.SerializeObject(request),
-            Encoding.UTF8,
-            "application/json");
-
         // Act
-        await HttpClient!.PostAsync("/api/tables", content);
+        await HttpClient.CreateTableInvalidAsync(DefaultEventTypeId, "empty_name");
 
         // Assert
         await VerifyHttpRecording();
@@ -120,24 +62,8 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task CreateTable_WithNegativeStake_ReturnsBadRequest()
     {
-        // Arrange
-        var request = new CreateTableRequest
-        {
-            UserLogin = Unique("user_negative_stake"),
-            UserPassword = "Pass@12345",
-            TableName = $"Test Table {Guid.NewGuid()}",
-            TablePassword = "TablePass@123",
-            MaxPlayers = 10,
-            Stake = -50m // Negative stake
-        };
-
-        var content = new StringContent(
-            JsonConvert.SerializeObject(request),
-            Encoding.UTF8,
-            "application/json");
-
         // Act
-        await HttpClient!.PostAsync("/api/tables", content);
+        await HttpClient.CreateTableInvalidAsync(DefaultEventTypeId, "negative_stake");
 
         // Assert
         await VerifyHttpRecording();
@@ -146,42 +72,12 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task JoinTable_WithValidRequest_ReturnsOkWithTableResponse()
     {
-        // Arrange - Create table first
+        // Arrange
         var tableName = $"Joinable Table {Guid.NewGuid()}";
-
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = Unique("table_creator"),
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "JoinPass@123",
-            MaxPlayers = 5,
-            Stake = 100m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient!.PostAsync("/api/tables", createContent);
-
-        // Arrange - Join table
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = Unique("joining_user"),
-            UserPassword = "Joiner@12345",
-            TableName = tableName,
-            TablePassword = "JoinPass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
+        await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId, tableName: tableName);
 
         // Act
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        await HttpClient.JoinTableNoRegisterAsync(tableName, TestConstants.DefaultTablePassword);
 
         // Assert
         await VerifyHttpRecording();
@@ -190,42 +86,12 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task JoinTable_WithWrongPassword_ReturnsBadRequest()
     {
-        // Arrange - Create table first
+        // Arrange
         var tableName = $"Protected Table {Guid.NewGuid()}";
-
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = Unique("creator_wrong_pass"),
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "CorrectPass@123",
-            MaxPlayers = 5,
-            Stake = 100m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient!.PostAsync("/api/tables", createContent);
-
-        // Arrange - Try to join with wrong password
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = Unique("joiner_wrong_pass"),
-            UserPassword = "Joiner@12345",
-            TableName = tableName,
-            TablePassword = "WrongPass@123" // Wrong password
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
+        await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId, tableName: tableName, userLogin: AuthEndpointsHelpers.Unique("creator_wrong_pass"));
 
         // Act
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        await HttpClient.JoinTableAsync(tableName, "123");
 
         // Assert
         await VerifyHttpRecording();
@@ -234,42 +100,12 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     [Fact]
     public async Task JoinTable_WithFullTable_ReturnsBadRequest()
     {
-        // Arrange - Create table with MaxPlayers = 1
+        // Arrange
         var tableName = $"Full Table {Guid.NewGuid()}";
-
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = Unique("creator_full_table"),
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "FullPass@123",
-            MaxPlayers = 1, // Creator is already a member
-            Stake = 50m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient!.PostAsync("/api/tables", createContent);
-
-        // Arrange - Try to join full table
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = Unique("joiner_full"),
-            UserPassword = "Joiner@12345",
-            TableName = tableName,
-            TablePassword = "FullPass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
+        await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId, tableName: tableName, maxPlayers: 1);
 
         // Act
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        await HttpClient.JoinTableNoRegisterAsync(tableName, TestConstants.DefaultTablePassword);
 
         // Assert
         await VerifyHttpRecording();
@@ -279,47 +115,13 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetUserTables_WithMultipleTables_ReturnsOkWithTableList()
     {
         // Arrange - Register user and create multiple tables
-        var (token, _, login) = await RegisterAndGetToken("multi_tables_user", "Pass@12345", "multi");
+        var (token, _, login) = await HttpClient.RegisterAndGetTokenAsync("multi_tables_user", "Pass@12345", "multi");
 
-        var createRequest1 = new CreateTableRequest
-        {
-            UserLogin = login,
-            UserPassword = "Pass@12345",
-            TableName = $"Table One {Guid.NewGuid()}",
-            TablePassword = "Pass@123",
-            MaxPlayers = 5,
-            Stake = 50m
-        };
-
-        var createRequest2 = new CreateTableRequest
-        {
-            UserLogin = login,
-            UserPassword = "Pass@12345",
-            TableName = $"Table Two {Guid.NewGuid()}",
-            TablePassword = "Pass@123",
-            MaxPlayers = 10,
-            Stake = 100m
-        };
-
-        var content1 = new StringContent(
-            JsonConvert.SerializeObject(createRequest1),
-            Encoding.UTF8,
-            "application/json");
-
-        var content2 = new StringContent(
-            JsonConvert.SerializeObject(createRequest2),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient!.PostAsync("/api/tables", content1);
-        await HttpClient.PostAsync("/api/tables", content2);
+        await HttpClient.CreateAuthorizedTableAsync(DefaultEventTypeId, token);
+        await HttpClient.CreateAuthorizedTableAsync(DefaultEventTypeId, token);
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Get, "/api/tables");
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
-
-        await HttpClient.SendAsync(request);
+        await HttpClient.GetUserTablesAsync(token);
 
         // Assert
         await VerifyHttpRecording();
@@ -329,50 +131,15 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers()
     {
         // Arrange - Create table and join with another user
-        var (creatorToken, _, creatorLogin) = await RegisterAndGetToken("details_creator", "Creator@12345", "details");
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("details_creator", "Creator@12345", "details");
 
         var tableName = $"Details Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
 
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = creatorLogin,
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "DetailsPass@123",
-            MaxPlayers = 5,
-            Stake = 50m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
-
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = Unique("details_joiner"),
-            UserPassword = "Joiner@12345",
-            TableName = tableName,
-            TablePassword = "DetailsPass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        await HttpClient.JoinTableNoRegisterAsync(tableName, "DetailsPass@123");
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/tables/{createdTable!.Id}");
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", creatorToken);
-
-        await HttpClient.SendAsync(request);
+        await HttpClient.GetTableDetailsAsync(createdTable.Id, creatorToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -383,51 +150,11 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange - Create table and join with another user
         var tableName = $"Leave Table {Guid.NewGuid()}";
-        var joinerLogin = Unique("leave_joiner");
-
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = Unique("leave_creator"),
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "LeavePass@123",
-            MaxPlayers = 5,
-            Stake = 50m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
-
-        var (leaveToken, _, registeredJoinerLogin) = await RegisterAndGetToken(
-            joinerLogin, "Joiner@12345", "leave");
-
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = registeredJoinerLogin,
-            UserPassword = "Joiner@12345",
-            TableName = tableName,
-            TablePassword = "LeavePass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, tableName: tableName);
+        var (leaveToken, _, _) = await HttpClient.JoinTableAsNewUserAsync(tableName, TestConstants.DefaultTablePassword);
 
         // Act
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{createdTable!.Id}/members");
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", leaveToken);
-
-        await HttpClient.SendAsync(request);
+        await HttpClient.LeaveTableAsync(createdTable.Id, leaveToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -437,65 +164,17 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GrantAdmin_ByTableCreator_ReturnsOk()
     {
         // Arrange - Create table and get creator token
-        var (creatorToken, _, creatorLogin) = await RegisterAndGetToken("admin_creator", "Creator@12345", "admin");
-        var (_, memberId, memberLogin) = await RegisterAndGetToken("admin_member", "Member@12345", "admin");
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("admin_creator", "Creator@12345", "admin");
+        var (_, memberId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("admin_member", "Member@12345", "admin");
 
         var tableName = $"Admin Table {Guid.NewGuid()}";
-
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = creatorLogin,
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "AdminPass@123",
-            MaxPlayers = 5,
-            Stake = 50m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
 
         // Join with member
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = memberLogin,
-            UserPassword = "Member@12345",
-            TableName = tableName,
-            TablePassword = "AdminPass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        await HttpClient.JoinTableAsExistingUserAsync(tableName, "TablePass@123", memberLogin, "Member@12345");
 
         // Act - Grant admin
-        var grantRequest = new GrantAdminRequest
-        {
-            UserId = memberId
-        };
-
-        var grantContent = new StringContent(
-            JsonConvert.SerializeObject(grantRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{createdTable!.Id}/admins")
-        {
-            Content = grantContent
-        };
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", creatorToken);
-
-        await HttpClient.SendAsync(request);
+        await HttpClient.GrantAdminAsync(createdTable.Id, memberId, creatorToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -505,72 +184,20 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task RevokeAdmin_ByTableCreator_ReturnsOk()
     {
         // Arrange - Create table, add member, grant admin, then revoke
-        var (creatorToken, _, creatorLogin) = await RegisterAndGetToken("revoke_creator", "Creator@12345", "revoke");
-        var (_, memberId, memberLogin) = await RegisterAndGetToken("revoke_member", "Member@12345", "revoke");
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("revoke_creator", "Creator@12345", "revoke");
+        var (_, memberId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("revoke_member", "Member@12345", "revoke");
 
         var tableName = $"Revoke Table {Guid.NewGuid()}";
-
-        var createRequest = new CreateTableRequest
-        {
-            UserLogin = creatorLogin,
-            UserPassword = "Creator@12345",
-            TableName = tableName,
-            TablePassword = "RevokePass@123",
-            MaxPlayers = 5,
-            Stake = 50m
-        };
-
-        var createContent = new StringContent(
-            JsonConvert.SerializeObject(createRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var createResponse = await HttpClient!.PostAsync("/api/tables", createContent);
-        var createBody = await createResponse.Content.ReadAsStringAsync();
-        var createdTable = JsonConvert.DeserializeObject<TableResponse>(createBody);
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
 
         // Join with member
-        var joinRequest = new JoinTableRequest
-        {
-            UserLogin = memberLogin,
-            UserPassword = "Member@12345",
-            TableName = tableName,
-            TablePassword = "RevokePass@123"
-        };
-
-        var joinContent = new StringContent(
-            JsonConvert.SerializeObject(joinRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        await HttpClient.PostAsync("/api/tables/join", joinContent);
+        await HttpClient.JoinTableAsExistingUserAsync(tableName, "TablePass@123", memberLogin, "Member@12345");
 
         // Grant admin first
-        var grantRequest = new GrantAdminRequest
-        {
-            UserId = memberId
-        };
-
-        var grantContent = new StringContent(
-            JsonConvert.SerializeObject(grantRequest),
-            Encoding.UTF8,
-            "application/json");
-
-        var grantHttpRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/tables/{createdTable!.Id}/admins")
-        {
-            Content = grantContent
-        };
-        grantHttpRequest.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", creatorToken);
-
-        await HttpClient.SendAsync(grantHttpRequest);
+        await HttpClient.GrantAdminAsync(createdTable.Id, memberId, creatorToken);
 
         // Act - Revoke admin
-        var revokeRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/tables/{createdTable.Id}/admins/{memberId}");
-        revokeRequest.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", creatorToken);
-
-        await HttpClient.SendAsync(revokeRequest);
+        await HttpClient.RevokeAdminAsync(createdTable.Id, memberId, creatorToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -580,20 +207,11 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task AuthorizedCreateTable_WithValidTokenAndRequest_ReturnsCreated()
     {
         // Arrange
-        var (token, _, _) = await RegisterAndGetToken("auth_create_user", "Pass@12345", "authcreate");
-        var request = new AuthorizedCreateTableRequest
-        {
-            TableName = $"Authorized Table {Guid.NewGuid()}",
-            TablePassword = "AuthTablePass@123",
-            MaxPlayers = 10,
-            Stake = 25m
-        };
-        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-        var http = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = content };
-        http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var (token, _, _) = await HttpClient.RegisterAndGetTokenAsync("auth_create_user", "Pass@12345", "authcreate");
+        var request = CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
 
         // Act
-        await HttpClient!.SendAsync(http);
+        await HttpClient.CreateAuthorizedTableAsync(request, token);
 
         // Assert
         await VerifyHttpRecording();
@@ -603,17 +221,10 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task AuthorizedCreateTable_WithoutToken_ReturnsUnauthorized()
     {
         // Arrange
-        var request = new AuthorizedCreateTableRequest
-        {
-            TableName = $"NoToken Table {Guid.NewGuid()}",
-            TablePassword = "NoTokenPass@123",
-            MaxPlayers = 5,
-            Stake = 10m
-        };
-        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+        var request = CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
 
         // Act
-        await HttpClient!.PostAsync("/api/tables/create", content);
+        await HttpClient.CreateAuthorizedTableNoTokenAsync(request);
 
         // Assert
         await VerifyHttpRecording();
@@ -623,33 +234,16 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task AuthorizedCreateTable_WithDuplicateName_ReturnsConflict409()
     {
         // Arrange
-        var (token, _, _) = await RegisterAndGetToken("dup_create_user", "Pass@12345", "dupcreate");
+        var (token, _, _) = await HttpClient.RegisterAndGetTokenAsync("dup_create_user", "Pass@12345", "dupcreate");
         var tableName = $"Duplicate Name Table {Guid.NewGuid()}";
-        var first = new AuthorizedCreateTableRequest
-        {
-            TableName = tableName,
-            TablePassword = "DupPass@123",
-            MaxPlayers = 5,
-            Stake = 10m
-        };
-        var firstContent = new StringContent(JsonConvert.SerializeObject(first), Encoding.UTF8, "application/json");
-        var firstHttp = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = firstContent };
-        firstHttp.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        await HttpClient!.SendAsync(firstHttp);
+        
+        var first = CreateDefaultAuthorizedTableRequest(DefaultEventTypeId, tableName);
+        await HttpClient.CreateAuthorizedTableAsync(first, token);
 
-        var second = new AuthorizedCreateTableRequest
-        {
-            TableName = tableName,
-            TablePassword = "DupPass@123",
-            MaxPlayers = 5,
-            Stake = 10m
-        };
-        var secondContent = new StringContent(JsonConvert.SerializeObject(second), Encoding.UTF8, "application/json");
-        var secondHttp = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = secondContent };
-        secondHttp.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var second = CreateDefaultAuthorizedTableRequest(DefaultEventTypeId, tableName);
 
         // Act
-        await HttpClient.SendAsync(secondHttp);
+        await HttpClient.CreateAuthorizedTableAsync(second, token);
 
         // Assert
         await VerifyHttpRecording();
@@ -659,22 +253,297 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task AuthorizedCreateTable_WithInvalidData_ReturnsBadRequest()
     {
         // Arrange
-        var (token, _, _) = await RegisterAndGetToken("invalid_create_user", "Pass@12345", "invalidcreate");
-        var request = new AuthorizedCreateTableRequest
-        {
-            TableName = "", // invalid
-            TablePassword = "", // invalid
-            MaxPlayers = 0, // invalid
-            Stake = -1m // invalid
-        };
-        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-        var http = new HttpRequestMessage(HttpMethod.Post, "/api/tables/create") { Content = content };
-        http.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var (token, _, _) = await HttpClient.RegisterAndGetTokenAsync("invalid_create_user", "Pass@12345", "invalidcreate");
 
         // Act
-        await HttpClient!.SendAsync(http);
+        await HttpClient.CreateAuthorizedTableInvalidAsync(DefaultEventTypeId, "empty_name", token);
 
         // Assert
         await VerifyHttpRecording();
     }
+
+    [Fact]
+    public async Task GetTableDashboard_WithValidMember_ReturnsOkWithDashboardData()
+    {
+        // Arrange - Create table with creator and member
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_creator", "Creator@12345", "dashboard");
+        var (memberToken, _, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_member", "Member@12345", "dashboard");
+
+        var tableName = $"Dashboard Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+
+        // Join table with member
+        await HttpClient.JoinTableAsExistingUserAsync(tableName, "TablePass@123", memberLogin, "Member@12345");
+
+        // Act - Get dashboard as member
+        await HttpClient.GetTableDashboardAsync(createdTable.Id, memberToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var tableId = Guid.NewGuid();
+
+        // Act - Try to get dashboard without token
+        await HttpClient.GetTableDashboardWithoutTokenAsync(tableId);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_AsNonMember_ReturnsForbidden()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_creator_forbidden", "Creator@12345", "dashforbid");
+        var (nonMemberToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("dash_non_member", "NonMember@12345", "dashforbid");
+
+        var tableName = $"Forbidden Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+
+        // Act - Try to get dashboard as non-member
+        await HttpClient.GetTableDashboardAsync(createdTable.Id, nonMemberToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithNonExistentTable_ReturnsNotFound()
+    {
+        // Arrange
+        var (token, _, _) = await HttpClient.RegisterAndGetTokenAsync("dash_nonexistent", "Pass@12345", "dashne");
+        var nonExistentTableId = Guid.NewGuid();
+
+        // Act
+        await HttpClient.GetTableDashboardAsync(nonExistentTableId, token);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_IncludesTableInfo_Members_AndEmptyData()
+    {
+        // Arrange - Create a table as the only member
+        var (token, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_solo", "Pass@12345", "dashsolo");
+
+        var tableName = $"Solo Dashboard Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName, userPassword: "Pass@12345");
+
+        // Act - Get dashboard should return table info with empty matches/bets/pools/stats
+        await HttpClient.GetTableDashboardAsync(createdTable.Id, token);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithFullData_ReturnsMatchesBetsAndStats()
+    {
+        // Arrange - Create table with multiple members
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("fulldata_creator", "Creator@12345", "fulldata");
+        var (member1Token, _, member1Login) = await HttpClient.RegisterAndGetTokenAsync("fulldata_member1", "Member1@12345", "fulldata");
+        var (member2Token, _, member2Login) = await HttpClient.RegisterAndGetTokenAsync("fulldata_member2", "Member2@12345", "fulldata");
+
+        var tableName = $"Full Data Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+
+        // Join table with members
+        await HttpClient.JoinTableAsExistingUserAsync(tableName, "TablePass@123", member1Login, "Member1@12345");
+        await HttpClient.JoinTableAsExistingUserAsync(tableName, "TablePass@123", member2Login, "Member2@12345");
+
+        // Get SuperAdmin token and create matches
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var match1 = await HttpClient.CreateMatchAsync(DefaultEventTypeId, "Poland", "Spain", superAdminToken, DateTime.UtcNow.AddDays(1));
+        var match2 = await HttpClient.CreateMatchAsync(DefaultEventTypeId, "Germany", "France", superAdminToken, DateTime.UtcNow.AddDays(2));
+
+        // Place bets from different users
+        await HttpClient.PlaceBetAsync(createdTable.Id, match1.Id, "1:0", creatorToken);
+        await HttpClient.PlaceBetAsync(createdTable.Id, match1.Id, "2:1", member1Token);
+        await HttpClient.PlaceBetAsync(createdTable.Id, match2.Id, "X", member2Token);
+
+        // Act - Get dashboard as creator (should see all members and all bets)
+        await HttpClient.GetTableDashboardAsync(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    #region Authenticated Join Table Tests
+
+    /// <summary>
+    ///     Tests for the authorized join table endpoint: POST /api/tables/{tableId}/join
+    /// </summary>
+    
+    [Fact]
+    public async Task JoinTableAuthorized_WithValidTokenAndPassword_ReturnsOkWithJoinTableResponse()
+    {
+        // Arrange - Create table as anonymous user
+        var tableName = $"Authorized Join Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, tableName: tableName);
+
+        // Register and get token for the joining user
+        var (joinerToken, joinerUserId, joinerLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_joiner", "Joiner@12345", "authjoin");
+
+        // Act
+        await HttpClient.JoinTableAuthorizedAsync(createdTable.Id, TestConstants.DefaultTablePassword, joinerToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange - Create table
+        var tableName = $"Unauthorized Join Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, tableName: tableName);
+
+        // Act - Try to join without token
+        await HttpClient.JoinTableAuthorizedWithoutTokenAsync(createdTable.Id, TestConstants.DefaultTablePassword);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_WithWrongPassword_ReturnsBadRequest()
+    {
+        // Arrange - Create table
+        var tableName = $"Wrong Password Join Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, tableName: tableName);
+
+        // Register user with valid token
+        var (joinerToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("auth_joiner_wrong_pass", "Joiner@12345", "authwrongpass");
+
+        // Act - Try to join with wrong password
+        await HttpClient.JoinTableAuthorizedWithWrongPasswordAsync(createdTable.Id, joinerToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_WithNonExistentTable_ReturnsNotFound()
+    {
+        // Arrange
+        var (joinerToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("auth_joiner_notfound", "Joiner@12345", "authnotfound");
+        var nonExistentTableId = Guid.NewGuid();
+
+        // Act
+        await HttpClient.JoinTableAuthorizedAsync(nonExistentTableId, TestConstants.DefaultTablePassword, joinerToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_WhenAlreadyMember_ReturnsConflict()
+    {
+        // Arrange - Create table and join with same user
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_same_user", "Creator@12345", "authsame");
+        
+        var tableName = $"Already Member Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+
+        // Act - Try to join the table they already created/are member of
+        await HttpClient.JoinTableAuthorizedAsync(createdTable.Id, TestConstants.DefaultTablePassword, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_WithFullTable_ReturnsBadRequest()
+    {
+        // Arrange - Create table with maxPlayers = 1 (only creator)
+        var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_full_creator", "Creator@12345", "authfull");
+
+        var tableName = $"Full Table Auth {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(
+            DefaultEventTypeId,
+            userLogin: creatorLogin,
+            tableName: tableName,
+            maxPlayers: 1);
+
+        // Register another user
+        var (joinerToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("auth_full_joiner", "Joiner@12345", "authfull");
+
+        // Act - Try to join full table
+        await HttpClient.JoinTableAuthorizedAsync(createdTable.Id, TestConstants.DefaultTablePassword, joinerToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_MultipleUsersJoinSameTable_AllSucceed()
+    {
+        // Arrange - Create table
+        var tableName = $"Multi Join Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, tableName: tableName, maxPlayers: 5);
+
+        // Register multiple users
+        var (joiner1Token, _, joiner1Login) = await HttpClient.RegisterAndGetTokenAsync("multi_joiner1", "Joiner1@12345", "multiauth");
+        var (joiner2Token, _, joiner2Login) = await HttpClient.RegisterAndGetTokenAsync("multi_joiner2", "Joiner2@12345", "multiauth");
+        var (joiner3Token, _, joiner3Login) = await HttpClient.RegisterAndGetTokenAsync("multi_joiner3", "Joiner3@12345", "multiauth");
+
+        // Act - All three users join the table
+        await HttpClient.JoinTableAuthorizedAsync(createdTable.Id, TestConstants.DefaultTablePassword, joiner1Token);
+        await HttpClient.JoinTableAuthorizedAsync(createdTable.Id, TestConstants.DefaultTablePassword, joiner2Token);
+        await HttpClient.JoinTableAuthorizedAsync(createdTable.Id, TestConstants.DefaultTablePassword, joiner3Token);
+
+        // Assert - Get table details to verify all joined
+        var tableDetails = await HttpClient.GetTableDetailsAsync(createdTable.Id, joiner1Token);
+        
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_InvalidRequest_ReturnsBadRequest()
+    {
+        // Arrange
+        var (joinerToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("auth_invalid_req", "Joiner@12345", "authinvalid");
+        var tableId = Guid.NewGuid();
+
+        // Act - Send request with empty password
+        var emptyRequest = new JoinTableAuthorizedRequest { Password = "" };
+        await HttpClient.PostAsJsonWithoutDeserializeAsync($"/api/tables/{tableId}/join", emptyRequest, joinerToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task JoinTableAuthorized_WithValidPassword_ReturnsCompleteMemberInfo()
+    {
+        // Arrange
+        var tableName = $"Member Info Table {Guid.NewGuid()}";
+        var createdTable = await HttpClient.CreateTableAsync(
+            DefaultEventTypeId,
+            tableName: tableName,
+            stake: 100m,
+            maxPlayers: 20);
+
+        var (joinerToken, joinerUserId, joinerLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_member_info", "Joiner@12345", "authmemberinfo");
+
+        // Act
+        var response = await HttpClient.PostAsJsonWithoutDeserializeAsync(
+            $"/api/tables/{createdTable.Id}/join",
+            new JoinTableAuthorizedRequest { Password = TestConstants.DefaultTablePassword },
+            joinerToken);
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var joinResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<JoinTableResponse>(responseBody);
+
+        // Assert - Verify response contains all required fields
+        await VerifyHttpRecording();
+    }
+
+    #endregion
 }

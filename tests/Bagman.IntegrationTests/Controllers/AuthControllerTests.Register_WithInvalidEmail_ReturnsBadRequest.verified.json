@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Register_WithInvalidEmail_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",

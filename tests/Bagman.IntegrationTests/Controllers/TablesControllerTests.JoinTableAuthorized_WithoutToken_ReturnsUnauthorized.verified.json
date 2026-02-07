@@ -1,0 +1,47 @@
+﻿[
+  {
+    "TestName": "JoinTableAuthorized_WithoutToken_ReturnsUnauthorized"
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Unauthorized Join Table Guid_1",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_2"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_3"
+    },
+    "ResponseContent": {
+      "id": "Guid_3",
+      "name": "Unauthorized Join Table Guid_1",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_4",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_3/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Password": "TablePass@123"
+    },
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {
+      "WWW-Authenticate": "Bearer"
+    },
+    "ResponseContent": null
+  }
+]

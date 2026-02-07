@@ -1,0 +1,25 @@
+﻿[
+  {
+    "TestName": "GetActiveEventTypes_WithoutAuthentication_ReturnsOkWithActiveEventTypes"
+  },
+  {
+    "RequestUri": "http://localhost/api/event-types",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {},
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "eventTypes": [
+        {
+          "id": "Guid_1",
+          "code": "TEST_DEFAULT",
+          "name": "Default Test Event",
+          "startDate": "DateTimeOffset_1",
+          "isActive": true
+        }
+      ]
+    }
+  }
+]

@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "JoinTable_WithFullTable_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",
@@ -8,20 +11,21 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
       "TableName": "Full Table Guid_1",
-      "TablePassword": "FullPass@123",
+      "TablePassword": "TablePass@123",
       "MaxPlayers": 1,
-      "Stake": 50.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_2"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_2"
+      "Location": "http://localhost/api/Tables/Guid_3"
     },
     "ResponseContent": {
-      "id": "Guid_2",
+      "id": "Guid_3",
       "name": "Full Table Guid_1",
       "maxPlayers": 1,
       "stake": 50.0,
-      "createdBy": "Guid_3",
+      "createdBy": "Guid_4",
       "createdAt": "DateTimeOffset_1",
       "isSecretMode": false
     }
@@ -35,7 +39,7 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Joiner@12345",
       "TableName": "Full Table Guid_1",
-      "TablePassword": "FullPass@123"
+      "TablePassword": "TablePass@123"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},

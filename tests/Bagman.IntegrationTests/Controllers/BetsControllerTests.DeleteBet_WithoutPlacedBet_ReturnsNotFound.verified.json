@@ -1,53 +1,58 @@
 ﻿[
   {
-    "RequestUri": "http://localhost/api/tables",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {},
-    "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "Creator@12345",
-      "TableName": "Betting Table Guid_1",
-      "TablePassword": "BettingPass@123",
-      "MaxPlayers": 10,
-      "Stake": 50.0
-    },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_2"
-    },
-    "ResponseContent": {
-      "id": "Guid_2",
-      "name": "Betting Table Guid_1",
-      "maxPlayers": 10,
-      "stake": 50.0,
-      "createdBy": "Guid_3",
-      "createdAt": "DateTimeOffset_1",
-      "isSecretMode": false
-    }
+    "TestName": "DeleteBet_WithoutPlacedBet_ReturnsNotFound"
   },
   {
-    "RequestUri": "http://localhost/api/auth/login",
+    "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Creator@12345"
+      "Password": "Pass@12345",
+      "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_2",
+      "expiresAt": "DateTimeOffset_1",
       "user": {
-        "id": "Guid_3",
+        "id": "Guid_1",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_3",
+        "createdAt": "DateTimeOffset_2",
         "isActive": true
       }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Pass@12345",
+      "TableName": "Test Betting Table Guid_2",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_4"
+    },
+    "ResponseContent": {
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
+      "isSecretMode": false
     }
   },
   {
@@ -57,7 +62,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Player@12345",
+      "Password": "Pass@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -67,12 +72,38 @@
       "refreshToken": "{Scrubbed}",
       "expiresAt": "DateTimeOffset_4",
       "user": {
-        "id": "Guid_4",
+        "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_5",
         "isActive": true
       }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_4",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdAt": "DateTimeOffset_3",
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_3"
+        }
+      ]
     }
   },
   {
@@ -82,24 +113,73 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Player@12345",
-      "TableName": "Betting Table Guid_1",
-      "TablePassword": "BettingPass@123"
+      "UserPassword": "Pass@12345",
+      "TableName": "Test Betting Table Guid_2",
+      "TablePassword": "TablePass@123"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_2",
-      "name": "Betting Table Guid_1",
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
-      "createdBy": "Guid_3",
-      "createdAt": "DateTimeOffset_1",
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
       "isSecretMode": false
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_2/matches",
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_6",
+      "user": {
+        "id": "Guid_6",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_7",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_8",
+      "user": {
+        "id": "Guid_6",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_7",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -108,26 +188,24 @@
     "RequestContent": {
       "Country1": "Italy",
       "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_6"
+      "MatchDateTime": "DateTimeOffset_9"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_2/matches/Guid_5"
+      "Location": "/api/admin/event-types/Guid_3/matches/Guid_7"
     },
     "ResponseContent": {
-      "id": "Guid_5",
-      "tableId": "Guid_2",
+      "id": "Guid_7",
+      "eventTypeId": "Guid_3",
       "country1": "Italy",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_6",
-      "result": null,
+      "matchDateTime": "DateTimeOffset_9",
       "status": "scheduled",
-      "started": false,
-      "createdAt": "DateTimeOffset_7"
+      "createdAt": "DateTimeOffset_10"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_2/matches/Guid_5/bets",
+    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_7/bets",
     "RequestOptions": {},
     "RequestMethod": "DELETE",
     "RequestHeaders": {

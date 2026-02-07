@@ -1,0 +1,75 @@
+﻿[
+  {
+    "TestName": "UpdateEventType_AsSuperAdmin_ReturnsOkWithUpdatedEventType"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_2",
+    "RequestOptions": {},
+    "RequestMethod": "PUT",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Name": "Updated Test Event",
+      "StartDate": "DateTimeOffset_4"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_2",
+      "code": "TEST_DEFAULT",
+      "name": "Updated Test Event",
+      "startDate": "DateTimeOffset_4",
+      "isActive": true
+    }
+  }
+]

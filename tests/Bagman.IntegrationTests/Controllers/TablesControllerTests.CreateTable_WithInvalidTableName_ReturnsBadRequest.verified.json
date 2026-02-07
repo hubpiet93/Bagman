@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "CreateTable_WithInvalidTableName_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",
@@ -10,7 +13,8 @@
       "TableName": "",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
-      "Stake": 50.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_1"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},

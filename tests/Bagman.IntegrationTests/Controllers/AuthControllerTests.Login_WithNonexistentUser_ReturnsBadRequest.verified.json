@@ -1,5 +1,8 @@
 ﻿[
   {
+    "TestName": "Login_WithNonexistentUser_ReturnsBadRequest"
+  },
+  {
     "RequestUri": "http://localhost/api/auth/login",
     "RequestOptions": {},
     "RequestMethod": "POST",

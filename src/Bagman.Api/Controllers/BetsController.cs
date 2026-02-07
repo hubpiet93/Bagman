@@ -1,6 +1,12 @@
 using System.Security.Claims;
+using Bagman.Api.Controllers.Mappers;
+using Bagman.Application.Common;
+using Bagman.Application.Features.Bets.DeleteBet;
+using Bagman.Application.Features.Bets.GetUserBet;
+using Bagman.Application.Features.Bets.PlaceBet;
+using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
-using Bagman.Domain.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +17,11 @@ namespace Bagman.Api.Controllers;
 [Authorize]
 public class BetsController : AppControllerBase
 {
-    private readonly IBetService _betService;
+    private readonly FeatureDispatcher _dispatcher;
 
-    public BetsController(IBetService betService)
+    public BetsController(FeatureDispatcher dispatcher)
     {
-        _betService = betService;
+        _dispatcher = dispatcher;
     }
 
     /// <summary>
@@ -28,18 +34,19 @@ public class BetsController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _betService.PlaceBetAsync(matchId, userId.Value, request.Prediction);
+        var result = await _dispatcher.HandleAsync<PlaceBetCommand, PlaceBetResult>(
+            new PlaceBetCommand
+            {
+                TableId = tableId,
+                MatchId = matchId,
+                UserId = userId.Value,
+                Prediction = request.Prediction
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        var response = new BetResponse
-        {
-            Id = result.Value.Id,
-            UserId = result.Value.UserId,
-            MatchId = result.Value.MatchId,
-            Prediction = result.Value.Prediction,
-            EditedAt = result.Value.EditedAt
-        };
+        var response = result.Value.ToBetResponse();
 
         return CreatedAtAction(nameof(GetUserBet), new
         {
@@ -58,18 +65,17 @@ public class BetsController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _betService.GetBetAsync(matchId, userId.Value);
+        var result = await _dispatcher.HandleAsync<GetUserBetQuery, UserBetResult>(
+            new GetUserBetQuery
+            {
+                MatchId = matchId,
+                UserId = userId.Value
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new BetResponse
-        {
-            Id = result.Value.Id,
-            UserId = result.Value.UserId,
-            MatchId = result.Value.MatchId,
-            Prediction = result.Value.Prediction,
-            EditedAt = result.Value.EditedAt
-        });
+        return Ok(result.Value.ToBetResponse());
     }
 
     /// <summary>
@@ -82,11 +88,17 @@ public class BetsController : AppControllerBase
         if (!userId.HasValue)
             return Unauthorized();
 
-        var result = await _betService.DeleteBetAsync(matchId, userId.Value);
+        var result = await _dispatcher.HandleAsync<DeleteBetCommand, Success>(
+            new DeleteBetCommand
+            {
+                MatchId = matchId,
+                UserId = userId.Value
+            });
+        
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new {message = "Bet deleted successfully"});
+        return Ok(new SuccessResponse("Bet deleted successfully"));
     }
 
     private Guid? GetUserId()

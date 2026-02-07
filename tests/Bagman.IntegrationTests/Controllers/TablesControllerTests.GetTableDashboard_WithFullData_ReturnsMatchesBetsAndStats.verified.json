@@ -1,0 +1,402 @@
+﻿[
+  {
+    "TestName": "GetTableDashboard_WithFullData_ReturnsMatchesBetsAndStats"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member1@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member2@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_5",
+      "user": {
+        "id": "Guid_3",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_6",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Full Data Table Guid_4",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_5"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_6"
+    },
+    "ResponseContent": {
+      "id": "Guid_6",
+      "name": "Full Data Table Guid_4",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member1@12345",
+      "TableName": "Full Data Table Guid_4",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_6",
+      "name": "Full Data Table Guid_4",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member2@12345",
+      "TableName": "Full Data Table Guid_4",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_6",
+      "name": "Full Data Table Guid_4",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_8",
+      "user": {
+        "id": "Guid_7",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_9",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_10",
+      "user": {
+        "id": "Guid_7",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_9",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_5/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Country1": "Poland",
+      "Country2": "Spain",
+      "MatchDateTime": "DateTimeOffset_11"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "/api/admin/event-types/Guid_5/matches/Guid_8"
+    },
+    "ResponseContent": {
+      "id": "Guid_8",
+      "eventTypeId": "Guid_5",
+      "country1": "Poland",
+      "country2": "Spain",
+      "matchDateTime": "DateTimeOffset_11",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_12"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_5/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Country1": "Germany",
+      "Country2": "France",
+      "MatchDateTime": "DateTimeOffset_13"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "/api/admin/event-types/Guid_5/matches/Guid_9"
+    },
+    "ResponseContent": {
+      "id": "Guid_9",
+      "eventTypeId": "Guid_5",
+      "country1": "Germany",
+      "country2": "France",
+      "matchDateTime": "DateTimeOffset_13",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_14"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "1:0"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_10",
+      "userId": "Guid_1",
+      "matchId": "Guid_8",
+      "prediction": "1:0",
+      "editedAt": "DateTimeOffset_15"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "2:1"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_8/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_11",
+      "userId": "Guid_2",
+      "matchId": "Guid_8",
+      "prediction": "2:1",
+      "editedAt": "DateTimeOffset_16"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/matches/Guid_9/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "X"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_6/matches/Guid_9/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_12",
+      "userId": "Guid_3",
+      "matchId": "Guid_9",
+      "prediction": "X",
+      "editedAt": "DateTimeOffset_17"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/dashboard",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "table": {
+        "id": "Guid_6",
+        "name": "Full Data Table Guid_4",
+        "maxPlayers": 10,
+        "stake": 50.0,
+        "createdAt": "DateTimeOffset_7"
+      },
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_7"
+        },
+        {
+          "userId": "Guid_2",
+          "login": "{Scrubbed}",
+          "isAdmin": false,
+          "joinedAt": "DateTimeOffset_18"
+        },
+        {
+          "userId": "Guid_3",
+          "login": "{Scrubbed}",
+          "isAdmin": false,
+          "joinedAt": "DateTimeOffset_19"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_8",
+          "country1": "Poland",
+          "country2": "Spain",
+          "matchDateTime": "DateTimeOffset_11",
+          "result": null,
+          "isStarted": false
+        },
+        {
+          "id": "Guid_9",
+          "country1": "Germany",
+          "country2": "France",
+          "matchDateTime": "DateTimeOffset_13",
+          "result": null,
+          "isStarted": false
+        }
+      ],
+      "bets": [
+        {
+          "id": "Guid_10",
+          "userId": "Guid_1",
+          "matchId": "Guid_8",
+          "prediction": "1:0",
+          "editedAt": "DateTimeOffset_15"
+        },
+        {
+          "id": "Guid_11",
+          "userId": "Guid_2",
+          "matchId": "Guid_8",
+          "prediction": "2:1",
+          "editedAt": "DateTimeOffset_16"
+        },
+        {
+          "id": "Guid_12",
+          "userId": "Guid_3",
+          "matchId": "Guid_9",
+          "prediction": "X",
+          "editedAt": "DateTimeOffset_17"
+        }
+      ]
+    }
+  }
+]

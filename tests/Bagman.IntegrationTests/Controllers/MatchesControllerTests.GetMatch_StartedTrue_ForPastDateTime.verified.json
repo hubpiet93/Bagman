@@ -1,29 +1,83 @@
 ﻿[
   {
+    "TestName": "GetMatch_StartedTrue_ForPastDateTime"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Pass@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
     "RequestUri": "http://localhost/api/tables",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Creator@12345",
-      "TableName": "Started Past Table",
+      "UserPassword": "Pass@12345",
+      "TableName": "Test Betting Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
-      "Stake": 100.0
+      "Stake": 50.0,
+      "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_1"
+      "Location": "http://localhost/api/Tables/Guid_4"
     },
     "ResponseContent": {
-      "id": "Guid_1",
-      "name": "Started Past Table",
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
       "maxPlayers": 10,
-      "stake": 100.0,
-      "createdBy": "Guid_2",
-      "createdAt": "DateTimeOffset_1",
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
       "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_4",
+      "user": {
+        "id": "Guid_5",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_5",
+        "isActive": true
+      }
     }
   },
   {
@@ -33,25 +87,25 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Creator@12345"
+      "Password": "SuperAdmin@12345"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_2",
+      "expiresAt": "DateTimeOffset_6",
       "user": {
-        "id": "Guid_2",
+        "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_3",
+        "createdAt": "DateTimeOffset_5",
         "isActive": true
       }
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_1/matches",
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -60,26 +114,24 @@
     "RequestContent": {
       "Country1": "France",
       "Country2": "Italy",
-      "MatchDateTime": "DateTimeOffset_4"
+      "MatchDateTime": "DateTimeOffset_7"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "http://localhost/api/tables/Guid_1/matches/Guid_3"
+      "Location": "/api/admin/event-types/Guid_3/matches/Guid_6"
     },
     "ResponseContent": {
-      "id": "Guid_3",
-      "tableId": "Guid_1",
+      "id": "Guid_6",
+      "eventTypeId": "Guid_3",
       "country1": "France",
       "country2": "Italy",
-      "matchDateTime": "DateTimeOffset_4",
-      "result": null,
+      "matchDateTime": "DateTimeOffset_7",
       "status": "scheduled",
-      "started": false,
-      "createdAt": "DateTimeOffset_5"
+      "createdAt": "DateTimeOffset_8"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_1/matches/Guid_3",
+    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_6",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
@@ -89,15 +141,15 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_3",
-      "tableId": "Guid_1",
+      "id": "Guid_6",
+      "eventTypeId": "Guid_3",
       "country1": "France",
       "country2": "Italy",
-      "matchDateTime": "DateTimeOffset_4",
+      "matchDateTime": "DateTimeOffset_7",
       "result": null,
       "status": "scheduled",
       "started": true,
-      "createdAt": "DateTimeOffset_5"
+      "createdAt": "DateTimeOffset_8"
     }
   }
 ]

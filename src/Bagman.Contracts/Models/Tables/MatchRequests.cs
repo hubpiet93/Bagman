@@ -16,14 +16,13 @@ public record UpdateMatchRequest
 
 public record SetMatchResultRequest
 {
-    public required string Score1 { get; init; }
-    public required string Score2 { get; init; }
+    public required string Result { get; init; }
 }
 
 public record MatchResponse
 {
     public required Guid Id { get; init; }
-    public required Guid TableId { get; init; }
+    public required Guid EventTypeId { get; init; }
     public required string Country1 { get; init; }
     public required string Country2 { get; init; }
     public required DateTime MatchDateTime { get; init; }
