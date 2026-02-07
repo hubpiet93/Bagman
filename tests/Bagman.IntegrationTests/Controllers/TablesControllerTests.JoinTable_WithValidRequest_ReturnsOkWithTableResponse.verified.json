@@ -39,17 +39,18 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Joiner@12345",
       "TableName": "Joinable Table Guid_1",
-      "TablePassword": "JoinPass@123"
+      "TablePassword": "TablePass@123"
     },
-    "ResponseStatus": "Forbidden 403",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "errors": [
-        {
-          "code": "Table.InvalidPassword",
-          "description": "Nieprawidłowe hasło do stołu"
-        }
-      ]
+      "id": "Guid_3",
+      "name": "Joinable Table Guid_1",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_4",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
     }
   }
 ]

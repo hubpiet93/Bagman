@@ -109,7 +109,7 @@ public class Table
 
         if (IsFull())
         {
-            return Error.Failure(
+            return Error.Validation(
                 "Table.Full",
                 "Stół jest pełny");
         }

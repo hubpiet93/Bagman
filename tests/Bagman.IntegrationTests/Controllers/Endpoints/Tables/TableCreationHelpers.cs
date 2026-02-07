@@ -102,6 +102,7 @@ public static class TableCreationHelpers
     /// <param name="tableName">Optional table name (default: generates unique).</param>
     /// <param name="stake">The stake amount (default: 50m).</param>
     /// <param name="maxPlayers">Maximum number of players (default: 10).</param>
+    /// <param name="userPassword">Optional user password (default: TestConstants.CreatorPassword).</param>
     /// <returns>The created TableResponse containing the table ID and details.</returns>
     public static async Task<TableResponse> CreateTableAsync(
         this HttpClient client,
@@ -109,12 +110,13 @@ public static class TableCreationHelpers
         string? userLogin = null,
         string? tableName = null,
         decimal stake = 50m,
-        int maxPlayers = 10)
+        int maxPlayers = 10,
+        string? userPassword = null)
     {
         var request = new CreateTableRequest
         {
             UserLogin = userLogin ?? Unique("creator_user"),
-            UserPassword = TestConstants.CreatorPassword,
+            UserPassword = userPassword ?? TestConstants.CreatorPassword,
             TableName = tableName ?? $"Test Betting Table {Guid.NewGuid()}",
             TablePassword = TestConstants.DefaultTablePassword,
             MaxPlayers = maxPlayers,

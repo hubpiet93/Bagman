@@ -34,20 +34,25 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Creator@12345",
+      "UserPassword": "Pass@12345",
       "TableName": "Test Betting Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
       "EventTypeId": "Guid_3"
     },
-    "ResponseStatus": "Unauthorized 401",
-    "ResponseHeaders": {},
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_4"
+    },
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-      "title": "Unauthorized",
-      "status": 401,
-      "traceId": "{Scrubbed}"
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
+      "isSecretMode": false
     }
   },
   {
@@ -65,56 +70,65 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_3",
-      "user": {
-        "id": "Guid_4",
-        "login": "{Scrubbed}",
-        "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_4",
-        "isActive": true
-      }
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/auth/register",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {},
-    "RequestContent": {
-      "Login": "{Scrubbed}",
-      "Password": "Pass@12345",
-      "Email": "{Scrubbed}"
-    },
-    "ResponseStatus": "OK 200",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "accessToken": "{Scrubbed}",
-      "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_5",
+      "expiresAt": "DateTimeOffset_4",
       "user": {
         "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_6",
+        "createdAt": "DateTimeOffset_5",
         "isActive": true
       }
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_Empty",
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Pass@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_6",
+      "user": {
+        "id": "Guid_6",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_7",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_4",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": null,
-    "ResponseStatus": "NotFound 404",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdAt": "DateTimeOffset_3",
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_3"
+        }
+      ]
     }
   },
   {
@@ -125,21 +139,19 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Pass@12345",
-      "TableName": null,
+      "TableName": "Test Betting Table Guid_2",
       "TablePassword": "TablePass@123"
     },
-    "ResponseStatus": "BadRequest 400",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "TableName": [
-          "Nazwa stołu jest wymagana"
-        ]
-      },
-      "traceId": "{Scrubbed}"
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
+      "isSecretMode": false
     }
   },
   {
@@ -150,21 +162,19 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Pass@12345",
-      "TableName": null,
+      "TableName": "Test Betting Table Guid_2",
       "TablePassword": "TablePass@123"
     },
-    "ResponseStatus": "BadRequest 400",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "TableName": [
-          "Nazwa stołu jest wymagana"
-        ]
-      },
-      "traceId": "{Scrubbed}"
+      "id": "Guid_4",
+      "name": "Test Betting Table Guid_2",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
+      "isSecretMode": false
     }
   },
   {
@@ -182,12 +192,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_7",
+      "expiresAt": "DateTimeOffset_8",
       "user": {
-        "id": "Guid_6",
+        "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_8",
+        "createdAt": "DateTimeOffset_9",
         "isActive": true
       }
     }
@@ -206,12 +216,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_9",
+      "expiresAt": "DateTimeOffset_10",
       "user": {
-        "id": "Guid_6",
+        "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_8",
+        "createdAt": "DateTimeOffset_9",
         "isActive": true
       }
     }
@@ -226,24 +236,24 @@
     "RequestContent": {
       "Country1": "Japan",
       "Country2": "Korea",
-      "MatchDateTime": "DateTimeOffset_10"
+      "MatchDateTime": "DateTimeOffset_11"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
-      "Location": "/api/admin/event-types/Guid_3/matches/Guid_7"
+      "Location": "/api/admin/event-types/Guid_3/matches/Guid_8"
     },
     "ResponseContent": {
-      "id": "Guid_7",
+      "id": "Guid_8",
       "eventTypeId": "Guid_3",
       "country1": "Japan",
       "country2": "Korea",
-      "matchDateTime": "DateTimeOffset_10",
+      "matchDateTime": "DateTimeOffset_11",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_11"
+      "createdAt": "DateTimeOffset_12"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_Empty/matches/Guid_7/bets",
+    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_8/bets",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -252,17 +262,20 @@
     "RequestContent": {
       "Prediction": "1:1"
     },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_4/matches/Guid_8/bets/my"
+    },
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
+      "id": "Guid_9",
+      "userId": "Guid_5",
+      "matchId": "Guid_8",
+      "prediction": "1:1",
+      "editedAt": "DateTimeOffset_13"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_Empty/matches/Guid_7/bets",
+    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_8/bets",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {
@@ -271,13 +284,16 @@
     "RequestContent": {
       "Prediction": "1:1"
     },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_4/matches/Guid_8/bets/my"
+    },
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
+      "id": "Guid_10",
+      "userId": "Guid_6",
+      "matchId": "Guid_8",
+      "prediction": "1:1",
+      "editedAt": "DateTimeOffset_14"
     }
   }
 ]

@@ -53,7 +53,7 @@ public class JoinTableHandler : IFeatureHandler<JoinTableCommand, Success>
         // Verify password
         if (!_passwordHasher.VerifyPassword(table.PasswordHash, request.Password))
         {
-            return Error.Forbidden("Table.InvalidPassword", "Nieprawidłowe hasło do stołu");
+            return Error.Validation("Table.InvalidPassword", "Nieprawidłowe hasło do stołu");
         }
 
         // Add member through aggregate

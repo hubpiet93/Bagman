@@ -73,7 +73,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
-    public async Task PlaceBet_WithDrawPrediction_ReturnsOk()
+    public async Task PlaceBet_WithDrawPrediction_ReturnsCreated()
     {
         // Arrange
         var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_draw_creator");

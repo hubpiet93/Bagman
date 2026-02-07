@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTableAuthorized_WithFullTable_ReturnsForbidden"
+    "TestName": "JoinTableAuthorized_WithFullTable_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

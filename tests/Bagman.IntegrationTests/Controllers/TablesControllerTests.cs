@@ -40,7 +40,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
-    public async Task CreateTable_WithValidRequest_ReturnsOkWithTableResponse()
+    public async Task CreateTable_WithValidRequest_ReturnsCreatedWithTableResponse()
     {
         // Act
         await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId);
@@ -77,7 +77,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId, tableName: tableName);
 
         // Act
-        await HttpClient.JoinTableNoRegisterAsync(tableName, "JoinPass@123");
+        await HttpClient.JoinTableNoRegisterAsync(tableName, TestConstants.DefaultTablePassword);
 
         // Assert
         await VerifyHttpRecording();
@@ -105,7 +105,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         await HttpClient.CreateTableNoRegisterAsync(DefaultEventTypeId, tableName: tableName, maxPlayers: 1);
 
         // Act
-        await HttpClient.JoinTableNoRegisterAsync(tableName, "FullPass@123");
+        await HttpClient.JoinTableNoRegisterAsync(tableName, TestConstants.DefaultTablePassword);
 
         // Assert
         await VerifyHttpRecording();
@@ -151,7 +151,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Arrange - Create table and join with another user
         var tableName = $"Leave Table {Guid.NewGuid()}";
         var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, tableName: tableName);
-        var (leaveToken, _, _) = await HttpClient.JoinTableAsNewUserAsync(tableName, "LeavePass@123");
+        var (leaveToken, _, _) = await HttpClient.JoinTableAsNewUserAsync(tableName, TestConstants.DefaultTablePassword);
 
         // Act
         await HttpClient.LeaveTableAsync(createdTable.Id, leaveToken);
@@ -333,7 +333,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (token, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_solo", "Pass@12345", "dashsolo");
 
         var tableName = $"Solo Dashboard Table {Guid.NewGuid()}";
-        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName, userPassword: "Pass@12345");
 
         // Act - Get dashboard should return table info with empty matches/bets/pools/stats
         await HttpClient.GetTableDashboardAsync(createdTable.Id, token);
@@ -412,7 +412,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
-    public async Task JoinTableAuthorized_WithWrongPassword_ReturnsForbidden()
+    public async Task JoinTableAuthorized_WithWrongPassword_ReturnsBadRequest()
     {
         // Arrange - Create table
         var tableName = $"Wrong Password Join Table {Guid.NewGuid()}";
@@ -459,7 +459,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
-    public async Task JoinTableAuthorized_WithFullTable_ReturnsForbidden()
+    public async Task JoinTableAuthorized_WithFullTable_ReturnsBadRequest()
     {
         // Arrange - Create table with maxPlayers = 1 (only creator)
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_full_creator", "Creator@12345", "authfull");

@@ -64,17 +64,18 @@
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Pass@12345",
       "TableName": "Leave Table Guid_1",
-      "TablePassword": "LeavePass@123"
+      "TablePassword": "TablePass@123"
     },
-    "ResponseStatus": "Forbidden 403",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "errors": [
-        {
-          "code": "Table.InvalidPassword",
-          "description": "Nieprawidłowe hasło do stołu"
-        }
-      ]
+      "id": "Guid_3",
+      "name": "Leave Table Guid_1",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_4",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
     }
   },
   {
@@ -85,13 +86,10 @@
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": null,
-    "ResponseStatus": "NotFound 404",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
+      "message": "Successfully left table"
     }
   }
 ]
