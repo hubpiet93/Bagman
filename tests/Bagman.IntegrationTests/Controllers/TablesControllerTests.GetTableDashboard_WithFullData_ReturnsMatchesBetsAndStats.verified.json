@@ -341,19 +341,19 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_7"
+          "joinedAt": "DateTimeOffset_18"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_18"
+          "joinedAt": "DateTimeOffset_19"
         },
         {
           "userId": "Guid_3",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_19"
+          "joinedAt": "DateTimeOffset_20"
         }
       ],
       "matches": [

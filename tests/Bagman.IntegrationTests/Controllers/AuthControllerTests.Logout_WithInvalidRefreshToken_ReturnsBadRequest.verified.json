@@ -10,10 +10,19 @@
     "RequestContent": {
       "RefreshToken": "{Scrubbed}"
     },
-    "ResponseStatus": "OK 200",
+    "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "message": "Wylogowano pomyślnie"
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "Bad Request",
+      "status": 400,
+      "traceId": "{Scrubbed}",
+      "errors": [
+        {
+          "errorCode": "RefreshToken.NotFound",
+          "description": "Refresh token nie został znaleziony"
+        }
+      ]
     }
   }
 ]

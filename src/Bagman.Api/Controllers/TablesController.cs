@@ -70,7 +70,7 @@ public class TablesController : AppControllerBase
             new CreateTableCommand
             {
                 Name = request.TableName,
-                PasswordHash = request.TablePassword,
+                Password = request.TablePassword,
                 MaxPlayers = request.MaxPlayers,
                 Stake = request.Stake,
                 CreatedBy = userId,
@@ -107,7 +107,7 @@ public class TablesController : AppControllerBase
             new CreateTableCommand
             {
                 Name = request.TableName,
-                PasswordHash = request.TablePassword,
+                Password = request.TablePassword,
                 MaxPlayers = request.MaxPlayers,
                 Stake = request.Stake,
                 CreatedBy = userId.Value,
@@ -255,6 +255,55 @@ public class TablesController : AppControllerBase
             return MapErrors(result.Errors);
 
         return Ok(new SuccessResponse("Successfully left table"));
+    }
+
+    /// <summary>
+    ///     Dołączenie zalogowanego użytkownika do istniejącego stołu
+    /// </summary>
+    [HttpPost("{tableId}/join")]
+    public async Task<IActionResult> JoinTableAuthorized(Guid tableId, [FromBody] JoinTableAuthorizedRequest request)
+    {
+        var userId = GetUserId();
+        if (!userId.HasValue)
+            return Unauthorized();
+
+        // Join table
+        var joinResult = await _dispatcher.HandleAsync<JoinTableCommand, Success>(
+            new JoinTableCommand
+            {
+                TableId = tableId,
+                UserId = userId.Value,
+                Password = request.Password
+            });
+
+        if (joinResult.IsError)
+            return MapErrors(joinResult.Errors);
+
+        // Get table details to return with member info
+        var tableDetailsResult = await _dispatcher.HandleAsync<GetTableDetailsQuery, TableDetailResult>(
+            new GetTableDetailsQuery { TableId = tableId });
+
+        if (tableDetailsResult.IsError)
+            return MapErrors(tableDetailsResult.Errors);
+
+        var tableDetail = tableDetailsResult.Value;
+        var currentMember = tableDetail.Members.FirstOrDefault(m => m.UserId == userId.Value);
+
+        var response = new JoinTableResponse
+        {
+            TableId = tableDetail.Id,
+            TableName = tableDetail.Name,
+            MaxPlayers = tableDetail.MaxPlayers,
+            Stake = tableDetail.Stake,
+            TableCreatedAt = tableDetail.CreatedAt,
+            UserId = currentMember!.UserId,
+            UserLogin = currentMember.Login,
+            IsAdmin = currentMember.IsAdmin,
+            JoinedAt = currentMember.JoinedAt,
+            CurrentMemberCount = tableDetail.Members.Count
+        };
+
+        return Ok(response);
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 using Bagman.Application.Common;
 using Bagman.Domain.Repositories;
+using Bagman.Domain.Services;
 using ErrorOr;
 
 namespace Bagman.Application.Features.Tables.JoinTable;
@@ -15,11 +16,16 @@ public class JoinTableHandler : IFeatureHandler<JoinTableCommand, Success>
 {
     private readonly ITableRepository _tableRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public JoinTableHandler(ITableRepository tableRepository, IUserRepository userRepository)
+    public JoinTableHandler(
+        ITableRepository tableRepository,
+        IUserRepository userRepository,
+        IPasswordHasher passwordHasher)
     {
         _tableRepository = tableRepository;
         _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<ErrorOr<Success>> HandleAsync(
@@ -43,6 +49,12 @@ public class JoinTableHandler : IFeatureHandler<JoinTableCommand, Success>
             return Error.NotFound("Table.NotFound", "Stół nie został znaleziony");
 
         var table = tableResult.Value;
+
+        // Verify password
+        if (!_passwordHasher.VerifyPassword(table.PasswordHash, request.Password))
+        {
+            return Error.Forbidden("Table.InvalidPassword", "Nieprawidłowe hasło do stołu");
+        }
 
         // Add member through aggregate
         var addMemberResult = table.AddMember(request.UserId, request.Password);

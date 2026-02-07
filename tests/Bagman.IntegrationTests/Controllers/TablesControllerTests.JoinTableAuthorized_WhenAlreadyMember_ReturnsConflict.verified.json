@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers"
+    "TestName": "JoinTableAuthorized_WhenAlreadyMember_ReturnsConflict"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -35,7 +35,7 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
-      "TableName": "Details Table Guid_2",
+      "TableName": "Already Member Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
@@ -47,7 +47,7 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Details Table Guid_2",
+      "name": "Already Member Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -56,49 +56,22 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/join",
+    "RequestUri": "http://localhost/api/tables/Guid_4/join",
     "RequestOptions": {},
     "RequestMethod": "POST",
-    "RequestHeaders": {},
-    "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "Joiner@12345",
-      "TableName": "Details Table Guid_2",
-      "TablePassword": "DetailsPass@123"
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
     },
-    "ResponseStatus": "Forbidden 403",
+    "RequestContent": {
+      "Password": "TablePass@123"
+    },
+    "ResponseStatus": "Conflict 409",
     "ResponseHeaders": {},
     "ResponseContent": {
       "errors": [
         {
-          "code": "Table.InvalidPassword",
-          "description": "Nieprawidłowe hasło do stołu"
-        }
-      ]
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4",
-    "RequestOptions": {},
-    "RequestMethod": "GET",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": null,
-    "ResponseStatus": "OK 200",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Details Table Guid_2",
-      "maxPlayers": 10,
-      "stake": 50.0,
-      "createdAt": "DateTimeOffset_3",
-      "members": [
-        {
-          "userId": "Guid_1",
-          "login": "{Scrubbed}",
-          "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "code": "Table.AlreadyMember",
+          "description": "Użytkownik jest już członkiem tego stołu"
         }
       ]
     }

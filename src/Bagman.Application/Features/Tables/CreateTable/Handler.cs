@@ -1,6 +1,7 @@
 using Bagman.Domain.Common.ValueObjects;
 using Bagman.Domain.Models;
 using Bagman.Domain.Repositories;
+using Bagman.Domain.Services;
 using Bagman.Application.Common;
 using ErrorOr;
 
@@ -9,7 +10,7 @@ namespace Bagman.Application.Features.Tables.CreateTable;
 public record CreateTableCommand
 {
     public required string Name { get; init; }
-    public required string PasswordHash { get; init; }
+    public required string Password { get; init; }
     public required int MaxPlayers { get; init; }
     public required decimal Stake { get; init; }
     public required Guid CreatedBy { get; init; }
@@ -32,15 +33,18 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
     private readonly ITableRepository _tableRepository;
     private readonly IUserRepository _userRepository;
     private readonly IEventTypeRepository _eventTypeRepository;
+    private readonly IPasswordHasher _passwordHasher;
 
     public CreateTableHandler(
         ITableRepository tableRepository,
         IUserRepository userRepository,
-        IEventTypeRepository eventTypeRepository)
+        IEventTypeRepository eventTypeRepository,
+        IPasswordHasher passwordHasher)
     {
         _tableRepository = tableRepository;
         _userRepository = userRepository;
         _eventTypeRepository = eventTypeRepository;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<ErrorOr<CreateTableResult>> HandleAsync(
@@ -75,10 +79,13 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
         if (stakeResult.IsError)
             return stakeResult.Errors;
 
+        // Hash the table password
+        var passwordHash = _passwordHasher.HashPassword(request.Password);
+
         // Create table aggregate
         var tableResult = Table.Create(
             tableNameResult.Value,
-            request.PasswordHash,
+            passwordHash,
             request.MaxPlayers,
             stakeResult.Value,
             request.CreatedBy,

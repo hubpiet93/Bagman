@@ -102,7 +102,6 @@ public class AuthorizationProvider : IAuthorizationProvider
         if (user is null)
             return Error.NotFound("User.NotFound", "Użytkownik nie został znaleziony");
 
-        // Invalidate used refresh token
         await _userRepository.RemoveRefreshTokenAsync(refreshToken);
 
         var tokens = await GenerateTokens(user);
@@ -114,14 +113,11 @@ public class AuthorizationProvider : IAuthorizationProvider
         if (string.IsNullOrWhiteSpace(refreshToken))
             return Error.Validation("Auth.InvalidRefresh", "Refresh token jest nieprawidłowy");
 
-        // Remove refresh token from persistent store
         var result = await _userRepository.RemoveRefreshTokenAsync(refreshToken);
 
-        // Even if token doesn't exist, consider logout successful (idempotent operation)
         if (result.IsError)
-            _logger.LogWarning("Failed to remove refresh token during logout: {Code}",
-                result.FirstError.Code);
-        // Don't return error - logout is considered successful if token is already gone
+            return result;
+        
         return Result.Success;
     }
 

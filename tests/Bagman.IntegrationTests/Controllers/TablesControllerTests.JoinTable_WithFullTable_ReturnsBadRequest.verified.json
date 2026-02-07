@@ -41,17 +41,13 @@
       "TableName": "Full Table Guid_1",
       "TablePassword": "FullPass@123"
     },
-    "ResponseStatus": "BadRequest 400",
+    "ResponseStatus": "Forbidden 403",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "Bad Request",
-      "status": 400,
-      "traceId": "{Scrubbed}",
       "errors": [
         {
-          "errorCode": "Table.Full",
-          "description": "Stół jest pełny"
+          "code": "Table.InvalidPassword",
+          "description": "Nieprawidłowe hasło do stołu"
         }
       ]
     }

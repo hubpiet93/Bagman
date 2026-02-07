@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers"
+    "TestName": "JoinTableAuthorized_WithFullTable_ReturnsForbidden"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -35,9 +35,9 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
-      "TableName": "Details Table Guid_2",
+      "TableName": "Full Table Auth Guid_2",
       "TablePassword": "TablePass@123",
-      "MaxPlayers": 10,
+      "MaxPlayers": 1,
       "Stake": 50.0,
       "EventTypeId": "Guid_3"
     },
@@ -47,8 +47,8 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Details Table Guid_2",
-      "maxPlayers": 10,
+      "name": "Full Table Auth Guid_2",
+      "maxPlayers": 1,
       "stake": 50.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
@@ -56,49 +56,51 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/join",
+    "RequestUri": "http://localhost/api/auth/register",
     "RequestOptions": {},
     "RequestMethod": "POST",
     "RequestHeaders": {},
     "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "Joiner@12345",
-      "TableName": "Details Table Guid_2",
-      "TablePassword": "DetailsPass@123"
+      "Login": "{Scrubbed}",
+      "Password": "Joiner@12345",
+      "Email": "{Scrubbed}"
     },
-    "ResponseStatus": "Forbidden 403",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "errors": [
-        {
-          "code": "Table.InvalidPassword",
-          "description": "Nieprawidłowe hasło do stołu"
-        }
-      ]
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4",
-    "RequestOptions": {},
-    "RequestMethod": "GET",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": null,
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Details Table Guid_2",
-      "maxPlayers": 10,
-      "stake": 50.0,
-      "createdAt": "DateTimeOffset_3",
-      "members": [
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_4",
+      "user": {
+        "id": "Guid_5",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_5",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_4/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Password": "TablePass@123"
+    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "Bad Request",
+      "status": 400,
+      "traceId": "{Scrubbed}",
+      "errors": [
         {
-          "userId": "Guid_1",
-          "login": "{Scrubbed}",
-          "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "errorCode": "Table.Full",
+          "description": "Stół jest pełny"
         }
       ]
     }

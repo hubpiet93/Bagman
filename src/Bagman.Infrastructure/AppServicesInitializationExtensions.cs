@@ -13,6 +13,9 @@ public static class AppServicesInitializationExtensions
         // Auth services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAuthorizationProvider, AuthorizationProvider>();
+        
+        // Password hashing
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // Generic Repositories (new DDD implementation)
         services.AddScoped<ITableRepository, TableRepository>();
