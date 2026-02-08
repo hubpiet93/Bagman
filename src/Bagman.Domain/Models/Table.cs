@@ -4,11 +4,27 @@ using ErrorOr;
 namespace Bagman.Domain.Models;
 
 /// <summary>
-/// Table aggregate root - represents a betting table for a group of users
+///     Table aggregate root - represents a betting table for a group of users
 /// </summary>
 public class Table
 {
     private readonly List<TableMember> _members = new();
+
+    public Guid Id { get; }
+    public TableName Name { get; private set; } = null!;
+    public string PasswordHash { get; private set; } = string.Empty;
+    public int MaxPlayers { get; }
+    public Money Stake { get; private set; } = null!;
+    public Guid CreatedBy { get; private set; }
+    public Guid EventTypeId { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public bool IsSecretMode { get; private set; }
+
+    // Navigation properties
+    public virtual User? CreatedByUser { get; private set; }
+    public virtual EventType? EventType { get; private set; }
+    public virtual IReadOnlyCollection<TableMember> Members => _members.AsReadOnly();
+    public virtual ICollection<UserStats> UserStats { get; private set; } = new List<UserStats>();
 
     // EF Core constructor
     private Table()
@@ -36,22 +52,6 @@ public class Table
         IsSecretMode = isSecretMode;
     }
 
-    public Guid Id { get; private set; }
-    public TableName Name { get; private set; } = null!;
-    public string PasswordHash { get; private set; } = string.Empty;
-    public int MaxPlayers { get; private set; }
-    public Money Stake { get; private set; } = null!;
-    public Guid CreatedBy { get; private set; }
-    public Guid EventTypeId { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public bool IsSecretMode { get; private set; }
-
-    // Navigation properties
-    public virtual User? CreatedByUser { get; private set; }
-    public virtual EventType? EventType { get; private set; }
-    public virtual IReadOnlyCollection<TableMember> Members => _members.AsReadOnly();
-    public virtual ICollection<UserStats> UserStats { get; private set; } = new List<UserStats>();
-
     public static ErrorOr<Table> Create(
         TableName name,
         string passwordHash,
@@ -62,11 +62,9 @@ public class Table
         bool isSecretMode = false)
     {
         if (maxPlayers < 1)
-        {
             return Error.Validation(
                 "Table.InvalidMaxPlayers",
                 "Max players must be at least 1");
-        }
 
         var table = new Table(
             Guid.NewGuid(),
@@ -92,27 +90,32 @@ public class Table
         return table;
     }
 
-    public bool IsFull() => _members.Count >= MaxPlayers;
+    public bool IsFull()
+    {
+        return _members.Count >= MaxPlayers;
+    }
 
-    public bool IsUserMember(Guid userId) => _members.Any(m => m.UserId == userId);
+    public bool IsUserMember(Guid userId)
+    {
+        return _members.Any(m => m.UserId == userId);
+    }
 
-    public bool IsUserAdmin(Guid userId) => _members.Any(m => m.UserId == userId && m.IsAdmin);
+    public bool IsUserAdmin(Guid userId)
+    {
+        return _members.Any(m => m.UserId == userId && m.IsAdmin);
+    }
 
     public ErrorOr<Success> AddMember(Guid userId, string providedPassword)
     {
         if (IsUserMember(userId))
-        {
             return Error.Conflict(
                 "Table.AlreadyMember",
                 "Użytkownik jest już członkiem tego stołu");
-        }
 
         if (IsFull())
-        {
             return Error.Validation(
                 "Table.Full",
                 "Stół jest pełny");
-        }
 
         // Note: Password verification should be done externally before calling this method
         // as it requires infrastructure (password hasher)
@@ -134,11 +137,9 @@ public class Table
     {
         var member = _members.FirstOrDefault(m => m.UserId == userId);
         if (member == null)
-        {
             return Error.NotFound(
                 "Table.MemberNotFound",
                 "Członek nie został znaleziony");
-        }
 
         _members.Remove(member);
         return Result.Success;
@@ -147,19 +148,15 @@ public class Table
     public ErrorOr<Success> GrantAdmin(Guid requestingUserId, Guid targetUserId)
     {
         if (!IsUserAdmin(requestingUserId))
-        {
             return Error.Forbidden(
                 "Table.NotAdmin",
                 "Nie masz uprawnień do zarządzania administratorami");
-        }
 
         var member = _members.FirstOrDefault(m => m.UserId == targetUserId);
         if (member == null)
-        {
             return Error.NotFound(
                 "Table.MemberNotFound",
                 "Członek nie został znaleziony");
-        }
 
         member.IsAdmin = true;
         return Result.Success;
@@ -168,19 +165,15 @@ public class Table
     public ErrorOr<Success> RevokeAdmin(Guid requestingUserId, Guid targetUserId)
     {
         if (!IsUserAdmin(requestingUserId))
-        {
             return Error.Forbidden(
                 "Table.NotAdmin",
                 "Nie masz uprawnień do zarządzania administratorami");
-        }
 
         var member = _members.FirstOrDefault(m => m.UserId == targetUserId);
         if (member == null)
-        {
             return Error.NotFound(
                 "Table.MemberNotFound",
                 "Członek nie został znaleziony");
-        }
 
         member.IsAdmin = false;
         return Result.Success;

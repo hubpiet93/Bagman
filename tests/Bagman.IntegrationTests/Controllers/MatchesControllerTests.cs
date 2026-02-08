@@ -39,7 +39,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetMatch_WithValidId_ReturnsOkWithMatchResponse()
     {
         // Arrange
-        var (tableId, token, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "match_get");
+        var (tableId, token, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "match_get");
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
         var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Spain", "Portugal", DateTime.UtcNow.AddDays(5));
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
@@ -55,7 +55,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetMatch_StartedFalse_ForFutureDateTime()
     {
         // Arrange
-        var (tableId, token, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "match_started_future");
+        var (tableId, token, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "match_started_future");
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
         var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Poland", "Germany", DateTime.UtcNow.AddHours(2));
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
@@ -72,7 +72,7 @@ public class MatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         // Create match with date close to now, then wait for it to become "past"
-        var (tableId, token, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "match_started_past");
+        var (tableId, token, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "match_started_past");
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
         var matchRequest = EventTypeMatchCreation.CreateMatchRequest("France", "Italy", DateTime.UtcNow.AddSeconds(5));
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);

@@ -60,7 +60,7 @@ public class SetMatchResultHandler : IFeatureHandler<SetMatchResultCommand, Succ
 
         // Persist changes (EF change tracking automatically detects changes)
         var saveResult = await _matchRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 

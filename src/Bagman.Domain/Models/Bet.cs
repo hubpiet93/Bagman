@@ -3,7 +3,7 @@ using Bagman.Domain.Common.ValueObjects;
 namespace Bagman.Domain.Models;
 
 /// <summary>
-/// Bet entity - owned by Match aggregate
+///     Bet entity - owned by Match aggregate
 /// </summary>
 public class Bet
 {

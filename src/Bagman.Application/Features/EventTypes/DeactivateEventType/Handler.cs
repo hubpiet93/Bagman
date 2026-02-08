@@ -33,7 +33,7 @@ public class DeactivateEventTypeHandler : IFeatureHandler<DeactivateEventTypeCom
 
         _repo.Update(eventType);
         await _repo.SaveChangesAsync();
-        
+
         return Result.Success;
     }
 }

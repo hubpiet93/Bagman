@@ -6,20 +6,20 @@ using Newtonsoft.Json;
 namespace Bagman.IntegrationTests.Helpers;
 
 /// <summary>
-/// Helper class for creating EventTypes in integration tests.
-/// Provides methods to create EventTypes via SuperAdmin API.
+///     Helper class for creating EventTypes in integration tests.
+///     Provides methods to create EventTypes via SuperAdmin API.
 /// </summary>
 public class EventTypeFixture
 {
     private readonly HttpClient _httpClient;
-    
+
     public EventTypeFixture(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
-    
+
     /// <summary>
-    /// Creates a SuperAdmin user directly in the database (bypasses API)
+    ///     Creates a SuperAdmin user directly in the database (bypasses API)
     /// </summary>
     public async Task<(string Token, Guid UserId)> CreateSuperAdminUser(
         string login,
@@ -42,19 +42,19 @@ public class EventTypeFixture
         var registerResponse = await _httpClient.PostAsync("/api/auth/register", registerContent);
         var registerBody = await registerResponse.Content.ReadAsStringAsync();
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(registerBody);
-        
+
         if (authResponse == null)
             throw new Exception($"Failed to register user: {registerBody}");
 
         // NOTE: In real tests, you would need to manually update the database to set IsSuperAdmin=true
         // This is a limitation because SuperAdmin can only be set via database
         // For now, we'll return the user info and tests need to handle the DB update separately
-        
+
         return (authResponse.AccessToken, authResponse.User.Id);
     }
-    
+
     /// <summary>
-    /// Creates an EventType using SuperAdmin credentials
+    ///     Creates an EventType using SuperAdmin credentials
     /// </summary>
     public async Task<Guid> CreateEventType(
         string superAdminToken,
@@ -89,9 +89,9 @@ public class EventTypeFixture
         var eventTypeResponse = JsonConvert.DeserializeObject<dynamic>(responseBody);
         return Guid.Parse(eventTypeResponse!.id.ToString());
     }
-    
+
     /// <summary>
-    /// Creates a default EventType for testing purposes
+    ///     Creates a default EventType for testing purposes
     /// </summary>
     public async Task<Guid> CreateDefaultEventType(string superAdminToken)
     {
@@ -102,9 +102,9 @@ public class EventTypeFixture
             $"Test Event {uniqueCode}",
             DateTime.UtcNow.AddDays(-1));
     }
-    
+
     /// <summary>
-    /// Gets all active EventTypes (public endpoint)
+    ///     Gets all active EventTypes (public endpoint)
     /// </summary>
     public async Task<List<dynamic>> GetActiveEventTypes()
     {

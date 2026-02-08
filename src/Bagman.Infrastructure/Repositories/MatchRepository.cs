@@ -20,7 +20,7 @@ public class MatchRepository : Repository<Match>, IMatchRepository
             // EF Core REQUIRES Include() for OwnsMany collections!
             // Unlike OwnsOne, OwnsMany is NOT automatically loaded
             var match = await Context.Matches
-                .Include(m => m.Bets)  // CRITICAL: Load owned Bets collection
+                .Include(m => m.Bets) // CRITICAL: Load owned Bets collection
                 .AsTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
             return match;

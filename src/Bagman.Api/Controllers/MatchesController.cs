@@ -1,9 +1,6 @@
-using System.Security.Claims;
 using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.Matches.GetMatchDetails;
-using Bagman.Contracts.Models.Tables;
-using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,8 +25,8 @@ public class MatchesController : AppControllerBase
     public async Task<IActionResult> GetMatchDetails(Guid tableId, Guid matchId)
     {
         var result = await _dispatcher.HandleAsync<GetMatchDetailsQuery, MatchDetailsResult>(
-            new GetMatchDetailsQuery { MatchId = matchId });
-        
+            new GetMatchDetailsQuery {MatchId = matchId});
+
         if (result.IsError)
             return MapErrors(result.Errors);
 

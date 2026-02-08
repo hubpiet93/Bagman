@@ -1,0 +1,161 @@
+﻿[
+  {
+    "TestName": "GetTableDashboard_WithWonPool_ReturnsPoolWithWinnersAndWonStatus"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Won Pool Table Guid_3",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 100.0,
+      "EventTypeId": "Guid_4"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_5"
+    },
+    "ResponseContent": {
+      "id": "Guid_5",
+      "name": "Won Pool Table Guid_3",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_5",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member@12345",
+      "TableName": "Won Pool Table Guid_3",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_5",
+      "name": "Won Pool Table Guid_3",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_5",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_5/dashboard",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "table": {
+        "id": "Guid_5",
+        "name": "Won Pool Table Guid_3",
+        "maxPlayers": 10,
+        "stake": 100.0,
+        "createdAt": "DateTimeOffset_5"
+      },
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_5"
+        },
+        {
+          "userId": "Guid_2",
+          "login": "{Scrubbed}",
+          "isAdmin": false,
+          "joinedAt": "DateTimeOffset_6"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_6",
+          "country1": "Germany",
+          "country2": "France",
+          "matchDateTime": "DateTimeOffset_7",
+          "result": "2:1",
+          "isStarted": true
+        }
+      ],
+      "pools": [
+        {
+          "id": "Guid_7",
+          "matchId": "Guid_6",
+          "amount": 200.0,
+          "status": "won",
+          "winners": [
+            "Guid_1"
+          ]
+        }
+      ]
+    }
+  }
+]

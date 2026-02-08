@@ -1,7 +1,7 @@
 using Bagman.Application.Features.Tables.CreateTable;
 using Bagman.Application.Features.Tables.GetTableByName;
-using Bagman.Application.Features.Tables.GetTableDetails;
 using Bagman.Application.Features.Tables.GetTableDashboard;
+using Bagman.Application.Features.Tables.GetTableDetails;
 using Bagman.Application.Features.Tables.GetUserTables;
 using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;

@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_IncludesTableInfo_Members_AndEmptyData"
+    "TestName": "GetTableDashboard_WithRolloverPool_ReturnsPoolWithRolloverStatusAndNoWinners"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Pass@12345",
+      "Password": "Creator@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -34,8 +34,8 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
-      "TableName": "Solo Dashboard Table Guid_2",
+      "UserPassword": "Creator@12345",
+      "TableName": "Rollover Pool Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
@@ -47,7 +47,7 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Solo Dashboard Table Guid_2",
+      "name": "Rollover Pool Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -68,7 +68,7 @@
     "ResponseContent": {
       "table": {
         "id": "Guid_4",
-        "name": "Solo Dashboard Table Guid_2",
+        "name": "Rollover Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
         "createdAt": "DateTimeOffset_3"
@@ -79,6 +79,24 @@
           "login": "{Scrubbed}",
           "isAdmin": true,
           "joinedAt": "DateTimeOffset_3"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_5",
+          "country1": "Italy",
+          "country2": "Portugal",
+          "matchDateTime": "DateTimeOffset_4",
+          "result": "1:1",
+          "isStarted": true
+        }
+      ],
+      "pools": [
+        {
+          "id": "Guid_6",
+          "matchId": "Guid_5",
+          "amount": 150.0,
+          "status": "rollover"
         }
       ]
     }

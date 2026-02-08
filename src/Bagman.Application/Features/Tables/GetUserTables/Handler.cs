@@ -1,5 +1,4 @@
 using Bagman.Application.Common;
-using Bagman.Domain.Repositories;
 using Bagman.Infrastructure.Data;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;

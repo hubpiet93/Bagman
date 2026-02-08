@@ -13,7 +13,7 @@ public static class AppServicesInitializationExtensions
         // Auth services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAuthorizationProvider, AuthorizationProvider>();
-        
+
         // Password hashing
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
@@ -22,7 +22,7 @@ public static class AppServicesInitializationExtensions
         services.AddScoped<IMatchRepository, MatchRepository>();
         services.AddScoped<IBetRepository, BetRepository>();
         services.AddScoped<IEventTypeRepository, EfEventTypeRepository>();
-        
+
         // Keep old repositories for compatibility during migration
         services.AddScoped<IUserRepository, EfUserRepository>();
         services.AddScoped<IPoolRepository, EfPoolRepository>();

@@ -28,9 +28,9 @@ public record CreateMatchResult
 
 public class CreateMatchHandler : IFeatureHandler<CreateMatchCommand, CreateMatchResult>
 {
+    private readonly IEventTypeRepository _eventTypeRepository;
     private readonly IMatchRepository _matchRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IEventTypeRepository _eventTypeRepository;
 
     public CreateMatchHandler(
         IMatchRepository matchRepository,
@@ -87,7 +87,7 @@ public class CreateMatchHandler : IFeatureHandler<CreateMatchCommand, CreateMatc
         // Persist
         _matchRepository.Add(matchResult.Value);
         var saveResult = await _matchRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 

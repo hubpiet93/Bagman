@@ -30,8 +30,8 @@ public static class TableScenarioHelpers
 
         var request = TableCreationHelpers.CreateDefaultTableRequest(
             eventTypeId,
-            userLogin: login,
-            tableName: tableName,
+            login,
+            tableName,
             userPassword: password);
 
         var table = await client.CreateTableAsync<TableResponse>(request);

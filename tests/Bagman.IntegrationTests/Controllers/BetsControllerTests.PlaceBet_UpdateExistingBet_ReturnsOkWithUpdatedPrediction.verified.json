@@ -101,7 +101,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_6"
+          "joinedAt": "DateTimeOffset_3"
         }
       ]
     }
@@ -144,12 +144,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_7",
+      "expiresAt": "DateTimeOffset_6",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_8",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true
       }
     }
@@ -168,12 +168,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_9",
+      "expiresAt": "DateTimeOffset_8",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_8",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true
       }
     }
@@ -188,7 +188,7 @@
     "RequestContent": {
       "Country1": "Italy",
       "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_10"
+      "MatchDateTime": "DateTimeOffset_9"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -199,9 +199,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Italy",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_10",
+      "matchDateTime": "DateTimeOffset_9",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_11"
+      "createdAt": "DateTimeOffset_10"
     }
   },
   {
@@ -223,7 +223,7 @@
       "userId": "Guid_5",
       "matchId": "Guid_7",
       "prediction": "1:0",
-      "editedAt": "DateTimeOffset_12"
+      "editedAt": "DateTimeOffset_11"
     }
   },
   {
@@ -245,7 +245,7 @@
       "userId": "Guid_5",
       "matchId": "Guid_7",
       "prediction": "2:1",
-      "editedAt": "DateTimeOffset_13"
+      "editedAt": "DateTimeOffset_12"
     }
   }
 ]

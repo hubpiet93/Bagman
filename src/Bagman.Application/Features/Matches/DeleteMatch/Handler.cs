@@ -54,7 +54,7 @@ public class DeleteMatchHandler : IFeatureHandler<DeleteMatchCommand, Success>
         // Delete
         _matchRepository.Delete(match);
         var saveResult = await _matchRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 

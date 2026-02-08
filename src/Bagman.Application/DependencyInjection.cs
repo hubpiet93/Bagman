@@ -13,7 +13,7 @@ public static class DependencyInjection
 
         // Auto-register all handlers from assembly
         var assembly = Assembly.GetExecutingAssembly();
-        
+
         var handlerTypes = assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces()
                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IFeatureHandler<,>)))
@@ -25,9 +25,7 @@ public static class DependencyInjection
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IFeatureHandler<,>));
 
             foreach (var handlerInterface in handlerInterfaces)
-            {
                 services.AddScoped(handlerInterface, handlerType);
-            }
         }
 
         return services;

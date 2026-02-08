@@ -1,0 +1,294 @@
+﻿[
+  {
+    "TestName": "GetTableDashboard_WithMultiplePoolStatusesAndStats_ReturnsCompleteData"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Multi Pool Status Table Guid_3",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_4"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_5"
+    },
+    "ResponseContent": {
+      "id": "Guid_5",
+      "name": "Multi Pool Status Table Guid_3",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_5",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member@12345",
+      "TableName": "Multi Pool Status Table Guid_3",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_5",
+      "name": "Multi Pool Status Table Guid_3",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_5",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_6",
+      "user": {
+        "id": "Guid_6",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_7",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_8",
+      "user": {
+        "id": "Guid_6",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_7",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_4/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Country1": "Pool Multi Team A1",
+      "Country2": "Pool Multi Team B1",
+      "MatchDateTime": "DateTimeOffset_9"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "/api/admin/event-types/Guid_4/matches/Guid_7"
+    },
+    "ResponseContent": {
+      "id": "Guid_7",
+      "eventTypeId": "Guid_4",
+      "country1": "Pool Multi Team A1",
+      "country2": "Pool Multi Team B1",
+      "matchDateTime": "DateTimeOffset_9",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_10"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_5/dashboard",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "table": {
+        "id": "Guid_5",
+        "name": "Multi Pool Status Table Guid_3",
+        "maxPlayers": 10,
+        "stake": 50.0,
+        "createdAt": "DateTimeOffset_5"
+      },
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_5"
+        },
+        {
+          "userId": "Guid_2",
+          "login": "{Scrubbed}",
+          "isAdmin": false,
+          "joinedAt": "DateTimeOffset_11"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_8",
+          "country1": "Pool Multi Team A2",
+          "country2": "Pool Multi Team B2",
+          "matchDateTime": "DateTimeOffset_12",
+          "result": "2:1",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_9",
+          "country1": "Pool Multi Team A3",
+          "country2": "Pool Multi Team B3",
+          "matchDateTime": "DateTimeOffset_13",
+          "result": "0:0",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_10",
+          "country1": "Pool Multi Team A4",
+          "country2": "Pool Multi Team B4",
+          "matchDateTime": "DateTimeOffset_14",
+          "result": "1:2",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_7",
+          "country1": "Pool Multi Team A1",
+          "country2": "Pool Multi Team B1",
+          "matchDateTime": "DateTimeOffset_9",
+          "result": null,
+          "isStarted": false
+        }
+      ],
+      "pools": [
+        {
+          "id": "Guid_11",
+          "matchId": "Guid_9",
+          "amount": 100.0,
+          "status": "rollover"
+        },
+        {
+          "id": "Guid_12",
+          "matchId": "Guid_10",
+          "amount": 100.0,
+          "status": "expired"
+        },
+        {
+          "id": "Guid_13",
+          "matchId": "Guid_7",
+          "amount": 100.0,
+          "status": "active"
+        },
+        {
+          "id": "Guid_14",
+          "matchId": "Guid_8",
+          "amount": 100.0,
+          "status": "won",
+          "winners": [
+            "Guid_1"
+          ]
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 3,
+          "betsPlaced": 4,
+          "poolsWon": 1,
+          "totalWon": 100.0
+        },
+        {
+          "userId": "Guid_2",
+          "matchesPlayed": 3,
+          "betsPlaced": 3,
+          "poolsWon": 0,
+          "totalWon": 0.0
+        }
+      ]
+    }
+  }
+]

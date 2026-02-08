@@ -1,8 +1,8 @@
+using Bagman.Application.Common;
 using Bagman.Domain.Common.ValueObjects;
 using Bagman.Domain.Models;
 using Bagman.Domain.Repositories;
 using Bagman.Domain.Services;
-using Bagman.Application.Common;
 using ErrorOr;
 
 namespace Bagman.Application.Features.Tables.CreateTable;
@@ -30,10 +30,10 @@ public record CreateTableResult
 
 public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTableResult>
 {
-    private readonly ITableRepository _tableRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IEventTypeRepository _eventTypeRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly ITableRepository _tableRepository;
+    private readonly IUserRepository _userRepository;
 
     public CreateTableHandler(
         ITableRepository tableRepository,
@@ -90,7 +90,7 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
             stakeResult.Value,
             request.CreatedBy,
             request.EventTypeId,
-            isSecretMode: false);
+            false);
 
         if (tableResult.IsError)
             return tableResult.Errors;
@@ -98,7 +98,7 @@ public class CreateTableHandler : IFeatureHandler<CreateTableCommand, CreateTabl
         // Persist
         _tableRepository.Add(tableResult.Value);
         var saveResult = await _tableRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 

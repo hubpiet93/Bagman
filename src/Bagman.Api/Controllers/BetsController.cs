@@ -42,7 +42,7 @@ public class BetsController : AppControllerBase
                 UserId = userId.Value,
                 Prediction = request.Prediction
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -71,7 +71,7 @@ public class BetsController : AppControllerBase
                 MatchId = matchId,
                 UserId = userId.Value
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -94,7 +94,7 @@ public class BetsController : AppControllerBase
                 MatchId = matchId,
                 UserId = userId.Value
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 

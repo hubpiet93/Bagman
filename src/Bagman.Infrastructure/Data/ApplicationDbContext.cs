@@ -1,5 +1,4 @@
 using Bagman.Domain.Models;
-using Bagman.Domain.Common.ValueObjects;
 using Bagman.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -92,7 +91,7 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("pk_event_types_id");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            
+
             entity.Property(e => e.Code)
                 .HasColumnName("code")
                 .IsRequired()
@@ -131,7 +130,7 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("pk_tables_id");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            
+
             // Value object: TableName
             entity.OwnsOne(e => e.Name, name =>
             {
@@ -175,22 +174,22 @@ public class ApplicationDbContext : DbContext
                 member.ToTable("table_members");
                 member.WithOwner(m => m.Table)
                     .HasForeignKey(m => m.TableId);
-                
+
                 member.HasKey(nameof(TableMember.UserId), nameof(TableMember.TableId));
-                
+
                 member.Property(m => m.UserId).HasColumnName("user_id");
                 member.Property(m => m.TableId).HasColumnName("table_id");
                 member.Property(m => m.IsAdmin)
                     .HasColumnName("is_admin")
                     .HasDefaultValue(false);
                 member.Property(m => m.JoinedAt).HasColumnName("joined_at");
-                
+
                 // Navigation to User (owned by Table aggregate)
                 member.HasOne(m => m.User)
                     .WithMany()
                     .HasForeignKey(m => m.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
-                
+
                 // Indexes
                 member.HasIndex(m => m.UserId).HasDatabaseName("idx_table_members_user_id");
                 member.HasIndex(m => m.TableId).HasDatabaseName("idx_table_members_table_id");
@@ -264,14 +263,14 @@ public class ApplicationDbContext : DbContext
                 bet.ToTable("bets");
                 bet.WithOwner(b => b.Match)
                     .HasForeignKey(b => b.MatchId);
-                
+
                 bet.HasKey(nameof(Bet.Id));
                 bet.Property(b => b.Id)
                     .HasColumnName("id")
-                    .ValueGeneratedOnAdd();  // CRITICAL: Auto-generate Guid for new bets
+                    .ValueGeneratedOnAdd(); // CRITICAL: Auto-generate Guid for new bets
                 bet.Property(b => b.UserId).HasColumnName("user_id");
                 bet.Property(b => b.MatchId).HasColumnName("match_id");
-                
+
                 // Value object: Prediction
                 bet.OwnsOne(b => b.Prediction, prediction =>
                 {
@@ -280,20 +279,20 @@ public class ApplicationDbContext : DbContext
                         .IsRequired()
                         .HasMaxLength(10);
                 });
-                
+
                 bet.Property(b => b.EditedAt).HasColumnName("edited_at");
-                
+
                 // Navigation to User (owned by Match aggregate)
                 bet.HasOne(b => b.User)
                     .WithMany()
                     .HasForeignKey(b => b.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
-                
+
                 // Unique constraint
-                bet.HasIndex(b => new { b.UserId, b.MatchId })
+                bet.HasIndex(b => new {b.UserId, b.MatchId})
                     .IsUnique()
                     .HasDatabaseName("uk_bets_user_match");
-                
+
                 // Indexes
                 bet.HasIndex(b => b.UserId).HasDatabaseName("idx_bets_user_id");
                 bet.HasIndex(b => b.MatchId).HasDatabaseName("idx_bets_match_id");

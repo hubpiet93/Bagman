@@ -41,7 +41,7 @@ public class RevokeAdminHandler : IFeatureHandler<RevokeAdminCommand, Success>
 
         // Persist changes (EF change tracking automatically detects changes)
         var saveResult = await _tableRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 

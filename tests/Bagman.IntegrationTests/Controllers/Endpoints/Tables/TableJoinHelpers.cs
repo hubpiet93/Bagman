@@ -80,11 +80,13 @@ public static class TableJoinHelpers
     /// <returns>A JoinTableAuthorizedRequest.</returns>
     public static JoinTableAuthorizedRequest CreateJoinTableAuthorizedRequest(string password)
     {
-        return new JoinTableAuthorizedRequest { Password = password };
+        return new JoinTableAuthorizedRequest {Password = password};
     }
 
-    private static string Unique(string prefix) =>
-        AuthEndpointsHelpers.Unique(prefix);
+    private static string Unique(string prefix)
+    {
+        return AuthEndpointsHelpers.Unique(prefix);
+    }
 
     #endregion
 

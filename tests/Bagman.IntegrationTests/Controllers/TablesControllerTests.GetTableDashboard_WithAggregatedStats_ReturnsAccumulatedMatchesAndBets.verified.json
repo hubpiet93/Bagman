@@ -1,0 +1,217 @@
+﻿[
+  {
+    "TestName": "GetTableDashboard_WithAggregatedStats_ReturnsAccumulatedMatchesAndBets"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member1@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member2@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_5",
+      "user": {
+        "id": "Guid_3",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_6",
+        "isActive": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "Aggregated Stats Table Guid_4",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 100.0,
+      "EventTypeId": "Guid_5"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_6"
+    },
+    "ResponseContent": {
+      "id": "Guid_6",
+      "name": "Aggregated Stats Table Guid_4",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member1@12345",
+      "TableName": "Aggregated Stats Table Guid_4",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_6",
+      "name": "Aggregated Stats Table Guid_4",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member2@12345",
+      "TableName": "Aggregated Stats Table Guid_4",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_6",
+      "name": "Aggregated Stats Table Guid_4",
+      "maxPlayers": 10,
+      "stake": 100.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_6/dashboard",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "table": {
+        "id": "Guid_6",
+        "name": "Aggregated Stats Table Guid_4",
+        "maxPlayers": 10,
+        "stake": 100.0,
+        "createdAt": "DateTimeOffset_7"
+      },
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_7"
+        },
+        {
+          "userId": "Guid_2",
+          "login": "{Scrubbed}",
+          "isAdmin": false,
+          "joinedAt": "DateTimeOffset_8"
+        },
+        {
+          "userId": "Guid_3",
+          "login": "{Scrubbed}",
+          "isAdmin": false,
+          "joinedAt": "DateTimeOffset_9"
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 10,
+          "betsPlaced": 10,
+          "poolsWon": 4,
+          "totalWon": 800.0
+        },
+        {
+          "userId": "Guid_2",
+          "matchesPlayed": 8,
+          "betsPlaced": 6,
+          "poolsWon": 2,
+          "totalWon": 300.0
+        },
+        {
+          "userId": "Guid_3",
+          "matchesPlayed": 3,
+          "betsPlaced": 2,
+          "poolsWon": 0,
+          "totalWon": 0.0
+        }
+      ]
+    }
+  }
+]

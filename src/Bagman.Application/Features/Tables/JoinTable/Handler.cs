@@ -14,9 +14,9 @@ public record JoinTableCommand
 
 public class JoinTableHandler : IFeatureHandler<JoinTableCommand, Success>
 {
+    private readonly IPasswordHasher _passwordHasher;
     private readonly ITableRepository _tableRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
 
     public JoinTableHandler(
         ITableRepository tableRepository,
@@ -52,9 +52,7 @@ public class JoinTableHandler : IFeatureHandler<JoinTableCommand, Success>
 
         // Verify password
         if (!_passwordHasher.VerifyPassword(table.PasswordHash, request.Password))
-        {
             return Error.Validation("Table.InvalidPassword", "Nieprawidłowe hasło do stołu");
-        }
 
         // Add member through aggregate
         var addMemberResult = table.AddMember(request.UserId, request.Password);
@@ -63,7 +61,7 @@ public class JoinTableHandler : IFeatureHandler<JoinTableCommand, Success>
 
         // Persist changes (EF change tracking automatically detects changes)
         var saveResult = await _tableRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 

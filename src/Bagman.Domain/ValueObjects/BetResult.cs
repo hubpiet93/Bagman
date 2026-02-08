@@ -2,10 +2,10 @@ namespace Bagman.Domain.ValueObjects;
 
 public enum BetResultType
 {
-    Pending,      // Mecz nie zakończony
-    ExactHit,     // Dokładne trafienie (3 pkt)
-    WinnerHit,    // Trafiony zwycięzca/remis (1 pkt)
-    Miss          // Pudło (0 pkt)
+    Pending, // Mecz nie zakończony
+    ExactHit, // Dokładne trafienie (3 pkt)
+    WinnerHit, // Trafiony zwycięzca/remis (1 pkt)
+    Miss // Pudło (0 pkt)
 }
 
 public record BetResult(BetResultType Type, int Points)

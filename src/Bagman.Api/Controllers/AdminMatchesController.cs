@@ -1,16 +1,16 @@
+using System.Security.Claims;
 using Bagman.Api.Attributes;
-using Bagman.Api.Controllers;
 using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.Matches.CreateMatch;
-using Bagman.Application.Features.Matches.UpdateMatch;
 using Bagman.Application.Features.Matches.DeleteMatch;
 using Bagman.Application.Features.Matches.SetMatchResult;
+using Bagman.Application.Features.Matches.UpdateMatch;
 using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Bagman.Api.Controllers;
 
@@ -28,13 +28,13 @@ public class AdminMatchesController : AppControllerBase
     }
 
     /// <summary>
-    /// Create match for event type (SuperAdmin only)
+    ///     Create match for event type (SuperAdmin only)
     /// </summary>
     [HttpPost("event-types/{eventTypeId:guid}/matches")]
     public async Task<IActionResult> CreateMatch(Guid eventTypeId, [FromBody] CreateMatchRequest request)
     {
         var userId = GetUserId();
-        
+
         var command = new CreateMatchCommand
         {
             EventTypeId = eventTypeId,
@@ -45,7 +45,7 @@ public class AdminMatchesController : AppControllerBase
         };
 
         var result = await _dispatcher.HandleAsync<CreateMatchCommand, CreateMatchResult>(command);
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -54,13 +54,13 @@ public class AdminMatchesController : AppControllerBase
     }
 
     /// <summary>
-    /// Update match (SuperAdmin only)
+    ///     Update match (SuperAdmin only)
     /// </summary>
     [HttpPut("matches/{matchId:guid}")]
     public async Task<IActionResult> UpdateMatch(Guid matchId, [FromBody] UpdateMatchRequest request)
     {
         var userId = GetUserId();
-        
+
         var command = new UpdateMatchCommand
         {
             MatchId = matchId,
@@ -70,8 +70,8 @@ public class AdminMatchesController : AppControllerBase
             UserId = userId
         };
 
-        var result = await _dispatcher.HandleAsync<UpdateMatchCommand, ErrorOr.Success>(command);
-        
+        var result = await _dispatcher.HandleAsync<UpdateMatchCommand, Success>(command);
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -79,21 +79,21 @@ public class AdminMatchesController : AppControllerBase
     }
 
     /// <summary>
-    /// Delete match (SuperAdmin only)
+    ///     Delete match (SuperAdmin only)
     /// </summary>
     [HttpDelete("matches/{matchId:guid}")]
     public async Task<IActionResult> DeleteMatch(Guid matchId)
     {
         var userId = GetUserId();
-        
+
         var command = new DeleteMatchCommand
         {
             MatchId = matchId,
             UserId = userId
         };
 
-        var result = await _dispatcher.HandleAsync<DeleteMatchCommand, ErrorOr.Success>(command);
-        
+        var result = await _dispatcher.HandleAsync<DeleteMatchCommand, Success>(command);
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -101,13 +101,13 @@ public class AdminMatchesController : AppControllerBase
     }
 
     /// <summary>
-    /// Set match result (SuperAdmin only)
+    ///     Set match result (SuperAdmin only)
     /// </summary>
     [HttpPost("matches/{matchId:guid}/result")]
     public async Task<IActionResult> SetMatchResult(Guid matchId, [FromBody] SetMatchResultRequest request)
     {
         var userId = GetUserId();
-        
+
         var command = new SetMatchResultCommand
         {
             MatchId = matchId,
@@ -115,8 +115,8 @@ public class AdminMatchesController : AppControllerBase
             UserId = userId
         };
 
-        var result = await _dispatcher.HandleAsync<SetMatchResultCommand, ErrorOr.Success>(command);
-        
+        var result = await _dispatcher.HandleAsync<SetMatchResultCommand, Success>(command);
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -125,9 +125,9 @@ public class AdminMatchesController : AppControllerBase
 
     private Guid GetUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                           ?? User.FindFirst("sub")?.Value;
-        
+
         if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             throw new UnauthorizedAccessException("User ID not found in claims");
 

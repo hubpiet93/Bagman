@@ -75,13 +75,13 @@ public class PlaceBetHandler : IFeatureHandler<PlaceBetCommand, PlaceBetResult>
 
         // Persist changes (EF change tracking automatically detects changes)
         var saveResult = await _matchRepository.SaveChangesAsync();
-        
+
         if (saveResult.IsError)
             return saveResult.Errors;
 
         // Get the bet we just created/updated
         var bet = match.GetUserBet(request.UserId)!;
-        
+
         return new PlaceBetResult
         {
             Id = bet.Id,

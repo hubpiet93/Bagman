@@ -97,8 +97,8 @@ public class TablesController : AppControllerBase
 
         // Check if table with the same name already exists
         var existingTable = await _dispatcher.HandleAsync<GetTableByNameQuery, TableBasicResult?>(
-            new GetTableByNameQuery { TableName = request.TableName });
-        
+            new GetTableByNameQuery {TableName = request.TableName});
+
         if (!existingTable.IsError && existingTable.Value != null)
             return Conflict(new {code = "Table.DuplicateName", message = "Stół o podanej nazwie już istnieje"});
 
@@ -137,8 +137,8 @@ public class TablesController : AppControllerBase
 
         // Get table by name
         var getTableResult = await _dispatcher.HandleAsync<GetTableByNameQuery, TableBasicResult?>(
-            new GetTableByNameQuery { TableName = request.TableName });
-        
+            new GetTableByNameQuery {TableName = request.TableName});
+
         if (getTableResult.IsError)
             return MapErrors(getTableResult.Errors);
 
@@ -155,14 +155,14 @@ public class TablesController : AppControllerBase
                 UserId = userId,
                 Password = request.TablePassword
             });
-        
+
         if (joinResult.IsError)
             return MapErrors(joinResult.Errors);
 
         // Get updated table details
         var tableDetailsResult = await _dispatcher.HandleAsync<GetTableByNameQuery, TableBasicResult?>(
-            new GetTableByNameQuery { TableName = request.TableName });
-        
+            new GetTableByNameQuery {TableName = request.TableName});
+
         if (tableDetailsResult.IsError)
             return MapErrors(tableDetailsResult.Errors);
 
@@ -181,8 +181,8 @@ public class TablesController : AppControllerBase
             return Unauthorized();
 
         var result = await _dispatcher.HandleAsync<GetUserTablesQuery, List<UserTableResult>>(
-            new GetUserTablesQuery { UserId = userId.Value });
-        
+            new GetUserTablesQuery {UserId = userId.Value});
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -201,8 +201,8 @@ public class TablesController : AppControllerBase
     public async Task<IActionResult> GetTableDetails(Guid tableId)
     {
         var result = await _dispatcher.HandleAsync<GetTableDetailsQuery, TableDetailResult>(
-            new GetTableDetailsQuery { TableId = tableId });
-        
+            new GetTableDetailsQuery {TableId = tableId});
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -222,12 +222,12 @@ public class TablesController : AppControllerBase
             return Unauthorized();
 
         var result = await _dispatcher.HandleAsync<GetTableDashboardQuery, TableDashboardResult>(
-            new GetTableDashboardQuery 
-            { 
+            new GetTableDashboardQuery
+            {
                 TableId = tableId,
                 UserId = userId.Value
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -250,7 +250,7 @@ public class TablesController : AppControllerBase
                 TableId = tableId,
                 UserId = userId.Value
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -281,7 +281,7 @@ public class TablesController : AppControllerBase
 
         // Get table details to return with member info
         var tableDetailsResult = await _dispatcher.HandleAsync<GetTableDetailsQuery, TableDetailResult>(
-            new GetTableDetailsQuery { TableId = tableId });
+            new GetTableDetailsQuery {TableId = tableId});
 
         if (tableDetailsResult.IsError)
             return MapErrors(tableDetailsResult.Errors);
@@ -323,7 +323,7 @@ public class TablesController : AppControllerBase
                 RequestingUserId = userId.Value,
                 TargetUserId = request.UserId
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 
@@ -347,7 +347,7 @@ public class TablesController : AppControllerBase
                 RequestingUserId = currentUserId.Value,
                 TargetUserId = userId
             });
-        
+
         if (result.IsError)
             return MapErrors(result.Errors);
 

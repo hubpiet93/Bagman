@@ -101,8 +101,10 @@ public static class TableCreationHelpers
         };
     }
 
-    private static string Unique(string prefix) =>
-        AuthEndpointsHelpers.Unique(prefix);
+    private static string Unique(string prefix)
+    {
+        return AuthEndpointsHelpers.Unique(prefix);
+    }
 
     #endregion
 }

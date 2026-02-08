@@ -1,5 +1,3 @@
-using Bagman.Contracts.Models.Tables;
-
 namespace Bagman.IntegrationTests.Controllers.Endpoints.Matches;
 
 /// <summary>

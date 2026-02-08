@@ -90,7 +90,7 @@ public static class AuthEndpointsHelpers
     /// <returns>A LoginRequest.</returns>
     public static LoginRequest CreateLoginRequest(string login, string password)
     {
-        return new LoginRequest { Login = login, Password = password };
+        return new LoginRequest {Login = login, Password = password};
     }
 
     #endregion

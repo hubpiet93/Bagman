@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Common\TableName.cs" />
+        <Compile Remove="Common\TableName.cs"/>
     </ItemGroup>
 
 </Project> 

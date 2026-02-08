@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithMiss_ReturnsLeaderboardWithZeroPoints"
+    "TestName": "GetTableDashboard_WithActivePool_ReturnsPoolWithActiveStatus"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -35,7 +35,7 @@
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
       "UserPassword": "Creator@12345",
-      "TableName": "Leaderboard Miss Table Guid_2",
+      "TableName": "Active Pool Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
@@ -47,7 +47,7 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Leaderboard Miss Table Guid_2",
+      "name": "Active Pool Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -112,60 +112,22 @@
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
-      "Country1": "Italy",
-      "Country2": "Portugal",
+      "Country1": "Poland",
+      "Country2": "Spain",
       "MatchDateTime": "DateTimeOffset_7"
     },
-    "ResponseStatus": "BadRequest 400",
-    "ResponseHeaders": {},
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "/api/admin/event-types/Guid_3/matches/Guid_6"
+    },
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "MatchDateTime": [
-          "Data meczu musi być w przyszłości"
-        ]
-      },
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_Empty/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "2:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Result": "0:1"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
+      "id": "Guid_6",
+      "eventTypeId": "Guid_3",
+      "country1": "Poland",
+      "country2": "Spain",
+      "matchDateTime": "DateTimeOffset_7",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_8"
     }
   },
   {
@@ -181,7 +143,7 @@
     "ResponseContent": {
       "table": {
         "id": "Guid_4",
-        "name": "Leaderboard Miss Table Guid_2",
+        "name": "Active Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
         "createdAt": "DateTimeOffset_3"
@@ -191,7 +153,25 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_9"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_6",
+          "country1": "Poland",
+          "country2": "Spain",
+          "matchDateTime": "DateTimeOffset_7",
+          "result": null,
+          "isStarted": false
+        }
+      ],
+      "pools": [
+        {
+          "id": "Guid_7",
+          "matchId": "Guid_6",
+          "amount": 200.0,
+          "status": "active"
         }
       ]
     }

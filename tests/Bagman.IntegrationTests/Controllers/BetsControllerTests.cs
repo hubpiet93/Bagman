@@ -40,7 +40,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task PlaceBet_WithValidPrediction_ReturnsCreatedWithBetResponse()
     {
         // Arrange
-        var (tableId, creatorToken, creatorLogin) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_creator");
+        var (tableId, creatorToken, creatorLogin) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_player", TestConstants.DefaultUserPassword);
         // Get the table details to retrieve the table name
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
@@ -50,7 +50,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Act
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "2:1" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "2:1"}, playerToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -60,7 +60,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task PlaceBet_WithInvalidFormat_ReturnsBadRequest()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_invalid_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_invalid_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_invalid_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -69,7 +69,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Act
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "invalid prediction format" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "invalid prediction format"}, playerToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -79,7 +79,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task PlaceBet_WithDrawPrediction_ReturnsCreated()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_draw_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_draw_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_draw_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -88,7 +88,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Act
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "X" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "X"}, playerToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -98,7 +98,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task PlaceBet_UpdateExistingBet_ReturnsOkWithUpdatedPrediction()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_update_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_update_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_update_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -107,10 +107,10 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Place initial bet
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "1:0" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "1:0"}, playerToken);
 
         // Act - Update bet
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "2:1" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "2:1"}, playerToken);
 
         // Assert
         await VerifyHttpRecording();
@@ -120,7 +120,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetUserBet_WithExistingBet_ReturnsOkWithBetResponse()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_get_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_get_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_get_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -128,7 +128,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Italy", "France", DateTime.UtcNow.AddDays(5));
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "3:2" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "3:2"}, playerToken);
 
         // Act
         await HttpClient.GetUserBetAsync<HttpResponseMessage>(tableId, match.Id, playerToken);
@@ -141,7 +141,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task GetUserBet_WithoutBet_ReturnsNotFound()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_notfound_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_notfound_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_notfound_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -160,7 +160,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task DeleteBet_BeforeMatchStarted_ReturnsOk()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_delete_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_delete_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_delete_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -168,7 +168,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Italy", "France", DateTime.UtcNow.AddDays(5));
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "1:1" }, playerToken);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "1:1"}, playerToken);
 
         // Act
         await HttpClient.DeleteBetAsync<HttpResponseMessage>(tableId, match.Id, playerToken);
@@ -181,7 +181,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     public async Task DeleteBet_WithoutPlacedBet_ReturnsNotFound()
     {
         // Arrange
-        var (tableId, creatorToken, _) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId, "bet_delete_notfound_creator");
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "bet_delete_notfound_creator");
         var (playerToken, _, playerLogin) = await HttpClient.RegisterAndGetTokenAsync("bet_delete_notfound_player", TestConstants.DefaultUserPassword);
         var tableDetails = await HttpClient.GetTableDetailsAsync<TableResponse>(tableId, creatorToken);
         await HttpClient.JoinTableAsExistingUserAsync<dynamic>(tableDetails.Name, TestConstants.DefaultTablePassword, playerLogin, TestConstants.DefaultUserPassword);
@@ -201,7 +201,7 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
     {
         // Arrange
         // Create table as creator
-        var (tableId, creatorToken, creatorLogin) = await TableScenarioHelpers.CreateTableAsync(HttpClient, DefaultEventTypeId,
+        var (tableId, creatorToken, creatorLogin) = await HttpClient.CreateTableAsync(DefaultEventTypeId,
             "bet_multi_creator");
 
         // Register two players
@@ -221,8 +221,8 @@ public class BetsControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Act - Both players place same bet
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "1:1" }, player1Token);
-        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest { Prediction = "1:1" }, player2Token);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "1:1"}, player1Token);
+        await HttpClient.PlaceBetAsync<HttpResponseMessage>(tableId, match.Id, new PlaceBetRequest {Prediction = "1:1"}, player2Token);
 
         // Assert
         await VerifyHttpRecording();

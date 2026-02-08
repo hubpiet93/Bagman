@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Security.Claims;
 
 namespace Bagman.Api.Attributes;
 
@@ -19,8 +18,6 @@ public class SuperAdminOnlyAttribute : Attribute, IAuthorizationFilter
 
         var isSuperAdminClaim = user.FindFirst("IsSuperAdmin")?.Value;
         if (isSuperAdminClaim != "true")
-        {
             context.Result = new ForbidResult();
-        }
     }
 }

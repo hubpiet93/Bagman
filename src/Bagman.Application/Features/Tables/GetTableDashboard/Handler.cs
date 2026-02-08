@@ -251,10 +251,10 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
             var member = members.FirstOrDefault(m => m.UserId == userId);
             if (member == null) continue;
 
-            int points = 0;
-            int exactHits = 0;
-            int winnerHits = 0;
-            int totalBets = 0;
+            var points = 0;
+            var exactHits = 0;
+            var winnerHits = 0;
+            var totalBets = 0;
 
             foreach (var bet in group)
             {
@@ -291,7 +291,7 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
             .OrderByDescending(e => e.Points)
             .ThenByDescending(e => e.ExactHits)
             .ThenByDescending(e => e.Accuracy)
-            .Select((e, i) => e with { Position = i + 1 })
+            .Select((e, i) => e with {Position = i + 1})
             .ToList();
     }
 }

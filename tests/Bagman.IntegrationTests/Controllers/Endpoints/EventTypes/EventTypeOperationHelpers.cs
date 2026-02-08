@@ -65,7 +65,7 @@ public static class EventTypeOperationHelpers
     /// </summary>
     public static object CreateEventTypeRequest(string code, string name, DateTime startDate)
     {
-        return new { Code = code, Name = name, StartDate = startDate };
+        return new {Code = code, Name = name, StartDate = startDate};
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public static class EventTypeOperationHelpers
     /// </summary>
     public static object CreateUpdateEventTypeRequest(string name, DateTime startDate)
     {
-        return new { Name = name, StartDate = startDate };
+        return new {Name = name, StartDate = startDate};
     }
 
     #endregion

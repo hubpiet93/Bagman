@@ -1,4 +1,3 @@
-using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Auth;
 using Bagman.Domain.Models;
 

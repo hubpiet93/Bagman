@@ -45,7 +45,7 @@ public class UpdateEventTypeHandler : IFeatureHandler<UpdateEventTypeCommand, Up
 
         _repo.Update(eventType);
         await _repo.SaveChangesAsync();
-        
+
         return new UpdateEventTypeResult
         {
             Id = eventType.Id,

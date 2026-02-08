@@ -117,7 +117,7 @@ public class AuthorizationProvider : IAuthorizationProvider
 
         if (result.IsError)
             return result;
-        
+
         return Result.Success;
     }
 

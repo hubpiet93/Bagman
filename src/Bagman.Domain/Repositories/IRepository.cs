@@ -3,7 +3,7 @@ using ErrorOr;
 namespace Bagman.Domain.Repositories;
 
 /// <summary>
-/// Generic repository interface for aggregate roots
+///     Generic repository interface for aggregate roots
 /// </summary>
 public interface IRepository<TEntity> where TEntity : class
 {

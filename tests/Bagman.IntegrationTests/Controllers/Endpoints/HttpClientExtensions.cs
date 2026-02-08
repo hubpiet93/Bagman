@@ -32,7 +32,7 @@ public static class HttpClientExtensions
             Encoding.UTF8,
             "application/json");
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = content };
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint) {Content = content};
 
         if (token != null)
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -95,7 +95,7 @@ public static class HttpClientExtensions
             Encoding.UTF8,
             "application/json");
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Put, endpoint) { Content = content };
+        var httpRequest = new HttpRequestMessage(HttpMethod.Put, endpoint) {Content = content};
 
         if (token != null)
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -158,7 +158,7 @@ public static class HttpClientExtensions
             Encoding.UTF8,
             "application/json");
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Delete, endpoint) { Content = content };
+        var httpRequest = new HttpRequestMessage(HttpMethod.Delete, endpoint) {Content = content};
 
         if (token != null)
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

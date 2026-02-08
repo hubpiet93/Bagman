@@ -3,9 +3,11 @@ using Bagman.IntegrationTests.Controllers.Endpoints;
 using Bagman.IntegrationTests.Controllers.Endpoints.Bets;
 using Bagman.IntegrationTests.Controllers.Endpoints.EventTypes;
 using Bagman.IntegrationTests.Controllers.Endpoints.Matches;
+using Bagman.IntegrationTests.Controllers.Endpoints.Pools;
 using Bagman.IntegrationTests.Controllers.Endpoints.Tables;
 using Bagman.IntegrationTests.Helpers;
 using Bagman.IntegrationTests.TestFixtures;
+using Newtonsoft.Json;
 using Xunit.Abstractions;
 
 namespace Bagman.IntegrationTests.Controllers;
@@ -56,7 +58,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         {
             UserLogin = AuthEndpointsHelpers.Unique("invalid_name_user"),
             UserPassword = TestConstants.CreatorPassword,
-            TableName = "",  // invalid - empty name
+            TableName = "", // invalid - empty name
             TablePassword = TestConstants.DefaultTablePassword,
             MaxPlayers = TestConstants.DefaultMaxPlayers,
             Stake = TestConstants.DefaultStake,
@@ -79,7 +81,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             TableName = $"Negative Stake Table {Guid.NewGuid()}",
             TablePassword = TestConstants.DefaultTablePassword,
             MaxPlayers = TestConstants.DefaultMaxPlayers,
-            Stake = -50m,  // invalid - negative stake
+            Stake = -50m, // invalid - negative stake
             EventTypeId = DefaultEventTypeId
         };
         await HttpClient.CreateTableAsync<HttpResponseMessage>(request);
@@ -161,7 +163,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("details_creator", "Creator@12345", "details");
 
         var tableName = $"Details Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         var joinRequest = TableJoinHelpers.CreateJoinTableRequest(tableName, "DetailsPass@123");
@@ -198,14 +200,14 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (_, memberId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("admin_member", "Member@12345", "admin");
 
         var tableName = $"Admin Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Join with member
         await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", memberLogin, "Member@12345");
 
         // Act - Grant admin
-        var grantRequest = new GrantAdminRequest { UserId = memberId };
+        var grantRequest = new GrantAdminRequest {UserId = memberId};
         await HttpClient.GrantAdminAsync<HttpResponseMessage>(createdTable.Id, grantRequest, creatorToken);
 
         // Assert
@@ -220,14 +222,14 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (_, memberId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("revoke_member", "Member@12345", "revoke");
 
         var tableName = $"Revoke Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Join with member
         await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", memberLogin, "Member@12345");
 
         // Grant admin first
-        var grantRequest = new GrantAdminRequest { UserId = memberId };
+        var grantRequest = new GrantAdminRequest {UserId = memberId};
         await HttpClient.GrantAdminAsync<HttpResponseMessage>(createdTable.Id, grantRequest, creatorToken);
 
         // Act - Revoke admin
@@ -258,7 +260,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var request = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
 
         // Act
-        await HttpClient.CreateAuthorizedTableAsync<HttpResponseMessage>(request, token: null);
+        await HttpClient.CreateAuthorizedTableAsync<HttpResponseMessage>(request);
 
         // Assert
         await VerifyHttpRecording();
@@ -292,7 +294,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         // Create request with empty table name (invalid)
         var request = new AuthorizedCreateTableRequest
         {
-            TableName = "",  // invalid - empty name
+            TableName = "", // invalid - empty name
             TablePassword = TestConstants.AuthTablePassword,
             MaxPlayers = TestConstants.DefaultMaxPlayers,
             Stake = TestConstants.AuthTableStake,
@@ -314,7 +316,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (memberToken, _, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_member", "Member@12345", "dashboard");
 
         var tableName = $"Dashboard Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Join table with member
@@ -334,7 +336,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var tableId = Guid.NewGuid();
 
         // Act - Try to get dashboard without token
-        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(tableId, token: null);
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(tableId);
 
         // Assert
         await VerifyHttpRecording();
@@ -348,7 +350,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (nonMemberToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("dash_non_member", "NonMember@12345", "dashforbid");
 
         var tableName = $"Forbidden Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Act - Try to get dashboard as non-member
@@ -379,7 +381,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (token, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("dash_solo", "Pass@12345", "dashsolo");
 
         var tableName = $"Solo Dashboard Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName, userPassword: "Pass@12345");
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName, userPassword: "Pass@12345");
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Act - Get dashboard should return table info with empty matches/bets/pools/stats
@@ -398,7 +400,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (member2Token, _, member2Login) = await HttpClient.RegisterAndGetTokenAsync("fulldata_member2", "Member2@12345", "fulldata");
 
         var tableName = $"Full Data Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Join table with members
@@ -413,9 +415,9 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match2 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, match2Request, superAdminToken);
 
         // Place bets from different users
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "1:0" }, creatorToken);
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, member1Token);
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "X" }, member2Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest {Prediction = "1:0"}, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest {Prediction = "2:1"}, member1Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest {Prediction = "X"}, member2Token);
 
         // Act - Get dashboard as creator (should see all members and all bets)
         await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
@@ -424,12 +426,83 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         await VerifyHttpRecording();
     }
 
+    #region Combined Pool and Stats Tests
+
+    [Fact]
+    public async Task GetTableDashboard_WithMultiplePoolStatusesAndStats_ReturnsCompleteData()
+    {
+        // Arrange - Create table with creator and member
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_multi_creator", "Creator@12345", "pool_multi");
+        var (memberToken, memberUserId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_multi_member", "Member@12345", "pool_multi");
+
+        var tableName = $"Multi Pool Status Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Join table with member
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", memberLogin, "Member@12345");
+
+        // Get SuperAdmin token for creating match1 via API
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+
+        // Match1: future date (for active pool) - created via API since it needs future date
+        var match1Request = EventTypeMatchCreation.CreateMatchRequest("Pool Multi Team A1", "Pool Multi Team B1", DateTime.UtcNow.AddDays(1));
+        var match1 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, match1Request, superAdminToken);
+
+        // Match2, 3, 4: past dates with results - seeded directly to bypass domain validation
+        var match2Id = await MatchDataSeedingHelpers.SeedFinishedMatchAsync(
+            Services, DefaultEventTypeId, "Pool Multi Team A2", "Pool Multi Team B2", "2:1");
+
+        var match3Id = await MatchDataSeedingHelpers.SeedFinishedMatchAsync(
+            Services, DefaultEventTypeId, "Pool Multi Team A3", "Pool Multi Team B3", "0:0");
+
+        var match4Id = await MatchDataSeedingHelpers.SeedFinishedMatchAsync(
+            Services, DefaultEventTypeId, "Pool Multi Team A4", "Pool Multi Team B4", "1:2");
+
+        // Seed 4 pools with different statuses
+        // Pool1: active
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(Services, match1.Id, 100.00m);
+
+        // Pool2: won with creator as winner
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(Services, match2Id, 100.00m, "won", [(creatorUserId, 100.00m)]);
+
+        // Pool3: rollover (no winners)
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(Services, match3Id, 100.00m, "rollover");
+
+        // Pool4: expired
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(Services, match4Id, 100.00m, "expired");
+
+        // Seed stats for both users
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(
+            Services,
+            creatorUserId,
+            createdTable.Id,
+            3,
+            4,
+            1,
+            100.00m);
+
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(
+            Services,
+            memberUserId,
+            createdTable.Id,
+            3,
+            3);
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    #endregion
+
     #region Authenticated Join Table Tests
 
     /// <summary>
     ///     Tests for the authorized join table endpoint: POST /api/tables/{tableId}/join
     /// </summary>
-
     [Fact]
     public async Task JoinTableAuthorized_WithValidTokenAndPassword_ReturnsOkWithJoinTableResponse()
     {
@@ -459,7 +532,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Act - Try to join without token
         var joinRequest = TableJoinHelpers.CreateJoinTableAuthorizedRequest(TestConstants.DefaultTablePassword);
-        await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(createdTable.Id, joinRequest, token: null);
+        await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(createdTable.Id, joinRequest);
 
         // Assert
         await VerifyHttpRecording();
@@ -506,7 +579,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_same_user", "Creator@12345", "authsame");
 
         var tableName = $"Already Member Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Act - Try to join the table they already created/are member of
@@ -524,7 +597,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_full_creator", "Creator@12345", "authfull");
 
         var tableName = $"Full Table Auth {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName, maxPlayers: 1);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName, maxPlayers: 1);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Register another user
@@ -571,7 +644,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var tableId = Guid.NewGuid();
 
         // Act - Send request with empty password
-        var emptyRequest = new JoinTableAuthorizedRequest { Password = "" };
+        var emptyRequest = new JoinTableAuthorizedRequest {Password = ""};
         await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(tableId, emptyRequest, joinerToken);
 
         // Assert
@@ -589,11 +662,11 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (joinerToken, joinerUserId, joinerLogin) = await HttpClient.RegisterAndGetTokenAsync("auth_member_info", "Joiner@12345", "authmemberinfo");
 
         // Act
-        var joinRequest = new JoinTableAuthorizedRequest { Password = TestConstants.DefaultTablePassword };
+        var joinRequest = new JoinTableAuthorizedRequest {Password = TestConstants.DefaultTablePassword};
         var response = await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(createdTable.Id, joinRequest, joinerToken);
 
         var responseBody = await response.Content.ReadAsStringAsync();
-        var joinResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<JoinTableResponse>(responseBody);
+        var joinResponse = JsonConvert.DeserializeObject<JoinTableResponse>(responseBody);
 
         // Assert - Verify response contains all required fields
         await VerifyHttpRecording();
@@ -606,7 +679,6 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     /// <summary>
     ///     Tests for the leaderboard functionality in the dashboard endpoint.
     /// </summary>
-
     [Fact]
     public async Task GetTableDashboard_WithExactHit_ReturnsLeaderboardWithThreePoints()
     {
@@ -614,7 +686,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_exact_creator", "Creator@12345", "lbexact");
 
         var tableName = $"Leaderboard Exact Hit Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Create match with past date (already started)
@@ -623,7 +695,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Place bet with exact prediction
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "2:1" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest {Prediction = "2:1"}, creatorToken);
 
         // Set match result (exact match)
         await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("2:1"), superAdminToken);
@@ -642,7 +714,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_winner_creator", "Creator@12345", "lbwinner");
 
         var tableName = $"Leaderboard Winner Hit Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Create match with past date
@@ -651,7 +723,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Place bet - correct winner but wrong score
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "2:0" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest {Prediction = "2:0"}, creatorToken);
 
         // Set match result - same winner but different score
         await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("1:0"), superAdminToken);
@@ -670,7 +742,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_miss_creator", "Creator@12345", "lbmiss");
 
         var tableName = $"Leaderboard Miss Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Create match with past date
@@ -679,7 +751,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Place bet - home win prediction
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "2:0" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest {Prediction = "2:0"}, creatorToken);
 
         // Set match result - away win (miss)
         await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("0:1"), superAdminToken);
@@ -698,7 +770,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_draw_creator", "Creator@12345", "lbdraw");
 
         var tableName = $"Leaderboard Draw Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Create match with past date
@@ -707,7 +779,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Place bet with "X" for draw
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "X" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest {Prediction = "X"}, creatorToken);
 
         // Set match result - draw
         await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match.Id, MatchResultHelpers.CreateSetResultRequest("1:1"), superAdminToken);
@@ -728,7 +800,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (member2Token, _, member2Login) = await HttpClient.RegisterAndGetTokenAsync("lb_multi_member2", "Member2@12345", "lbmulti");
 
         var tableName = $"Leaderboard Multi Users Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", member1Login, "Member1@12345");
@@ -742,16 +814,16 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match2 = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, match2Request, superAdminToken);
 
         // Creator: 2 exact hits = 6 points
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, creatorToken);
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "0:0" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest {Prediction = "2:1"}, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest {Prediction = "0:0"}, creatorToken);
 
         // Member1: 1 exact hit + 1 winner hit = 4 points
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, member1Token);
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "1:1" }, member1Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest {Prediction = "2:1"}, member1Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest {Prediction = "1:1"}, member1Token);
 
         // Member2: 2 misses = 0 points
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "0:2" }, member2Token);
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "2:0" }, member2Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest {Prediction = "0:2"}, member2Token);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest {Prediction = "2:0"}, member2Token);
 
         // Set match results
         await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match1.Id, MatchResultHelpers.CreateSetResultRequest("2:1"), superAdminToken);
@@ -771,7 +843,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_empty_creator", "Creator@12345", "lbempty");
 
         var tableName = $"Leaderboard Empty Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Create match with future date (not started)
@@ -780,7 +852,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
 
         // Place bet on unfinished match
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest { Prediction = "1:0" }, creatorToken);
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match.Id, new PlaceBetRequest {Prediction = "1:0"}, creatorToken);
 
         // Act - Get dashboard (no result set - match not finished)
         await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
@@ -796,7 +868,7 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
         var (creatorToken, _, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("lb_accuracy_creator", "Creator@12345", "lbaccuracy");
 
         var tableName = $"Leaderboard Accuracy Table {Guid.NewGuid()}";
-        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, userLogin: creatorLogin, tableName: tableName);
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
         var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
 
         // Create 5 matches with past dates
@@ -813,11 +885,11 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
             EventTypeMatchCreation.CreateMatchRequest("Match5 Team A", "Match5 Team B", DateTime.UtcNow.AddMinutes(-10)), superAdminToken);
 
         // Place bets: 2 exact hits, 1 winner hit, 2 misses = 60% accuracy
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest { Prediction = "2:1" }, creatorToken); // Exact hit
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest { Prediction = "1:0" }, creatorToken); // Exact hit
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match3.Id, new PlaceBetRequest { Prediction = "3:0" }, creatorToken); // Winner hit
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match4.Id, new PlaceBetRequest { Prediction = "2:0" }, creatorToken); // Miss
-        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match5.Id, new PlaceBetRequest { Prediction = "0:1" }, creatorToken); // Miss
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match1.Id, new PlaceBetRequest {Prediction = "2:1"}, creatorToken); // Exact hit
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match2.Id, new PlaceBetRequest {Prediction = "1:0"}, creatorToken); // Exact hit
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match3.Id, new PlaceBetRequest {Prediction = "3:0"}, creatorToken); // Winner hit
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match4.Id, new PlaceBetRequest {Prediction = "2:0"}, creatorToken); // Miss
+        await HttpClient.PlaceBetAsync<dynamic>(createdTable.Id, match5.Id, new PlaceBetRequest {Prediction = "0:1"}, creatorToken); // Miss
 
         // Set match results
         await HttpClient.SetMatchResultAsync<HttpResponseMessage>(match1.Id, MatchResultHelpers.CreateSetResultRequest("2:1"), superAdminToken); // Exact
@@ -831,6 +903,247 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
 
         // Assert - Accuracy should be 60% (3 correct / 5 total)
         // Points: 2×3 + 1×1 = 7, ExactHits: 2, WinnerHits: 1, TotalBets: 5, Accuracy: 60.0
+        await VerifyHttpRecording();
+    }
+
+    #endregion
+
+    #region Pool Status Tests
+
+    [Fact]
+    public async Task GetTableDashboard_WithActivePool_ReturnsPoolWithActiveStatus()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_active_creator", "Creator@12345", "pool_active");
+
+        var tableName = $"Active Pool Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Create match with future date (for active pool)
+        var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);
+        var matchRequest = EventTypeMatchCreation.CreateMatchRequest("Poland", "Spain", DateTime.UtcNow.AddDays(1));
+        var match = await HttpClient.CreateMatchAsync<MatchResponse>(DefaultEventTypeId, matchRequest, superAdminToken);
+
+        // Seed pool with active status
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(
+            Services,
+            match.Id,
+            200.00m);
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithWonPool_ReturnsPoolWithWinnersAndWonStatus()
+    {
+        // Arrange - Create table with creator and member
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_won_creator", "Creator@12345", "pool_won");
+        var (memberToken, memberUserId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_won_member", "Member@12345", "pool_won");
+
+        var tableName = $"Won Pool Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName, 100);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Join table with member
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", memberLogin, "Member@12345");
+
+        // Seed finished match with result directly into database
+        var matchId = await MatchDataSeedingHelpers.SeedFinishedMatchAsync(
+            Services,
+            DefaultEventTypeId,
+            "Germany",
+            "France",
+            "2:1");
+
+        // Seed pool with won status and winner
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(
+            Services,
+            matchId,
+            200.00m,
+            "won",
+            [(creatorUserId, 200.00m)]);
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithRolloverPool_ReturnsPoolWithRolloverStatusAndNoWinners()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_rollover_creator", "Creator@12345", "pool_rollover");
+
+        var tableName = $"Rollover Pool Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Seed finished match with result directly into database
+        var matchId = await MatchDataSeedingHelpers.SeedFinishedMatchAsync(
+            Services,
+            DefaultEventTypeId,
+            "Italy",
+            "Portugal",
+            "1:1");
+
+        // Seed pool with rollover status (no winners)
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(
+            Services,
+            matchId,
+            150.00m,
+            "rollover");
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithExpiredPool_ReturnsPoolWithExpiredStatus()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("pool_expired_creator", "Creator@12345", "pool_expired");
+
+        var tableName = $"Expired Pool Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Seed match with past date directly into database (no result for expired pool)
+        var matchId = await MatchDataSeedingHelpers.SeedMatchAsync(
+            Services,
+            DefaultEventTypeId,
+            "England",
+            "Scotland",
+            DateTime.UtcNow.AddMinutes(-60));
+
+        // Seed pool with expired status
+        await PoolStatsDataSeedingHelpers.SeedPoolAsync(
+            Services,
+            matchId,
+            100.00m,
+            "expired");
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    #endregion
+
+    #region Stats Tests
+
+    [Fact]
+    public async Task GetTableDashboard_WithNewPlayerStats_ReturnsZeroStats()
+    {
+        // Arrange - Create table with creator and member
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("stats_new_creator", "Creator@12345", "stats_new");
+        var (memberToken, memberUserId, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("stats_new_member", "Member@12345", "stats_new");
+
+        var tableName = $"New Player Stats Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Join table with member
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", memberLogin, "Member@12345");
+
+        // Seed stats with zeros for both users
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(Services, creatorUserId, createdTable.Id);
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(Services, memberUserId, createdTable.Id);
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithWinningBetStats_ReturnsUpdatedPoolsWonAndTotalWon()
+    {
+        // Arrange - Create table with creator
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("stats_winner_creator", "Creator@12345", "stats_winner");
+
+        var tableName = $"Winner Stats Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Seed stats with winning data
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(
+            Services,
+            creatorUserId,
+            createdTable.Id,
+            3,
+            3,
+            1,
+            150.00m);
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTableDashboard_WithAggregatedStats_ReturnsAccumulatedMatchesAndBets()
+    {
+        // Arrange - Create table with 3 users
+        var (creatorToken, creatorUserId, creatorLogin) = await HttpClient.RegisterAndGetTokenAsync("stats_agg_creator", "Creator@12345", "stats_agg");
+        var (member1Token, member1UserId, member1Login) = await HttpClient.RegisterAndGetTokenAsync("stats_agg_member1", "Member1@12345", "stats_agg");
+        var (member2Token, member2UserId, member2Login) = await HttpClient.RegisterAndGetTokenAsync("stats_agg_member2", "Member2@12345", "stats_agg");
+
+        var tableName = $"Aggregated Stats Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, creatorLogin, tableName, 100);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Join table with members
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", member1Login, "Member1@12345");
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, "TablePass@123", member2Login, "Member2@12345");
+
+        // Seed diverse stats
+        // Creator (very active)
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(
+            Services,
+            creatorUserId,
+            createdTable.Id,
+            10,
+            10,
+            4,
+            800.00m);
+
+        // Member1 (moderately active)
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(
+            Services,
+            member1UserId,
+            createdTable.Id,
+            8,
+            6,
+            2,
+            300.00m);
+
+        // Member2 (new player)
+        await PoolStatsDataSeedingHelpers.SeedUserStatsAsync(
+            Services,
+            member2UserId,
+            createdTable.Id,
+            3,
+            2);
+
+        // Act
+        await HttpClient.GetTableDashboardAsync<HttpResponseMessage>(createdTable.Id, creatorToken);
+
+        // Assert
         await VerifyHttpRecording();
     }
 

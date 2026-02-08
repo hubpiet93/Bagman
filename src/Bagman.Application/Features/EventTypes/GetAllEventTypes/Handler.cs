@@ -34,7 +34,7 @@ public class GetAllEventTypesHandler : IFeatureHandler<GetAllEventTypesQuery, Ge
         CancellationToken cancellationToken = default)
     {
         var eventTypes = await _repo.GetAllAsync();
-        
+
         var dtos = eventTypes.Select(et => new EventTypeDto
         {
             Id = et.Id,

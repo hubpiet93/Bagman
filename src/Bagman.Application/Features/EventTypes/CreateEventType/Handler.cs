@@ -53,7 +53,7 @@ public class CreateEventTypeHandler : IFeatureHandler<CreateEventTypeCommand, Cr
         };
         _repo.Add(eventType);
         await _repo.SaveChangesAsync();
-        
+
         return new CreateEventTypeResult
         {
             Id = eventType.Id,

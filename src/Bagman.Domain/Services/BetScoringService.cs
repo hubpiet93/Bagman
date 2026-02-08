@@ -30,14 +30,16 @@ public static class BetScoringService
     private static (int, int) ParseScore(string score)
     {
         if (score == "X") return (0, 0); // Remis - special case
+
         var parts = score.Split(':');
         return (int.Parse(parts[0]), int.Parse(parts[1]));
     }
 
     private static int GetSign(int score1, int score2)
     {
-        if (score1 > score2) return 1;  // Wygrana gospodarzy
-        if (score1 < score2) return 2;  // Wygrana gości
-        return 0;                        // Remis
+        if (score1 > score2) return 1; // Wygrana gospodarzy
+        if (score1 < score2) return 2; // Wygrana gości
+
+        return 0; // Remis
     }
 }

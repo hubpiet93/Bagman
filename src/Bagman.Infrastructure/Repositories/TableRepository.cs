@@ -20,7 +20,7 @@ public class TableRepository : Repository<Table>, ITableRepository
             // EF Core REQUIRES Include() for OwnsMany collections!
             // Unlike OwnsOne, OwnsMany is NOT automatically loaded
             var table = await Context.Tables
-                .Include(t => t.Members)  // CRITICAL: Load owned Members collection
+                .Include(t => t.Members) // CRITICAL: Load owned Members collection
                 .AsTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
             return table;

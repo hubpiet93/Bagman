@@ -34,6 +34,6 @@ public static class MatchResultHelpers
     /// <returns>A SetMatchResultRequest.</returns>
     public static SetMatchResultRequest CreateSetResultRequest(string result)
     {
-        return new SetMatchResultRequest { Result = result };
+        return new SetMatchResultRequest {Result = result};
     }
 }

@@ -1,5 +1,4 @@
 using Bagman.Application.Features.EventTypes.CreateEventType;
-using Bagman.Application.Features.EventTypes.GetActiveEventTypes;
 using Bagman.Application.Features.EventTypes.UpdateEventType;
 using Bagman.Contracts.Models;
 using ActiveEventTypeDto = Bagman.Application.Features.EventTypes.GetActiveEventTypes.EventTypeDto;
@@ -14,44 +13,44 @@ public static class EventTypesControllerMappers
     public static EventTypeResponse ToEventTypeResponse(this ActiveEventTypeDto dto)
     {
         return new EventTypeResponse(
-            Id: dto.Id,
-            Code: dto.Code,
-            Name: dto.Name,
-            StartDate: dto.StartDate,
-            IsActive: dto.IsActive
+            dto.Id,
+            dto.Code,
+            dto.Name,
+            dto.StartDate,
+            dto.IsActive
         );
     }
 
     public static EventTypeResponse ToEventTypeResponse(this AllEventTypeDto dto)
     {
         return new EventTypeResponse(
-            Id: dto.Id,
-            Code: dto.Code,
-            Name: dto.Name,
-            StartDate: dto.StartDate,
-            IsActive: dto.IsActive
+            dto.Id,
+            dto.Code,
+            dto.Name,
+            dto.StartDate,
+            dto.IsActive
         );
     }
 
     public static EventTypeResponse ToEventTypeResponse(this CreateEventTypeResult result)
     {
         return new EventTypeResponse(
-            Id: result.Id,
-            Code: result.Code,
-            Name: result.Name,
-            StartDate: result.StartDate,
-            IsActive: result.IsActive
+            result.Id,
+            result.Code,
+            result.Name,
+            result.StartDate,
+            result.IsActive
         );
     }
 
     public static EventTypeResponse ToEventTypeResponse(this UpdateEventTypeResult result)
     {
         return new EventTypeResponse(
-            Id: result.Id,
-            Code: result.Code,
-            Name: result.Name,
-            StartDate: result.StartDate,
-            IsActive: result.IsActive
+            result.Id,
+            result.Code,
+            result.Name,
+            result.StartDate,
+            result.IsActive
         );
     }
 

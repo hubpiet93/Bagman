@@ -4,11 +4,26 @@ using ErrorOr;
 namespace Bagman.Domain.Models;
 
 /// <summary>
-/// Match aggregate root - represents a football match with bets
+///     Match aggregate root - represents a football match with bets
 /// </summary>
 public class Match
 {
     private readonly List<Bet> _bets = new();
+
+    public Guid Id { get; }
+    public Guid EventTypeId { get; private set; }
+    public Country Country1 { get; private set; } = null!;
+    public Country Country2 { get; private set; } = null!;
+    public DateTime MatchDateTime { get; private set; }
+    public Score? Result { get; private set; }
+    public string Status { get; private set; } = "scheduled";
+    public bool Started => DateTime.UtcNow >= MatchDateTime;
+    public DateTime CreatedAt { get; private set; }
+
+    // Navigation properties
+    public virtual EventType? EventType { get; private set; }
+    public virtual IReadOnlyCollection<Bet> Bets => _bets.AsReadOnly();
+    public virtual ICollection<Pool> Pools { get; private set; } = new List<Pool>();
 
     // EF Core constructor
     private Match()
@@ -32,21 +47,6 @@ public class Match
         CreatedAt = DateTime.UtcNow;
     }
 
-    public Guid Id { get; private set; }
-    public Guid EventTypeId { get; private set; }
-    public Country Country1 { get; private set; } = null!;
-    public Country Country2 { get; private set; } = null!;
-    public DateTime MatchDateTime { get; private set; }
-    public Score? Result { get; private set; }
-    public string Status { get; private set; } = "scheduled";
-    public bool Started => DateTime.UtcNow >= MatchDateTime;
-    public DateTime CreatedAt { get; private set; }
-
-    // Navigation properties
-    public virtual EventType? EventType { get; private set; }
-    public virtual IReadOnlyCollection<Bet> Bets => _bets.AsReadOnly();
-    public virtual ICollection<Pool> Pools { get; private set; } = new List<Pool>();
-
     public static ErrorOr<Match> Create(
         Guid eventTypeId,
         Country country1,
@@ -54,11 +54,9 @@ public class Match
         DateTime matchDateTime)
     {
         if (matchDateTime <= DateTime.UtcNow)
-        {
             return Error.Validation(
                 "Match.InvalidDateTime",
                 "Match date must be in the future");
-        }
 
         return new Match(
             Guid.NewGuid(),
@@ -72,11 +70,9 @@ public class Match
     public ErrorOr<Success> Update(Country country1, Country country2, DateTime matchDateTime)
     {
         if (Started)
-        {
             return Error.Failure(
                 "Match.AlreadyStarted",
                 "Nie można edytować meczu, który już się rozpoczął");
-        }
 
         Country1 = country1;
         Country2 = country2;
@@ -95,11 +91,9 @@ public class Match
     public ErrorOr<Success> PlaceBet(Guid userId, Prediction prediction)
     {
         if (Started)
-        {
             return Error.Failure(
                 "Match.AlreadyStarted",
                 "Nie można typować na mecz, który już się rozpoczął");
-        }
 
         var existingBet = _bets.FirstOrDefault(b => b.UserId == userId);
         if (existingBet != null)
@@ -124,19 +118,15 @@ public class Match
     public ErrorOr<Success> RemoveBet(Guid userId)
     {
         if (Started)
-        {
             return Error.Failure(
                 "Match.AlreadyStarted",
                 "Nie można usunąć typu na mecz, który już się rozpoczął");
-        }
 
         var bet = _bets.FirstOrDefault(b => b.UserId == userId);
         if (bet == null)
-        {
             return Error.NotFound(
                 "Bet.NotFound",
                 "Typ nie został znaleziony");
-        }
 
         _bets.Remove(bet);
         return ErrorOr.Result.Success;
@@ -150,11 +140,9 @@ public class Match
     public ErrorOr<Success> Delete()
     {
         if (Started)
-        {
             return Error.Failure(
                 "Match.AlreadyStarted",
                 "Nie można usunąć meczu, który już się rozpoczął");
-        }
 
         return ErrorOr.Result.Success;
     }

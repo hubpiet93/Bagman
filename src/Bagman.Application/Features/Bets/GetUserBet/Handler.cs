@@ -41,7 +41,7 @@ public class GetUserBetHandler : IFeatureHandler<GetUserBetQuery, UserBetResult>
             return Error.NotFound("Match.NotFound", "Mecz nie został znaleziony");
 
         var bet = match.GetUserBet(request.UserId);
-        
+
         if (bet == null)
             return Error.NotFound("Bet.NotFound", "Typ nie został znaleziony");
 

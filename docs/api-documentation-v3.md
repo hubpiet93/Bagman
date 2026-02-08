@@ -1311,8 +1311,49 @@ Authorization: Bearer {Scrubbed}
       "editedAt": "DateTimeOffset_17"
     }
   ],
-  "pools": [],
-  "stats": [],
+  "pools": [
+    {
+      "id": "Guid_13",
+      "matchId": "Guid_7",
+      "amount": 100.0,
+      "status": "active"
+    },
+    {
+      "id": "Guid_14",
+      "matchId": "Guid_8",
+      "amount": 100.0,
+      "status": "won",
+      "winners": ["Guid_1"]
+    },
+    {
+      "id": "Guid_15",
+      "matchId": "Guid_9",
+      "amount": 100.0,
+      "status": "rollover"
+    },
+    {
+      "id": "Guid_16",
+      "matchId": "Guid_10",
+      "amount": 100.0,
+      "status": "expired"
+    }
+  ],
+  "stats": [
+    {
+      "userId": "Guid_1",
+      "matchesPlayed": 3,
+      "betsPlaced": 4,
+      "poolsWon": 1,
+      "totalWon": 100.0
+    },
+    {
+      "userId": "Guid_2",
+      "matchesPlayed": 3,
+      "betsPlaced": 3,
+      "poolsWon": 0,
+      "totalWon": 0.0
+    }
+  ],
   "leaderboard": [
     {
       "position": 1,
@@ -1337,6 +1378,45 @@ Authorization: Bearer {Scrubbed}
   ]
 }
 ```
+
+#### System pul (pools)
+
+Pole `pools` zawiera listę pul finansowych powiązanych z meczami w ramach typu wydarzenia stołu. Pule służą do gromadzenia stawek graczy i ich rozdzielania między zwycięzców.
+
+**Struktura PoolItem:**
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `id` | Guid | Identyfikator puli |
+| `matchId` | Guid | Identyfikator meczu, do którego należy pula |
+| `amount` | decimal | Kwota puli (suma stawek uczestników) |
+| `status` | string | Status puli (patrz tabela poniżej) |
+| `winners` | Guid[] | Lista identyfikatorów zwycięzców (tylko gdy status = "won") |
+
+**Statusy puli:**
+
+| Status | Opis |
+|--------|------|
+| `active` | Pula aktywna – mecz jeszcze się nie rozpoczął, można obstawiać |
+| `won` | Pula wygrana – mecz zakończony, są zwycięzcy z dokładnym trafieniem wyniku |
+| `rollover` | Pula przeniesiona – mecz zakończony, nikt nie trafił dokładnego wyniku; kwota zostaje przeniesiona do następnej puli |
+| `expired` | Pula wygasła – mecz zakończony bez zwycięzców i bez przeniesienia (np. ostatni mecz wydarzenia) |
+
+#### System statystyk użytkowników (stats)
+
+Pole `stats` zawiera zagregowane statystyki użytkowników dla danego stołu. Statystyki są aktualizowane po zakończeniu każdego meczu i rozliczeniu puli.
+
+**Struktura UserStatsItem:**
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `userId` | Guid | Identyfikator użytkownika |
+| `matchesPlayed` | int | Liczba meczów, w których użytkownik brał udział (zakończone mecze z postawionym typem) |
+| `betsPlaced` | int | Całkowita liczba postawionych zakładów przez użytkownika |
+| `poolsWon` | int | Liczba pul wygranych przez użytkownika |
+| `totalWon` | decimal | Całkowita kwota wygranych przez użytkownika |
+
+> **Uwaga:** Statystyki są powiązane z konkretnym stołem – ten sam użytkownik może mieć różne statystyki na różnych stołach.
 
 #### System punktacji leaderboard
 
@@ -2080,6 +2160,26 @@ Poniżej zestawienie modeli request/response na podstawie snapshotów.
 | `winnerHits` | int | Liczba trafionych zwycięzców/remisów |
 | `totalBets` | int | Liczba zakładów na zakończone mecze |
 | `accuracy` | double | Procent trafności (0-100) |
+
+#### PoolItem
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `id` | Guid | Identyfikator puli |
+| `matchId` | Guid | Identyfikator meczu powiązanego z pulą |
+| `amount` | decimal | Kwota puli (suma stawek) |
+| `status` | string | Status puli: `active`, `won`, `rollover`, `expired` |
+| `winners` | Guid[] | Lista ID zwycięzców (tylko gdy status = `won`) |
+
+#### UserStatsItem
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `userId` | Guid | Identyfikator użytkownika |
+| `matchesPlayed` | int | Liczba rozegranych meczów z typem |
+| `betsPlaced` | int | Całkowita liczba postawionych zakładów |
+| `poolsWon` | int | Liczba wygranych pul |
+| `totalWon` | decimal | Suma wygranych kwot |
 
 #### GrantAdminRequest
 
