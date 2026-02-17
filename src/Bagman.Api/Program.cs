@@ -28,12 +28,33 @@ builder.Services.AddSwaggerGen();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    var allowedOrigins = builder.Configuration["AllowedCorsOrigins"];
+
+    if (builder.Environment.IsDevelopment() || string.IsNullOrEmpty(allowedOrigins))
     {
-        policy.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+        // Development: Allow all
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+    }
+    else
+    {
+        // Production/Staging: Specific origins only
+        var origins = allowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(o => o.Trim())
+                                     .ToArray();
+
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.WithOrigins(origins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+    }
 });
 
 builder.Services.AddApplicationDbContext(builder.Configuration.GetConnectionString("Postgres"));
@@ -87,6 +108,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "healthy",
+    timestamp = DateTime.UtcNow,
+    environment = app.Environment.EnvironmentName
+}));
 
 app.Run();
 

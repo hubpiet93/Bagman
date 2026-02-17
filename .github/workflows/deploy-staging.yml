@@ -1,0 +1,56 @@
+name: Deploy to Azure - Staging
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME_STAGING }}
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test tests/Bagman.IntegrationTests/Bagman.IntegrationTests.csproj --no-build --configuration Release --verbosity normal
+
+      - name: Publish
+        run: dotnet publish src/Bagman.Api/Bagman.Api.csproj -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      - name: Run EF Core Migrations
+        run: |
+          dotnet tool install --global dotnet-ef --version 10.0.0
+          dotnet ef database update --project src/Bagman.Infrastructure/Bagman.Infrastructure.csproj --startup-project src/Bagman.Api/Bagman.Api.csproj --connection "${{ secrets.POSTGRES_CONNECTION_STRING_STAGING }}"
+
+      - name: Logout from Azure
+        run: az logout
