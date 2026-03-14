@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Login_WithNonexistentUser_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.AuthControllerTests.Login_WithNonexistentUser_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/auth/login",

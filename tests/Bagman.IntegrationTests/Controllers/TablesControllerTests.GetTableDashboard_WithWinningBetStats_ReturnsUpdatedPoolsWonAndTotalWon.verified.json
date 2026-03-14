@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithWinningBetStats_ReturnsUpdatedPoolsWonAndTotalWon"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithWinningBetStats_ReturnsUpdatedPoolsWonAndTotalWon"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -71,14 +71,14 @@
         "name": "Winner Stats Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_3"
+        "createdAt": "DateTimeOffset_4"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_5"
         }
       ],
       "stats": [

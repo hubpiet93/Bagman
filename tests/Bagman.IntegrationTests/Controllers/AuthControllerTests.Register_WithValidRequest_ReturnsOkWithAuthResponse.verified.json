@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Register_WithValidRequest_ReturnsOkWithAuthResponse"
+    "TestName": "Bagman.IntegrationTests.Controllers.AuthControllerTests.Register_WithValidRequest_ReturnsOkWithAuthResponse"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

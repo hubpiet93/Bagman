@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "CreateTable_WithInvalidTableName_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.CreateTable_WithInvalidTableName_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/tables",

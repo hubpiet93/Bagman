@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetMatch_StartedFalse_ForFutureDateTime"
+    "TestName": "Bagman.IntegrationTests.Controllers.MatchesControllerTests.GetMatch_StartedFalse_ForFutureDateTime"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -145,11 +145,11 @@
       "eventTypeId": "Guid_3",
       "country1": "Poland",
       "country2": "Germany",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_9",
       "result": null,
       "status": "scheduled",
       "started": true,
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_10"
     }
   }
 ]

@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "AuthorizedCreateTable_WithValidTokenAndRequest_ReturnsCreated"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.AuthorizedCreateTable_WithValidTokenAndRequest_ReturnsCreated"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

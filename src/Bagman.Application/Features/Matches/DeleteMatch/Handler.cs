@@ -7,6 +7,7 @@ namespace Bagman.Application.Features.Matches.DeleteMatch;
 public record DeleteMatchCommand
 {
     public required Guid MatchId { get; init; }
+    public required Guid EventTypeId { get; init; }
     public required Guid UserId { get; init; }
 }
 
@@ -45,6 +46,10 @@ public class DeleteMatchHandler : IFeatureHandler<DeleteMatchCommand, Success>
             return Error.NotFound("Match.NotFound", "Mecz nie został znaleziony");
 
         var match = matchResult.Value;
+
+        // Verify match belongs to the specified event type
+        if (match.EventTypeId != request.EventTypeId)
+            return Error.NotFound("Match.NotFound", "Mecz nie został znaleziony w tym typie wydarzenia");
 
         // Validate can delete through aggregate
         var deleteValidation = match.Delete();

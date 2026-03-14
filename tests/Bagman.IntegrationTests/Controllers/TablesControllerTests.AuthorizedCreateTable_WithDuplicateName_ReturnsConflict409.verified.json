@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "AuthorizedCreateTable_WithDuplicateName_ReturnsConflict409"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.AuthorizedCreateTable_WithDuplicateName_ReturnsConflict409"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

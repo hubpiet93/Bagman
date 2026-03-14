@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "CreateTable_WithValidRequest_ReturnsCreatedWithTableResponse"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.CreateTable_WithValidRequest_ReturnsCreatedWithTableResponse"
   },
   {
     "RequestUri": "http://localhost/api/tables",

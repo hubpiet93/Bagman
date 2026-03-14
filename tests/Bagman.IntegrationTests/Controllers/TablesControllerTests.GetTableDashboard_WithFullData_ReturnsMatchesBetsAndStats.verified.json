@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithFullData_ReturnsMatchesBetsAndStats"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithFullData_ReturnsMatchesBetsAndStats"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -124,7 +124,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_7",
+      "createdAt": "DateTimeOffset_8",
       "isSecretMode": false
     }
   },
@@ -147,7 +147,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_7",
+      "createdAt": "DateTimeOffset_8",
       "isSecretMode": false
     }
   },
@@ -166,12 +166,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_8",
+      "expiresAt": "DateTimeOffset_9",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_10",
         "isActive": true
       }
     }
@@ -190,12 +190,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_10",
+      "expiresAt": "DateTimeOffset_11",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_12",
         "isActive": true
       }
     }
@@ -210,7 +210,7 @@
     "RequestContent": {
       "Country1": "Poland",
       "Country2": "Spain",
-      "MatchDateTime": "DateTimeOffset_11"
+      "MatchDateTime": "DateTimeOffset_13"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -221,9 +221,9 @@
       "eventTypeId": "Guid_5",
       "country1": "Poland",
       "country2": "Spain",
-      "matchDateTime": "DateTimeOffset_11",
+      "matchDateTime": "DateTimeOffset_13",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_12"
+      "createdAt": "DateTimeOffset_14"
     }
   },
   {
@@ -236,7 +236,7 @@
     "RequestContent": {
       "Country1": "Germany",
       "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_13"
+      "MatchDateTime": "DateTimeOffset_15"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -247,9 +247,9 @@
       "eventTypeId": "Guid_5",
       "country1": "Germany",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_13",
+      "matchDateTime": "DateTimeOffset_15",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_14"
+      "createdAt": "DateTimeOffset_16"
     }
   },
   {
@@ -271,7 +271,7 @@
       "userId": "Guid_1",
       "matchId": "Guid_8",
       "prediction": "1:0",
-      "editedAt": "DateTimeOffset_15"
+      "editedAt": "DateTimeOffset_17"
     }
   },
   {
@@ -293,7 +293,7 @@
       "userId": "Guid_2",
       "matchId": "Guid_8",
       "prediction": "2:1",
-      "editedAt": "DateTimeOffset_16"
+      "editedAt": "DateTimeOffset_18"
     }
   },
   {
@@ -315,7 +315,7 @@
       "userId": "Guid_3",
       "matchId": "Guid_9",
       "prediction": "X",
-      "editedAt": "DateTimeOffset_17"
+      "editedAt": "DateTimeOffset_19"
     }
   },
   {
@@ -334,26 +334,26 @@
         "name": "Full Data Table Guid_4",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_7"
+        "createdAt": "DateTimeOffset_8"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_18"
+          "joinedAt": "DateTimeOffset_20"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_19"
+          "joinedAt": "DateTimeOffset_21"
         },
         {
           "userId": "Guid_3",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_20"
+          "joinedAt": "DateTimeOffset_22"
         }
       ],
       "matches": [
@@ -361,7 +361,7 @@
           "id": "Guid_8",
           "country1": "Poland",
           "country2": "Spain",
-          "matchDateTime": "DateTimeOffset_11",
+          "matchDateTime": "DateTimeOffset_23",
           "result": null,
           "isStarted": false
         },
@@ -369,7 +369,7 @@
           "id": "Guid_9",
           "country1": "Germany",
           "country2": "France",
-          "matchDateTime": "DateTimeOffset_13",
+          "matchDateTime": "DateTimeOffset_24",
           "result": null,
           "isStarted": false
         }
@@ -380,21 +380,21 @@
           "userId": "Guid_1",
           "matchId": "Guid_8",
           "prediction": "1:0",
-          "editedAt": "DateTimeOffset_15"
+          "editedAt": "DateTimeOffset_25"
         },
         {
           "id": "Guid_11",
           "userId": "Guid_2",
           "matchId": "Guid_8",
           "prediction": "2:1",
-          "editedAt": "DateTimeOffset_16"
+          "editedAt": "DateTimeOffset_26"
         },
         {
           "id": "Guid_12",
           "userId": "Guid_3",
           "matchId": "Guid_9",
           "prediction": "X",
-          "editedAt": "DateTimeOffset_17"
+          "editedAt": "DateTimeOffset_27"
         }
       ],
       "leaderboard": [

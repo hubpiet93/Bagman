@@ -4,6 +4,7 @@ using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.Matches.CreateMatch;
 using Bagman.Application.Features.Matches.DeleteMatch;
+using Bagman.Application.Features.Matches.GetMatchesByEventType;
 using Bagman.Application.Features.Matches.SetMatchResult;
 using Bagman.Application.Features.Matches.UpdateMatch;
 using Bagman.Contracts.Models;
@@ -54,41 +55,65 @@ public class AdminMatchesController : AppControllerBase
     }
 
     /// <summary>
+    ///     Get matches for event type (SuperAdmin only)
+    /// </summary>
+    [HttpGet("event-types/{eventTypeId:guid}/matches")]
+    public async Task<IActionResult> GetMatchesByEventType(Guid eventTypeId)
+    {
+        var userId = GetUserId();
+
+        var query = new GetMatchesByEventTypeQuery
+        {
+            EventTypeId = eventTypeId,
+            UserId = userId
+        };
+
+        var result = await _dispatcher.HandleAsync<GetMatchesByEventTypeQuery, List<MatchListItemResult>>(query);
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        return Ok(result.Value.Select(m => m.ToMatchResponse()));
+    }
+
+    /// <summary>
     ///     Update match (SuperAdmin only)
     /// </summary>
-    [HttpPut("matches/{matchId:guid}")]
-    public async Task<IActionResult> UpdateMatch(Guid matchId, [FromBody] UpdateMatchRequest request)
+    [HttpPut("event-types/{eventTypeId:guid}/matches/{matchId:guid}")]
+    public async Task<IActionResult> UpdateMatch(Guid eventTypeId, Guid matchId, [FromBody] UpdateMatchRequest request)
     {
         var userId = GetUserId();
 
         var command = new UpdateMatchCommand
         {
             MatchId = matchId,
+            EventTypeId = eventTypeId,
             Country1 = request.Country1,
             Country2 = request.Country2,
             MatchDateTime = request.MatchDateTime,
             UserId = userId
         };
 
-        var result = await _dispatcher.HandleAsync<UpdateMatchCommand, Success>(command);
+        var result = await _dispatcher.HandleAsync<UpdateMatchCommand, UpdateMatchResult>(command);
 
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new SuccessResponse("Mecz został zaktualizowany"));
+        return Ok(result.Value.ToMatchResponse());
     }
 
     /// <summary>
     ///     Delete match (SuperAdmin only)
     /// </summary>
-    [HttpDelete("matches/{matchId:guid}")]
-    public async Task<IActionResult> DeleteMatch(Guid matchId)
+    [HttpDelete("event-types/{eventTypeId:guid}/matches/{matchId:guid}")]
+    public async Task<IActionResult> DeleteMatch(Guid eventTypeId, Guid matchId)
     {
         var userId = GetUserId();
 
         var command = new DeleteMatchCommand
         {
             MatchId = matchId,
+            EventTypeId = eventTypeId,
             UserId = userId
         };
 
@@ -103,7 +128,7 @@ public class AdminMatchesController : AppControllerBase
     /// <summary>
     ///     Set match result (SuperAdmin only)
     /// </summary>
-    [HttpPost("matches/{matchId:guid}/result")]
+    [HttpPut("matches/{matchId:guid}/result")]
     public async Task<IActionResult> SetMatchResult(Guid matchId, [FromBody] SetMatchResultRequest request)
     {
         var userId = GetUserId();
@@ -115,12 +140,12 @@ public class AdminMatchesController : AppControllerBase
             UserId = userId
         };
 
-        var result = await _dispatcher.HandleAsync<SetMatchResultCommand, Success>(command);
+        var result = await _dispatcher.HandleAsync<SetMatchResultCommand, SetMatchResultResult>(command);
 
         if (result.IsError)
             return MapErrors(result.Errors);
 
-        return Ok(new SuccessResponse("Wynik meczu został ustawiony"));
+        return Ok(result.Value);
     }
 
     private Guid GetUserId()

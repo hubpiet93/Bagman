@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Register_WithInvalidEmail_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.AuthControllerTests.Register_WithInvalidEmail_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

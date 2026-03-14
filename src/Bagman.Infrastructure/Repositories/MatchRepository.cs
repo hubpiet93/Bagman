@@ -30,4 +30,21 @@ public class MatchRepository : Repository<Match>, IMatchRepository
             return Error.Failure("Database.Error", ex.Message);
         }
     }
+
+    public async Task<ErrorOr<List<Match>>> GetByEventTypeIdAsync(Guid eventTypeId)
+    {
+        try
+        {
+            var matches = await Context.Matches
+                .Include(m => m.Bets)
+                .Where(m => m.EventTypeId == eventTypeId)
+                .OrderBy(m => m.MatchDateTime)
+                .ToListAsync();
+            return matches;
+        }
+        catch (Exception ex)
+        {
+            return Error.Failure("Database.Error", ex.Message);
+        }
+    }
 }

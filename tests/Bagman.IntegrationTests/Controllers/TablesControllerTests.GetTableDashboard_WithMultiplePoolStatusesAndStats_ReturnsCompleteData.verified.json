@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithMultiplePoolStatusesAndStats_ReturnsCompleteData"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithMultiplePoolStatusesAndStats_ReturnsCompleteData"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -99,7 +99,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_5",
+      "createdAt": "DateTimeOffset_6",
       "isSecretMode": false
     }
   },
@@ -118,12 +118,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_6",
+      "expiresAt": "DateTimeOffset_7",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_7",
+        "createdAt": "DateTimeOffset_8",
         "isActive": true
       }
     }
@@ -142,12 +142,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_8",
+      "expiresAt": "DateTimeOffset_9",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_7",
+        "createdAt": "DateTimeOffset_10",
         "isActive": true
       }
     }
@@ -162,7 +162,7 @@
     "RequestContent": {
       "Country1": "Pool Multi Team A1",
       "Country2": "Pool Multi Team B1",
-      "MatchDateTime": "DateTimeOffset_9"
+      "MatchDateTime": "DateTimeOffset_11"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -173,9 +173,9 @@
       "eventTypeId": "Guid_4",
       "country1": "Pool Multi Team A1",
       "country2": "Pool Multi Team B1",
-      "matchDateTime": "DateTimeOffset_9",
+      "matchDateTime": "DateTimeOffset_11",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_10"
+      "createdAt": "DateTimeOffset_12"
     }
   },
   {
@@ -194,20 +194,20 @@
         "name": "Multi Pool Status Table Guid_3",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_5"
+        "createdAt": "DateTimeOffset_6"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_5"
+          "joinedAt": "DateTimeOffset_6"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_11"
+          "joinedAt": "DateTimeOffset_13"
         }
       ],
       "matches": [
@@ -215,7 +215,7 @@
           "id": "Guid_8",
           "country1": "Pool Multi Team A2",
           "country2": "Pool Multi Team B2",
-          "matchDateTime": "DateTimeOffset_12",
+          "matchDateTime": "DateTimeOffset_14",
           "result": "2:1",
           "isStarted": true
         },
@@ -223,7 +223,7 @@
           "id": "Guid_9",
           "country1": "Pool Multi Team A3",
           "country2": "Pool Multi Team B3",
-          "matchDateTime": "DateTimeOffset_13",
+          "matchDateTime": "DateTimeOffset_15",
           "result": "0:0",
           "isStarted": true
         },
@@ -231,7 +231,7 @@
           "id": "Guid_10",
           "country1": "Pool Multi Team A4",
           "country2": "Pool Multi Team B4",
-          "matchDateTime": "DateTimeOffset_14",
+          "matchDateTime": "DateTimeOffset_16",
           "result": "1:2",
           "isStarted": true
         },
@@ -239,7 +239,7 @@
           "id": "Guid_7",
           "country1": "Pool Multi Team A1",
           "country2": "Pool Multi Team B1",
-          "matchDateTime": "DateTimeOffset_9",
+          "matchDateTime": "DateTimeOffset_17",
           "result": null,
           "isStarted": false
         }
@@ -247,30 +247,30 @@
       "pools": [
         {
           "id": "Guid_11",
-          "matchId": "Guid_9",
-          "amount": 100.0,
-          "status": "rollover"
-        },
-        {
-          "id": "Guid_12",
-          "matchId": "Guid_10",
-          "amount": 100.0,
-          "status": "expired"
-        },
-        {
-          "id": "Guid_13",
-          "matchId": "Guid_7",
-          "amount": 100.0,
-          "status": "active"
-        },
-        {
-          "id": "Guid_14",
           "matchId": "Guid_8",
           "amount": 100.0,
           "status": "won",
           "winners": [
             "Guid_1"
           ]
+        },
+        {
+          "id": "Guid_12",
+          "matchId": "Guid_7",
+          "amount": 100.0,
+          "status": "active"
+        },
+        {
+          "id": "Guid_13",
+          "matchId": "Guid_10",
+          "amount": 100.0,
+          "status": "expired"
+        },
+        {
+          "id": "Guid_14",
+          "matchId": "Guid_9",
+          "amount": 100.0,
+          "status": "rollover"
         }
       ],
       "stats": [

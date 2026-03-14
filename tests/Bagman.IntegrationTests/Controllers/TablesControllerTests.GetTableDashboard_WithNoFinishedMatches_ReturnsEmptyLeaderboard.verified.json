@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithNoFinishedMatches_ReturnsEmptyLeaderboard"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithNoFinishedMatches_ReturnsEmptyLeaderboard"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -99,7 +99,7 @@
         "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true
       }
     }
@@ -114,7 +114,7 @@
     "RequestContent": {
       "Country1": "Japan",
       "Country2": "Korea",
-      "MatchDateTime": "DateTimeOffset_7"
+      "MatchDateTime": "DateTimeOffset_8"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -125,9 +125,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Japan",
       "country2": "Korea",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_8",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_9"
     }
   },
   {
@@ -149,7 +149,7 @@
       "userId": "Guid_1",
       "matchId": "Guid_6",
       "prediction": "1:0",
-      "editedAt": "DateTimeOffset_9"
+      "editedAt": "DateTimeOffset_10"
     }
   },
   {
@@ -168,14 +168,14 @@
         "name": "Leaderboard Empty Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_3"
+        "createdAt": "DateTimeOffset_11"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_12"
         }
       ],
       "matches": [
@@ -183,7 +183,7 @@
           "id": "Guid_6",
           "country1": "Japan",
           "country2": "Korea",
-          "matchDateTime": "DateTimeOffset_7",
+          "matchDateTime": "DateTimeOffset_13",
           "result": null,
           "isStarted": false
         }
@@ -194,7 +194,7 @@
           "userId": "Guid_1",
           "matchId": "Guid_6",
           "prediction": "1:0",
-          "editedAt": "DateTimeOffset_9"
+          "editedAt": "DateTimeOffset_14"
         }
       ],
       "leaderboard": [

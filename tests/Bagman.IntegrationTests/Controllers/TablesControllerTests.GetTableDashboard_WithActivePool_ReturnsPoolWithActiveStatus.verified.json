@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithActivePool_ReturnsPoolWithActiveStatus"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithActivePool_ReturnsPoolWithActiveStatus"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -99,7 +99,7 @@
         "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true
       }
     }
@@ -114,7 +114,7 @@
     "RequestContent": {
       "Country1": "Poland",
       "Country2": "Spain",
-      "MatchDateTime": "DateTimeOffset_7"
+      "MatchDateTime": "DateTimeOffset_8"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -125,9 +125,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Poland",
       "country2": "Spain",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_8",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_9"
     }
   },
   {
@@ -153,7 +153,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_9"
+          "joinedAt": "DateTimeOffset_3"
         }
       ],
       "matches": [
@@ -161,7 +161,7 @@
           "id": "Guid_6",
           "country1": "Poland",
           "country2": "Spain",
-          "matchDateTime": "DateTimeOffset_7",
+          "matchDateTime": "DateTimeOffset_10",
           "result": null,
           "isStarted": false
         }

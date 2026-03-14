@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTableAuthorized_WhenAlreadyMember_ReturnsConflict"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.JoinTableAuthorized_WhenAlreadyMember_ReturnsConflict"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

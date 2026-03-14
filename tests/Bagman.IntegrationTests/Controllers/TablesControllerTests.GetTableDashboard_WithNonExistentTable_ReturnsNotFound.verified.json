@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithNonExistentTable_ReturnsNotFound"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithNonExistentTable_ReturnsNotFound"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

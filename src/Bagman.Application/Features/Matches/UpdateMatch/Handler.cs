@@ -8,13 +8,25 @@ namespace Bagman.Application.Features.Matches.UpdateMatch;
 public record UpdateMatchCommand
 {
     public required Guid MatchId { get; init; }
+    public required Guid EventTypeId { get; init; }
     public required string Country1 { get; init; }
     public required string Country2 { get; init; }
     public required DateTime MatchDateTime { get; init; }
     public required Guid UserId { get; init; }
 }
 
-public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, Success>
+public record UpdateMatchResult
+{
+    public required Guid Id { get; init; }
+    public required Guid EventTypeId { get; init; }
+    public required string Country1 { get; init; }
+    public required string Country2 { get; init; }
+    public required DateTime MatchDateTime { get; init; }
+    public required string Status { get; init; }
+    public required DateTime CreatedAt { get; init; }
+}
+
+public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, UpdateMatchResult>
 {
     private readonly IMatchRepository _matchRepository;
     private readonly IUserRepository _userRepository;
@@ -25,7 +37,7 @@ public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, Success>
         _userRepository = userRepository;
     }
 
-    public async Task<ErrorOr<Success>> HandleAsync(
+    public async Task<ErrorOr<UpdateMatchResult>> HandleAsync(
         UpdateMatchCommand request,
         CancellationToken cancellationToken = default)
     {
@@ -50,6 +62,10 @@ public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, Success>
 
         var match = matchResult.Value;
 
+        // Verify match belongs to the specified event type
+        if (match.EventTypeId != request.EventTypeId)
+            return Error.NotFound("Match.NotFound", "Mecz nie został znaleziony w tym typie wydarzenia");
+
         // Create value objects
         var country1Result = Country.Create(request.Country1);
         if (country1Result.IsError)
@@ -70,6 +86,15 @@ public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, Success>
         if (saveResult.IsError)
             return saveResult.Errors;
 
-        return Result.Success;
+        return new UpdateMatchResult
+        {
+            Id = match.Id,
+            EventTypeId = match.EventTypeId,
+            Country1 = match.Country1.Name,
+            Country2 = match.Country2.Name,
+            MatchDateTime = match.MatchDateTime,
+            Status = match.Status,
+            CreatedAt = match.CreatedAt
+        };
     }
 }

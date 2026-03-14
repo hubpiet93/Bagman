@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDetails_WithValidId_ReturnsOkWithTableAndMembers"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -96,13 +96,13 @@
       "name": "Details Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
-      "createdAt": "DateTimeOffset_3",
+      "createdAt": "DateTimeOffset_4",
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_5"
         }
       ]
     }

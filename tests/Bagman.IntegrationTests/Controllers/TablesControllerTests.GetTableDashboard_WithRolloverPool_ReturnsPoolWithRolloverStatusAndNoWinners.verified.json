@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithRolloverPool_ReturnsPoolWithRolloverStatusAndNoWinners"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithRolloverPool_ReturnsPoolWithRolloverStatusAndNoWinners"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -71,14 +71,14 @@
         "name": "Rollover Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_3"
+        "createdAt": "DateTimeOffset_4"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_5"
         }
       ],
       "matches": [
@@ -86,7 +86,7 @@
           "id": "Guid_5",
           "country1": "Italy",
           "country2": "Portugal",
-          "matchDateTime": "DateTimeOffset_4",
+          "matchDateTime": "DateTimeOffset_6",
           "result": "1:1",
           "isStarted": true
         }

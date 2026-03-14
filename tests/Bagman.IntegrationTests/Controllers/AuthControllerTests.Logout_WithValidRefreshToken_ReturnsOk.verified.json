@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Logout_WithValidRefreshToken_ReturnsOk"
+    "TestName": "Bagman.IntegrationTests.Controllers.AuthControllerTests.Logout_WithValidRefreshToken_ReturnsOk"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

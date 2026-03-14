@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetActiveEventTypes_WithoutAuthentication_ReturnsOkWithActiveEventTypes"
+    "TestName": "Bagman.IntegrationTests.Controllers.EventTypesControllerTests.GetActiveEventTypes_WithoutAuthentication_ReturnsOkWithActiveEventTypes"
   },
   {
     "RequestUri": "http://localhost/api/event-types",

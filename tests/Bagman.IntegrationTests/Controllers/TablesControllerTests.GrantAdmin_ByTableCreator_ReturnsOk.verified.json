@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GrantAdmin_ByTableCreator_ReturnsOk"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GrantAdmin_ByTableCreator_ReturnsOk"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -99,7 +99,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_5",
+      "createdAt": "DateTimeOffset_6",
       "isSecretMode": false
     }
   },

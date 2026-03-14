@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "UpdateEventType_AsSuperAdmin_ReturnsOkWithUpdatedEventType"
+    "TestName": "Bagman.IntegrationTests.Controllers.EventTypesControllerTests.UpdateEventType_AsSuperAdmin_ReturnsOkWithUpdatedEventType"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -46,7 +46,7 @@
         "id": "Guid_1",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_2",
+        "createdAt": "DateTimeOffset_4",
         "isActive": true
       }
     }
@@ -60,7 +60,7 @@
     },
     "RequestContent": {
       "Name": "Updated Test Event",
-      "StartDate": "DateTimeOffset_4"
+      "StartDate": "DateTimeOffset_5"
     },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
@@ -68,7 +68,7 @@
       "id": "Guid_2",
       "code": "TEST_DEFAULT",
       "name": "Updated Test Event",
-      "startDate": "DateTimeOffset_4",
+      "startDate": "DateTimeOffset_5",
       "isActive": true
     }
   }

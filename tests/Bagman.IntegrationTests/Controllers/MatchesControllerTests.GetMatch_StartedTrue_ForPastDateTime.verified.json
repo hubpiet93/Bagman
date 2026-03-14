@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetMatch_StartedTrue_ForPastDateTime"
+    "TestName": "Bagman.IntegrationTests.Controllers.MatchesControllerTests.GetMatch_StartedTrue_ForPastDateTime"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -99,7 +99,7 @@
         "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true
       }
     }
@@ -114,7 +114,7 @@
     "RequestContent": {
       "Country1": "France",
       "Country2": "Italy",
-      "MatchDateTime": "DateTimeOffset_7"
+      "MatchDateTime": "DateTimeOffset_8"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -125,9 +125,9 @@
       "eventTypeId": "Guid_3",
       "country1": "France",
       "country2": "Italy",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_8",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_9"
     }
   },
   {
@@ -145,11 +145,11 @@
       "eventTypeId": "Guid_3",
       "country1": "France",
       "country2": "Italy",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_10",
       "result": null,
       "status": "scheduled",
       "started": true,
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_11"
     }
   }
 ]

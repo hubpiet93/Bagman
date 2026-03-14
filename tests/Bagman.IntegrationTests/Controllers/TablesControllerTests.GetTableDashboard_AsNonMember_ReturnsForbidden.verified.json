@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_AsNonMember_ReturnsForbidden"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_AsNonMember_ReturnsForbidden"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

@@ -83,6 +83,16 @@ public class Match
 
     public ErrorOr<Success> SetResult(Score result)
     {
+        if (!Started)
+            return Error.Validation(
+                "Match.NotStarted",
+                "Nie można ustawić wyniku przed rozpoczęciem meczu");
+
+        if (Status == "finished")
+            return Error.Validation(
+                "Match.AlreadyFinished",
+                "Mecz jest już zakończony");
+
         Result = result;
         Status = "finished";
         return ErrorOr.Result.Success;

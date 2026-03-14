@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetUserTables_WithMultipleTables_ReturnsOkWithTableList"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetUserTables_WithMultipleTables_ReturnsOkWithTableList"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -100,7 +100,7 @@
         "maxPlayers": 10,
         "stake": 25.0,
         "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_3",
+        "createdAt": "DateTimeOffset_5",
         "isSecretMode": false
       },
       {
@@ -109,7 +109,7 @@
         "maxPlayers": 10,
         "stake": 25.0,
         "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_4",
+        "createdAt": "DateTimeOffset_6",
         "isSecretMode": false
       }
     ]

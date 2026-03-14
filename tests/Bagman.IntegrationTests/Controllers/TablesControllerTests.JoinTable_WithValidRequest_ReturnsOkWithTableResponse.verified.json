@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTable_WithValidRequest_ReturnsOkWithTableResponse"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.JoinTable_WithValidRequest_ReturnsOkWithTableResponse"
   },
   {
     "RequestUri": "http://localhost/api/tables",
@@ -49,7 +49,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_4",
-      "createdAt": "DateTimeOffset_1",
+      "createdAt": "DateTimeOffset_2",
       "isSecretMode": false
     }
   }

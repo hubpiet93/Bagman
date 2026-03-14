@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithExpiredPool_ReturnsPoolWithExpiredStatus"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithExpiredPool_ReturnsPoolWithExpiredStatus"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -71,14 +71,14 @@
         "name": "Expired Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_3"
+        "createdAt": "DateTimeOffset_4"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_4"
         }
       ],
       "matches": [
@@ -86,7 +86,7 @@
           "id": "Guid_5",
           "country1": "England",
           "country2": "Scotland",
-          "matchDateTime": "DateTimeOffset_4",
+          "matchDateTime": "DateTimeOffset_5",
           "result": null,
           "isStarted": true
         }

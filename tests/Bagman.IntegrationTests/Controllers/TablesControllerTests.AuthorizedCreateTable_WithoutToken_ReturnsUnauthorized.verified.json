@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "AuthorizedCreateTable_WithoutToken_ReturnsUnauthorized"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.AuthorizedCreateTable_WithoutToken_ReturnsUnauthorized"
   },
   {
     "RequestUri": "http://localhost/api/tables/create",

@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Register_WithDuplicateLogin_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.AuthControllerTests.Register_WithDuplicateLogin_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

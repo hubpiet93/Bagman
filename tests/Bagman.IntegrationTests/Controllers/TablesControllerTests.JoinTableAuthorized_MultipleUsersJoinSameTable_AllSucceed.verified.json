@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTableAuthorized_MultipleUsersJoinSameTable_AllSucceed"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.JoinTableAuthorized_MultipleUsersJoinSameTable_AllSucceed"
   },
   {
     "RequestUri": "http://localhost/api/tables",
@@ -201,7 +201,7 @@
           "userId": "Guid_4",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_1"
+          "joinedAt": "DateTimeOffset_11"
         },
         {
           "userId": "Guid_5",

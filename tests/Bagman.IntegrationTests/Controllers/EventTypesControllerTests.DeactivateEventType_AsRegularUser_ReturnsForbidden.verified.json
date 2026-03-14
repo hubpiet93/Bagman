@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "DeactivateEventType_AsRegularUser_ReturnsForbidden"
+    "TestName": "Bagman.IntegrationTests.Controllers.EventTypesControllerTests.DeactivateEventType_AsRegularUser_ReturnsForbidden"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

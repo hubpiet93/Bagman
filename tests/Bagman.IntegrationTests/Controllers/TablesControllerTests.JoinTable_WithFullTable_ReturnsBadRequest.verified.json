@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTable_WithFullTable_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.JoinTable_WithFullTable_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/tables",

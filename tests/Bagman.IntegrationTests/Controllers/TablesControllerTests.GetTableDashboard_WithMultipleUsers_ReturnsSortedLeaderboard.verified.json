@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "GetTableDashboard_WithMultipleUsers_ReturnsSortedLeaderboard"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithMultipleUsers_ReturnsSortedLeaderboard"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -124,7 +124,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_7",
+      "createdAt": "DateTimeOffset_8",
       "isSecretMode": false
     }
   },
@@ -147,7 +147,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_7",
+      "createdAt": "DateTimeOffset_8",
       "isSecretMode": false
     }
   },
@@ -166,12 +166,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_8",
+      "expiresAt": "DateTimeOffset_9",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_10",
         "isActive": true
       }
     }
@@ -190,12 +190,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_10",
+      "expiresAt": "DateTimeOffset_11",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_12",
         "isActive": true
       }
     }
@@ -210,7 +210,7 @@
     "RequestContent": {
       "Country1": "Brazil",
       "Country2": "Argentina",
-      "MatchDateTime": "DateTimeOffset_11"
+      "MatchDateTime": "DateTimeOffset_13"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},
@@ -236,7 +236,7 @@
     "RequestContent": {
       "Country1": "Chile",
       "Country2": "Uruguay",
-      "MatchDateTime": "DateTimeOffset_12"
+      "MatchDateTime": "DateTimeOffset_14"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},
@@ -376,14 +376,9 @@
     "RequestContent": {
       "Result": "2:1"
     },
-    "ResponseStatus": "NotFound 404",
+    "ResponseStatus": "MethodNotAllowed 405",
     "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
+    "ResponseContent": null
   },
   {
     "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
@@ -395,14 +390,9 @@
     "RequestContent": {
       "Result": "0:0"
     },
-    "ResponseStatus": "NotFound 404",
+    "ResponseStatus": "MethodNotAllowed 405",
     "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
+    "ResponseContent": null
   },
   {
     "RequestUri": "http://localhost/api/tables/Guid_6/dashboard",
@@ -420,26 +410,26 @@
         "name": "Leaderboard Multi Users Table Guid_4",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_7"
+        "createdAt": "DateTimeOffset_8"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_7"
+          "joinedAt": "DateTimeOffset_15"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_13"
+          "joinedAt": "DateTimeOffset_16"
         },
         {
           "userId": "Guid_3",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_14"
+          "joinedAt": "DateTimeOffset_17"
         }
       ]
     }

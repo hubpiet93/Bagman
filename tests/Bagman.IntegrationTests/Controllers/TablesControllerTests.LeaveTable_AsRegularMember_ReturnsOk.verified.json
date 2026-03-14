@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "LeaveTable_AsRegularMember_ReturnsOk"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.LeaveTable_AsRegularMember_ReturnsOk"
   },
   {
     "RequestUri": "http://localhost/api/tables",
@@ -74,7 +74,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_4",
-      "createdAt": "DateTimeOffset_1",
+      "createdAt": "DateTimeOffset_4",
       "isSecretMode": false
     }
   },

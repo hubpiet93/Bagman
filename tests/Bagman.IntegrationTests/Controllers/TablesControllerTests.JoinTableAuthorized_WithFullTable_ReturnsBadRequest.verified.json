@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTableAuthorized_WithFullTable_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.JoinTableAuthorized_WithFullTable_ReturnsBadRequest"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",

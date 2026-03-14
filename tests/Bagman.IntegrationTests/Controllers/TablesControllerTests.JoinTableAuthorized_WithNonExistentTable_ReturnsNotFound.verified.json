@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "JoinTableAuthorized_WithNonExistentTable_ReturnsNotFound"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.JoinTableAuthorized_WithNonExistentTable_ReturnsNotFound"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
