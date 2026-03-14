@@ -24,7 +24,7 @@ public static class MatchResultHelpers
         SetMatchResultRequest request,
         string? token = null) where T : class
     {
-        return client.PostAsync<T>($"/api/admin/matches/{matchId}/result", request, token);
+        return client.PutAsync<T>($"/api/admin/matches/{matchId}/result", request, token);
     }
 
     /// <summary>

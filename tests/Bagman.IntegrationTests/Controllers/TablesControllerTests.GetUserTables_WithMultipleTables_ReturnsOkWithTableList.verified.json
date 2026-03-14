@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -100,7 +101,7 @@
         "maxPlayers": 10,
         "stake": 25.0,
         "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_3",
         "isSecretMode": false
       },
       {
@@ -109,7 +110,7 @@
         "maxPlayers": 10,
         "stake": 25.0,
         "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_6",
+        "createdAt": "DateTimeOffset_4",
         "isSecretMode": false
       }
     ]

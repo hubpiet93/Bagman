@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -48,7 +49,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_4",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -73,7 +75,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_6",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -172,7 +175,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_10",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -196,7 +200,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_12",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": true
       }
     }
   },
@@ -369,30 +374,40 @@
   {
     "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
     "RequestOptions": {},
-    "RequestMethod": "POST",
+    "RequestMethod": "PUT",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Result": "2:1"
     },
-    "ResponseStatus": "MethodNotAllowed 405",
+    "ResponseStatus": "NotFound 404",
     "ResponseHeaders": {},
-    "ResponseContent": null
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
   },
   {
     "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
     "RequestOptions": {},
-    "RequestMethod": "POST",
+    "RequestMethod": "PUT",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Result": "0:0"
     },
-    "ResponseStatus": "MethodNotAllowed 405",
+    "ResponseStatus": "NotFound 404",
     "ResponseHeaders": {},
-    "ResponseContent": null
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
   },
   {
     "RequestUri": "http://localhost/api/tables/Guid_6/dashboard",

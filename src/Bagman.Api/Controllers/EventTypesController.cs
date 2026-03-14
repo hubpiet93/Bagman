@@ -3,6 +3,7 @@ using Bagman.Api.Controllers.Mappers;
 using Bagman.Application.Common;
 using Bagman.Application.Features.EventTypes.CreateEventType;
 using Bagman.Application.Features.EventTypes.DeactivateEventType;
+using Bagman.Application.Features.EventTypes.GetAllEventTypes;
 using Bagman.Application.Features.EventTypes.UpdateEventType;
 using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.EventTypes;
@@ -34,6 +35,24 @@ public class EventTypesController : AppControllerBase
     {
         var result = await _dispatcher.HandleAsync<ActiveGetEventTypesQuery, ActiveGetEventTypesResult>(
             new ActiveGetEventTypesQuery());
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        return Ok(result.Value.ToEventTypeListResponse());
+    }
+
+    /// <summary>
+    ///     Get all event types including inactive (SuperAdmin only)
+    /// </summary>
+    [HttpGet]
+    [Route("/api/admin/event-types")]
+    [Authorize]
+    [SuperAdminOnly]
+    public async Task<IActionResult> GetAllEventTypes()
+    {
+        var result = await _dispatcher.HandleAsync<GetAllEventTypesQuery, GetEventTypesResult>(
+            new GetAllEventTypesQuery());
 
         if (result.IsError)
             return MapErrors(result.Errors);

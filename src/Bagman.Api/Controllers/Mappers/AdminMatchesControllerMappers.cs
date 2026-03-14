@@ -30,7 +30,7 @@ public static class AdminMatchesControllerMappers
             Country1 = result.Country1,
             Country2 = result.Country2,
             MatchDateTime = result.MatchDateTime,
-            Result = null,
+            Result = result.Result,
             Status = result.Status,
             Started = DateTime.UtcNow >= result.MatchDateTime,
             CreatedAt = result.CreatedAt

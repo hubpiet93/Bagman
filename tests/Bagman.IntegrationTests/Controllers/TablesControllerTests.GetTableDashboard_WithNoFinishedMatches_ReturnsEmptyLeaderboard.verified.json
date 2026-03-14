@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -76,7 +77,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_5",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -100,7 +102,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_7",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": true
       }
     }
   },
@@ -168,14 +171,14 @@
         "name": "Leaderboard Empty Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_11"
+        "createdAt": "DateTimeOffset_3"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_12"
+          "joinedAt": "DateTimeOffset_3"
         }
       ],
       "matches": [
@@ -183,7 +186,7 @@
           "id": "Guid_6",
           "country1": "Japan",
           "country2": "Korea",
-          "matchDateTime": "DateTimeOffset_13",
+          "matchDateTime": "DateTimeOffset_11",
           "result": null,
           "isStarted": false
         }
@@ -194,7 +197,7 @@
           "userId": "Guid_1",
           "matchId": "Guid_6",
           "prediction": "1:0",
-          "editedAt": "DateTimeOffset_14"
+          "editedAt": "DateTimeOffset_12"
         }
       ],
       "leaderboard": [

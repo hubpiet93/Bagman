@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -76,7 +77,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_5",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -100,7 +102,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_7",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": true
       }
     }
   },
@@ -152,16 +155,21 @@
   {
     "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
     "RequestOptions": {},
-    "RequestMethod": "POST",
+    "RequestMethod": "PUT",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
       "Result": "1:1"
     },
-    "ResponseStatus": "MethodNotAllowed 405",
+    "ResponseStatus": "NotFound 404",
     "ResponseHeaders": {},
-    "ResponseContent": null
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
   },
   {
     "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
@@ -179,14 +187,14 @@
         "name": "Leaderboard Draw Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_3"
+        "createdAt": "DateTimeOffset_9"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_10"
         }
       ]
     }

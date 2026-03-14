@@ -15,11 +15,17 @@
     - [POST /api/auth/logout](#post-apiauthlogout)
 2. [EventTypesController](#eventtypescontroller)
     - [GET /api/event-types](#get-apievent-types)
+    - [GET /api/admin/event-types](#get-apiadminevent-types)
     - [POST /api/admin/event-types](#post-apiadminevent-types)
     - [PUT /api/admin/event-types/{id}](#put-apiadminevent-typesid)
     - [POST /api/admin/event-types/{id}/deactivate](#post-apiadminevent-typesiddeactivate)
+3. [AdminMatchesController](#adminmatchescontroller)
+    - [GET /api/admin/event-types/{eventTypeId}/matches](#get-apiadminevent-typeseventtypeidmatches)
     - [POST /api/admin/event-types/{eventTypeId}/matches](#post-apiadminevent-typeseventtypeidmatches)
-3. [TablesController](#tablescontroller)
+    - [PUT /api/admin/event-types/{eventTypeId}/matches/{matchId}](#put-apiadminevent-typeseventtypeidmatchesmatchid)
+    - [DELETE /api/admin/event-types/{eventTypeId}/matches/{matchId}](#delete-apiadminevent-typeseventtypeidmatchesmatchid)
+    - [PUT /api/admin/matches/{matchId}/result](#put-apiadminmatchesmatchidresult)
+4. [TablesController](#tablescontroller)
     - [POST /api/tables](#post-apitables)
     - [POST /api/tables/create](#post-apitablescreate)
     - [POST /api/tables/join](#post-apitablesjoin)
@@ -30,19 +36,20 @@
     - [DELETE /api/tables/{tableId}/members](#delete-apitablestableidmembers)
     - [POST /api/tables/{tableId}/admins](#post-apitablestableidadmins)
     - [DELETE /api/tables/{tableId}/admins/{userId}](#delete-apitablestableidadminsuserid)
-4. [MatchesController](#matchescontroller)
+5. [MatchesController](#matchescontroller)
     - [GET /api/tables/{tableId}/matches/{matchId}](#get-apitablestableidmatchesmatchid)
-5. [BetsController](#betscontroller)
+6. [BetsController](#betscontroller)
     - [POST /api/tables/{tableId}/matches/{matchId}/bets](#post-apitablestableidmatchesmatchidbets)
     - [GET /api/tables/{tableId}/matches/{matchId}/bets/my](#get-apitablestableidmatchesmatchidbetsmy)
     - [DELETE /api/tables/{tableId}/matches/{matchId}/bets](#delete-apitablestableidmatchesmatchidbets)
-6. [Typy modeli](#typy-modeli)
+7. [Typy modeli](#typy-modeli)
     - [Auth](#auth--modele)
     - [EventTypes](#eventtypes--modele)
+    - [AdminMatches](#adminmatches--modele)
     - [Tables](#tables--modele)
     - [Matches](#matches--modele)
     - [Bets](#bets--modele)
-7. [Błędy i kody statusu](#błędy-i-kody-statusu)
+8. [Błędy i kody statusu](#błędy-i-kody-statusu)
     - [Walidacja 400 – RFC 9110](#walidacja-400--rfc-9110)
     - [Błędy domenowe (tablice `errors`)](#błędy-domenowe-tablice-errors)
     - [401 Unauthorized](#401-unauthorized)
@@ -108,12 +115,13 @@ Content-Type: application/json
     "login": "{Scrubbed}",
     "email": "{Scrubbed}",
     "createdAt": "DateTimeOffset_2",
-    "isActive": true
+    "isActive": true,
+    "isSuperAdmin": false
   }
 }
 ```
 
-#### Odpowiedź 400 BadRequest – niepoprawny email
+#### Odpowiedź 400 – nieprawidłowy email
 
 ```json
 {
@@ -127,7 +135,7 @@ Content-Type: application/json
 }
 ```
 
-#### Odpowiedź 400 BadRequest – słabe hasło
+#### Odpowiedź 400 – słabe hasło
 
 ```json
 {
@@ -146,7 +154,7 @@ Content-Type: application/json
 }
 ```
 
-#### Odpowiedź 400 BadRequest – duplikat loginu
+#### Odpowiedź 400 – login już istnieje
 
 ```json
 {
@@ -165,14 +173,16 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `200 OK` – poprawna rejestracja
-- `400 BadRequest` – błędy walidacyjne lub duplikat użytkownika
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Rejestracja zakończona sukcesem |
+| `400 Bad Request` | Błąd walidacji lub login już zajęty |
 
 ---
 
 ### POST /api/auth/login
 
-Logowanie użytkownika i zwrócenie tokenów.
+Logowanie użytkownika i zwrócenie tokenów uwierzytelniających.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/auth/login`
@@ -194,14 +204,12 @@ POST /api/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "Login": "loginuser",
+  "Login": "testuser",
   "Password": "Test@12345"
 }
 ```
 
 #### Odpowiedź 200 OK
-
-Struktura taka jak w `/api/auth/register`:
 
 ```json
 {
@@ -212,13 +220,14 @@ Struktura taka jak w `/api/auth/register`:
     "id": "Guid_1",
     "login": "{Scrubbed}",
     "email": "{Scrubbed}",
-    "createdAt": "DateTimeOffset_2",
-    "isActive": true
+    "createdAt": "DateTimeOffset_4",
+    "isActive": true,
+    "isSuperAdmin": false
   }
 }
 ```
 
-#### Odpowiedź 400 BadRequest – błędne dane logowania
+#### Odpowiedź 400 – nieprawidłowe dane logowania
 
 ```json
 {
@@ -235,20 +244,24 @@ Struktura taka jak w `/api/auth/register`:
 }
 ```
 
+> Ta sama odpowiedź jest zwracana zarówno gdy hasło jest nieprawidłowe, jak i gdy użytkownik nie istnieje (ze względów bezpieczeństwa).
+
 #### Kody statusu
 
-- `200 OK` – poprawne logowanie
-- `400 BadRequest` – błędne dane logowania
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Logowanie zakończone sukcesem |
+| `400 Bad Request` | Nieprawidłowy login lub hasło |
 
 ---
 
 ### POST /api/auth/refresh
 
-Odświeżenie tokenów na podstawie ważnego refresh tokena.
+Odświeżenie tokenów dostępu przy użyciu ważnego refresh tokena.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/auth/refresh`
-- **Autoryzacja:** niewymagana (refresh token w body)
+- **Autoryzacja:** niewymagana
 
 #### Body (request)
 
@@ -275,18 +288,19 @@ Content-Type: application/json
 {
   "accessToken": "{Scrubbed}",
   "refreshToken": "{Scrubbed}",
-  "expiresAt": "DateTimeOffset_4",
+  "expiresAt": "DateTimeOffset_3",
   "user": {
     "id": "Guid_1",
     "login": "{Scrubbed}",
     "email": "{Scrubbed}",
-    "createdAt": "DateTimeOffset_2",
-    "isActive": true
+    "createdAt": "DateTimeOffset_4",
+    "isActive": true,
+    "isSuperAdmin": false
   }
 }
 ```
 
-#### Odpowiedź 400 BadRequest – refresh token nie istnieje
+#### Odpowiedź 400 – nieważny refresh token
 
 ```json
 {
@@ -305,18 +319,20 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `200 OK` – poprawne odświeżenie
-- `400 BadRequest` – błędny/nieistniejący refresh token
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Tokeny odświeżone pomyślnie |
+| `400 Bad Request` | Refresh token nieważny lub nieznany |
 
 ---
 
 ### POST /api/auth/logout
 
-Wylogowanie na podstawie refresh tokena.
+Wylogowanie użytkownika – unieważnienie refresh tokena.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/auth/logout`
-- **Autoryzacja:** niewymagana (refresh token w body)
+- **Autoryzacja:** niewymagana
 
 #### Body (request)
 
@@ -345,7 +361,7 @@ Content-Type: application/json
 }
 ```
 
-#### Odpowiedź 400 BadRequest – nieprawidłowy refresh token
+#### Odpowiedź 400 – nieważny refresh token
 
 ```json
 {
@@ -364,8 +380,10 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `200 OK` – wylogowanie zakończone powodzeniem
-- `400 BadRequest` – nieprawidłowy refresh token
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Wylogowanie zakończone sukcesem |
+| `400 Bad Request` | Refresh token nieznany |
 
 ---
 
@@ -373,7 +391,7 @@ Content-Type: application/json
 
 ### GET /api/event-types
 
-Pobranie listy aktywnych typów wydarzeń. Endpoint publiczny.
+Pobiera listę aktywnych typów wydarzeń. Endpoint publiczny – nie wymaga autoryzacji.
 
 - **Metoda:** `GET`
 - **Ścieżka:** `/api/event-types`
@@ -403,24 +421,81 @@ GET /api/event-types HTTP/1.1
 
 #### Kody statusu
 
-- `200 OK` – lista typów wydarzeń
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Lista aktywnych typów wydarzeń |
+
+---
+
+### GET /api/admin/event-types
+
+[SuperAdminOnly] Pobiera listę wszystkich typów wydarzeń, włącznie z nieaktywnymi. Wymaga zalogowania jako SuperAdmin.
+
+- **Metoda:** `GET`
+- **Ścieżka:** `/api/admin/event-types`
+- **Autoryzacja:** Bearer token (SuperAdmin)
+
+#### Przykładowe żądanie
+
+```http
+GET /api/admin/event-types HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "eventTypes": [
+    {
+      "id": "Guid_3",
+      "code": "TEST_DEFAULT",
+      "name": "Default Test Event",
+      "startDate": "DateTimeOffset_6",
+      "isActive": false
+    },
+    {
+      "id": "Guid_2",
+      "code": "INACTIVE_FOR_ALL_TEST",
+      "name": "Inactive Event For All Test",
+      "startDate": "DateTimeOffset_7",
+      "isActive": true
+    }
+  ]
+}
+```
+
+#### Odpowiedź 401 – brak tokenu
+
+```json
+null
+```
+*(pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+#### Odpowiedź 403 – zwykły użytkownik
+
+```json
+null
+```
+*(pusta odpowiedź)*
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Lista wszystkich typów wydarzeń (w tym nieaktywnych) |
+| `401 Unauthorized` | Brak tokenu |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
 
 ---
 
 ### POST /api/admin/event-types
 
-Utworzenie nowego typu wydarzenia. Dostępne tylko dla SuperAdmin.
+[SuperAdminOnly] Tworzy nowy typ wydarzenia.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/admin/event-types`
-- **Autoryzacja:** wymagana (`Bearer` + rola SuperAdmin)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
+- **Autoryzacja:** Bearer token (SuperAdmin)
 
 #### Body (request)
 
@@ -442,71 +517,67 @@ Content-Type: application/json
 {
   "Code": "LIGA_MISTRZOW_2026",
   "Name": "Liga Mistrzów 2025/2026",
-  "StartDate": "2026-09-01T00:00:00Z"
+  "StartDate": "DateTimeOffset_5"
 }
 ```
 
 #### Odpowiedź 201 Created
-
-Nagłówki:
-- `Location: http://localhost/api/event-types?id=Guid_2`
 
 ```json
 {
   "id": "Guid_2",
   "code": "LIGA_MISTRZOW_2026",
   "name": "Liga Mistrzów 2025/2026",
-  "startDate": "DateTimeOffset_4",
+  "startDate": "DateTimeOffset_5",
   "isActive": true
 }
 ```
 
-#### Odpowiedź 403 Forbidden – brak roli SuperAdmin
+Nagłówek `Location`: `http://localhost/api/event-types?id=Guid_2`
+
+#### Odpowiedź 403 – zwykły użytkownik
 
 ```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.4",
-  "title": "Forbidden",
-  "status": 403,
-  "traceId": "{Scrubbed}"
-}
+null
 ```
+*(pusta odpowiedź)*
 
-#### Odpowiedź 409 Conflict – duplikat kodu
+#### Odpowiedź 409 – kod już istnieje
 
 ```json
 {
-  "code": "EventType.CodeExists",
-  "message": "Typ wydarzenia o podanym kodzie już istnieje"
+  "errors": [
+    {
+      "code": "EventType.CodeExists",
+      "description": "Kod wydarzenia już istnieje"
+    }
+  ]
 }
 ```
 
 #### Kody statusu
 
-- `201 Created` – typ wydarzenia utworzony
-- `403 Forbidden` – brak roli SuperAdmin
-- `409 Conflict` – duplikat kodu wydarzenia
+| Kod | Opis |
+|-----|------|
+| `201 Created` | Typ wydarzenia utworzony |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+| `409 Conflict` | Kod już istnieje |
 
 ---
 
 ### PUT /api/admin/event-types/{id}
 
-Aktualizacja typu wydarzenia. Dostępne tylko dla SuperAdmin.
+[SuperAdminOnly] Aktualizuje istniejący typ wydarzenia.
 
 - **Metoda:** `PUT`
 - **Ścieżka:** `/api/admin/event-types/{id}`
-- **Autoryzacja:** wymagana (`Bearer` + rola SuperAdmin)
+- **Autoryzacja:** Bearer token (SuperAdmin)
 
 #### Parametry ścieżki
 
-- `id` – identyfikator typu wydarzenia (GUID)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `id` | GUID | Identyfikator typu wydarzenia |
 
 #### Body (request)
 
@@ -526,7 +597,7 @@ Content-Type: application/json
 
 {
   "Name": "Updated Test Event",
-  "StartDate": "2026-10-01T00:00:00Z"
+  "StartDate": "DateTimeOffset_5"
 }
 ```
 
@@ -537,42 +608,42 @@ Content-Type: application/json
   "id": "Guid_2",
   "code": "TEST_DEFAULT",
   "name": "Updated Test Event",
-  "startDate": "DateTimeOffset_4",
+  "startDate": "DateTimeOffset_5",
   "isActive": true
 }
 ```
 
 #### Kody statusu
 
-- `200 OK` – typ wydarzenia zaktualizowany
-- `403 Forbidden` – brak roli SuperAdmin
-- `404 Not Found` – typ wydarzenia nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Typ wydarzenia zaktualizowany |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
 
 ---
 
 ### POST /api/admin/event-types/{id}/deactivate
 
-Dezaktywacja typu wydarzenia. Dostępne tylko dla SuperAdmin.
+[SuperAdminOnly] Dezaktywuje typ wydarzenia.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/admin/event-types/{id}/deactivate`
-- **Autoryzacja:** wymagana (`Bearer` + rola SuperAdmin)
+- **Autoryzacja:** Bearer token (SuperAdmin)
 
 #### Parametry ścieżki
 
-- `id` – identyfikator typu wydarzenia (GUID)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-```
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `id` | GUID | Identyfikator typu wydarzenia |
 
 #### Przykładowe żądanie
 
 ```http
 POST /api/admin/event-types/Guid_2/deactivate HTTP/1.1
 Authorization: Bearer {Scrubbed}
+Content-Type: application/json
+
+{}
 ```
 
 #### Odpowiedź 200 OK
@@ -583,43 +654,242 @@ Authorization: Bearer {Scrubbed}
 }
 ```
 
-#### Odpowiedź 403 Forbidden – brak roli SuperAdmin
+#### Odpowiedź 403 – zwykły użytkownik
+
+```json
+null
+```
+*(pusta odpowiedź)*
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Typ wydarzenia dezaktywowany |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+
+---
+
+## AdminMatchesController
+
+### GET /api/admin/event-types/{eventTypeId}/matches
+
+[SuperAdminOnly] Pobiera listę meczów dla danego typu wydarzenia. Odpowiedź zawiera pole `result` (wynik meczu lub `null`).
+
+- **Metoda:** `GET`
+- **Ścieżka:** `/api/admin/event-types/{eventTypeId}/matches`
+- **Autoryzacja:** Bearer token (SuperAdmin)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `eventTypeId` | GUID | Identyfikator typu wydarzenia |
+
+#### Przykładowe żądanie
+
+```http
+GET /api/admin/event-types/Guid_2/matches HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK – mecz bez wyniku
+
+```json
+[
+  {
+    "id": "Guid_3",
+    "eventTypeId": "Guid_2",
+    "country1": "Spain",
+    "country2": "Portugal",
+    "matchDateTime": "DateTimeOffset_7",
+    "result": null,
+    "status": "scheduled",
+    "started": false,
+    "createdAt": "DateTimeOffset_8"
+  }
+]
+```
+
+#### Odpowiedź 200 OK – mecz z wynikiem (finished)
+
+```json
+[
+  {
+    "id": "Guid_3",
+    "eventTypeId": "Guid_2",
+    "country1": "Brazil",
+    "country2": "Argentina",
+    "matchDateTime": "DateTimeOffset_5",
+    "result": "3:0",
+    "status": "finished",
+    "started": true,
+    "createdAt": "DateTimeOffset_6"
+  }
+]
+```
+
+#### Odpowiedź 200 OK – mieszana lista (z wynikiem i bez)
+
+```json
+[
+  {
+    "id": "Guid_4",
+    "eventTypeId": "Guid_2",
+    "country1": "France",
+    "country2": "Germany",
+    "matchDateTime": "DateTimeOffset_6",
+    "result": "2:1",
+    "status": "finished",
+    "started": true,
+    "createdAt": "DateTimeOffset_7"
+  },
+  {
+    "id": "Guid_3",
+    "eventTypeId": "Guid_2",
+    "country1": "Brazil",
+    "country2": "Argentina",
+    "matchDateTime": "DateTimeOffset_8",
+    "result": null,
+    "status": "scheduled",
+    "started": false,
+    "createdAt": "DateTimeOffset_9"
+  }
+]
+```
+
+#### Odpowiedź 403 – zwykły użytkownik
+
+```json
+null
+```
+*(pusta odpowiedź)*
+
+#### Odpowiedź 404 – typ wydarzenia nie istnieje
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.4",
-  "title": "Forbidden",
-  "status": 403,
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
   "traceId": "{Scrubbed}"
 }
 ```
 
 #### Kody statusu
 
-- `200 OK` – typ wydarzenia dezaktywowany
-- `403 Forbidden` – brak roli SuperAdmin
-- `404 Not Found` – typ wydarzenia nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Lista meczów (może być pusta) |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+| `404 Not Found` | Typ wydarzenia nie istnieje |
 
 ---
 
 ### POST /api/admin/event-types/{eventTypeId}/matches
 
-Utworzenie meczu w ramach typu wydarzenia. Dostępne tylko dla SuperAdmin.
+[SuperAdminOnly] Tworzy nowy mecz w ramach danego typu wydarzenia.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/admin/event-types/{eventTypeId}/matches`
-- **Autoryzacja:** wymagana (`Bearer` + rola SuperAdmin)
+- **Autoryzacja:** Bearer token (SuperAdmin)
 
 #### Parametry ścieżki
 
-- `eventTypeId` – identyfikator typu wydarzenia (GUID)
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `eventTypeId` | GUID | Identyfikator typu wydarzenia |
 
-#### Nagłówki
+#### Body (request)
+
+```json
+{
+  "Country1": "string",
+  "Country2": "string",
+  "MatchDateTime": "DateTimeOffset"
+}
+```
+
+Walidacje obserwowane w snapshotach:
+- `MatchDateTime`: musi być w przyszłości (`"Data meczu musi być w przyszłości"`)
+
+#### Przykładowe żądanie
 
 ```http
-Authorization: Bearer {accessToken}
+POST /api/admin/event-types/Guid_2/matches HTTP/1.1
+Authorization: Bearer {Scrubbed}
 Content-Type: application/json
+
+{
+  "Country1": "France",
+  "Country2": "Germany",
+  "MatchDateTime": "DateTimeOffset_5"
+}
 ```
+
+#### Odpowiedź 201 Created
+
+```json
+{
+  "id": "Guid_3",
+  "eventTypeId": "Guid_2",
+  "country1": "France",
+  "country2": "Germany",
+  "matchDateTime": "DateTimeOffset_5",
+  "status": "scheduled",
+  "createdAt": "DateTimeOffset_6"
+}
+```
+
+Nagłówek `Location`: `/api/admin/event-types/Guid_2/matches/Guid_3`
+
+#### Odpowiedź 400 – data meczu w przeszłości
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "MatchDateTime": [
+      "Data meczu musi być w przyszłości"
+    ]
+  },
+  "traceId": "{Scrubbed}"
+}
+```
+
+#### Odpowiedź 403 – zwykły użytkownik
+
+```json
+null
+```
+*(pusta odpowiedź)*
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `201 Created` | Mecz utworzony |
+| `400 Bad Request` | Błąd walidacji (np. data w przeszłości) |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+
+---
+
+### PUT /api/admin/event-types/{eventTypeId}/matches/{matchId}
+
+[SuperAdminOnly] Aktualizuje dane meczu. Nie można edytować meczu, który już się rozpoczął.
+
+- **Metoda:** `PUT`
+- **Ścieżka:** `/api/admin/event-types/{eventTypeId}/matches/{matchId}`
+- **Autoryzacja:** Bearer token (SuperAdmin)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `eventTypeId` | GUID | Identyfikator typu wydarzenia |
+| `matchId` | GUID | Identyfikator meczu |
 
 #### Body (request)
 
@@ -634,40 +904,223 @@ Content-Type: application/json
 #### Przykładowe żądanie
 
 ```http
-POST /api/admin/event-types/Guid_5/matches HTTP/1.1
+PUT /api/admin/event-types/Guid_2/matches/Guid_3 HTTP/1.1
 Authorization: Bearer {Scrubbed}
 Content-Type: application/json
 
 {
   "Country1": "Poland",
-  "Country2": "Spain",
-  "MatchDateTime": "2026-06-01T18:00:00Z"
+  "Country2": "Czech Republic",
+  "MatchDateTime": "DateTimeOffset_6"
 }
 ```
 
-#### Odpowiedź 201 Created
-
-Nagłówki:
-- `Location: /api/admin/event-types/Guid_5/matches/Guid_8`
+#### Odpowiedź 200 OK
 
 ```json
 {
-  "id": "Guid_8",
-  "eventTypeId": "Guid_5",
+  "id": "Guid_3",
+  "eventTypeId": "Guid_2",
   "country1": "Poland",
-  "country2": "Spain",
-  "matchDateTime": "DateTimeOffset_11",
+  "country2": "Czech Republic",
+  "matchDateTime": "DateTimeOffset_6",
+  "result": null,
   "status": "scheduled",
-  "createdAt": "DateTimeOffset_12"
+  "started": false,
+  "createdAt": "DateTimeOffset_7"
+}
+```
+
+#### Odpowiedź 400 – mecz już się rozpoczął
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "traceId": "{Scrubbed}",
+  "errors": [
+    {
+      "errorCode": "Match.AlreadyStarted",
+      "description": "Nie można edytować meczu, który już się rozpoczął"
+    }
+  ]
 }
 ```
 
 #### Kody statusu
 
-- `201 Created` – mecz utworzony
-- `400 BadRequest` – błędy walidacyjne
-- `403 Forbidden` – brak roli SuperAdmin
-- `404 Not Found` – typ wydarzenia nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Mecz zaktualizowany |
+| `400 Bad Request` | Mecz już się rozpoczął |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+
+---
+
+### DELETE /api/admin/event-types/{eventTypeId}/matches/{matchId}
+
+[SuperAdminOnly] Usuwa mecz. Nie można usunąć meczu, który już się rozpoczął.
+
+- **Metoda:** `DELETE`
+- **Ścieżka:** `/api/admin/event-types/{eventTypeId}/matches/{matchId}`
+- **Autoryzacja:** Bearer token (SuperAdmin)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `eventTypeId` | GUID | Identyfikator typu wydarzenia |
+| `matchId` | GUID | Identyfikator meczu |
+
+#### Przykładowe żądanie
+
+```http
+DELETE /api/admin/event-types/Guid_2/matches/Guid_3 HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "message": "Mecz został usunięty"
+}
+```
+
+#### Odpowiedź 400 – mecz już się rozpoczął
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "traceId": "{Scrubbed}",
+  "errors": [
+    {
+      "errorCode": "Match.AlreadyStarted",
+      "description": "Nie można usunąć meczu, który już się rozpoczął"
+    }
+  ]
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Mecz usunięty |
+| `400 Bad Request` | Mecz już się rozpoczął |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+
+---
+
+### PUT /api/admin/matches/{matchId}/result
+
+[SuperAdminOnly] Ustawia wynik meczu. Mecz musi być już rozpoczęty (data w przeszłości).
+
+- **Metoda:** `PUT`
+- **Ścieżka:** `/api/admin/matches/{matchId}/result`
+- **Autoryzacja:** Bearer token (SuperAdmin)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `matchId` | GUID | Identyfikator meczu |
+
+#### Body (request)
+
+```json
+{
+  "Result": "string"
+}
+```
+
+Format wyniku: `"X:Y"` gdzie X i Y to liczby całkowite (np. `"2:1"`).
+
+#### Przykładowe żądanie
+
+```http
+PUT /api/admin/matches/Guid_2/result HTTP/1.1
+Authorization: Bearer {Scrubbed}
+Content-Type: application/json
+
+{
+  "Result": "2:1"
+}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "id": "Guid_2",
+  "result": "2:1",
+  "status": "finished"
+}
+```
+
+#### Odpowiedź 400 – nieprawidłowy format wyniku
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "traceId": "{Scrubbed}",
+  "errors": [
+    {
+      "errorCode": "Score.InvalidFormat",
+      "description": "Score must be in format '2:1'"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 400 – mecz jeszcze się nie rozpoczął
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "traceId": "{Scrubbed}",
+  "errors": [
+    {
+      "errorCode": "Match.NotStarted",
+      "description": "Nie można ustawić wyniku przed rozpoczęciem meczu"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 403 – zwykły użytkownik
+
+```json
+null
+```
+*(pusta odpowiedź)*
+
+#### Odpowiedź 404 – mecz nie istnieje
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "traceId": "{Scrubbed}"
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Wynik ustawiony, mecz ma status `finished` |
+| `400 Bad Request` | Nieprawidłowy format lub mecz nie rozpoczęty |
+| `403 Forbidden` | Użytkownik nie jest SuperAdminem |
+| `404 Not Found` | Mecz nie istnieje |
 
 ---
 
@@ -675,11 +1128,11 @@ Nagłówki:
 
 ### POST /api/tables
 
-Tworzenie nowego stołu do typowania meczów. Endpoint równocześnie rejestruje/loguje użytkownika–twórcę stołu.
+Tworzy nowy stół i automatycznie dołącza użytkownika do niego. To jest **starszy endpoint** (legacy) – przyjmuje dane logowania w ciele żądania. Nowym odpowiednikiem jest `POST /api/tables/create`.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/tables`
-- **Autoryzacja:** niewymagana (login/hasło w body)
+- **Autoryzacja:** niewymagana (dane logowania w body)
 
 #### Body (request)
 
@@ -689,31 +1142,26 @@ Tworzenie nowego stołu do typowania meczów. Endpoint równocześnie rejestruje
   "UserPassword": "string",
   "TableName": "string",
   "TablePassword": "string",
-  "MaxPlayers": 10,
-  "Stake": 50.0,
-  "EventTypeId": "Guid"
+  "MaxPlayers": "integer",
+  "Stake": "decimal",
+  "EventTypeId": "GUID"
 }
 ```
 
-Walidacje zaobserwowane:
+Walidacje:
+- `TableName`: wymagana (błąd: `"Nazwa stołu jest wymagana"`)
+- `Stake`: nie może być ujemna (błąd: `"Stawka nie może być ujemna"`)
 
-- `TableName`:
-    - nie może być pusty (`""`)
-- `Stake`:
-    - nie może być ujemny
-- `EventTypeId`:
-    - musi wskazywać na istniejący typ wydarzenia
-
-#### Przykładowe żądanie – poprawne
+#### Przykładowe żądanie
 
 ```http
 POST /api/tables HTTP/1.1
 Content-Type: application/json
 
 {
-  "UserLogin": "creator_user_1234abcd",
+  "UserLogin": "{Scrubbed}",
   "UserPassword": "Creator@12345",
-  "TableName": "Test Betting Table",
+  "TableName": "Test Betting Table Guid_1",
   "TablePassword": "TablePass@123",
   "MaxPlayers": 10,
   "Stake": 50.0,
@@ -723,22 +1171,21 @@ Content-Type: application/json
 
 #### Odpowiedź 201 Created
 
-Nagłówki:
-- `Location: http://localhost/api/Tables/Guid_3`
-
 ```json
 {
   "id": "Guid_3",
-  "name": "Test Betting Table",
+  "name": "Test Betting Table Guid_1",
   "maxPlayers": 10,
   "stake": 50.0,
-  "createdBy": "Guid_1",
+  "createdBy": "Guid_4",
   "createdAt": "DateTimeOffset_1",
   "isSecretMode": false
 }
 ```
 
-#### Odpowiedź 400 BadRequest – pusta nazwa stołu
+Nagłówek `Location`: `http://localhost/api/Tables/Guid_3`
+
+#### Odpowiedź 400 – brak nazwy stołu
 
 ```json
 {
@@ -754,7 +1201,7 @@ Nagłówki:
 }
 ```
 
-#### Odpowiedź 400 BadRequest – ujemna stawka
+#### Odpowiedź 400 – ujemna stawka
 
 ```json
 {
@@ -772,25 +1219,20 @@ Nagłówki:
 
 #### Kody statusu
 
-- `201 Created` – stół utworzony
-- `400 BadRequest` – błędy walidacyjne
+| Kod | Opis |
+|-----|------|
+| `201 Created` | Stół utworzony |
+| `400 Bad Request` | Błąd walidacji |
 
 ---
 
 ### POST /api/tables/create
 
-Tworzenie nowego stołu przez zalogowanego użytkownika.
+Tworzy nowy stół dla zalogowanego użytkownika. Nowy endpoint wymagający Bearer tokena.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/tables/create`
-- **Autoryzacja:** wymagana (`Bearer`)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Body (request)
 
@@ -798,19 +1240,13 @@ Content-Type: application/json
 {
   "TableName": "string",
   "TablePassword": "string",
-  "MaxPlayers": 10,
-  "Stake": 50.0,
-  "EventTypeId": "Guid"
+  "MaxPlayers": "integer",
+  "Stake": "decimal",
+  "EventTypeId": "GUID"
 }
 ```
 
-Walidacje:
-- `TableName`: nie może być pusty, maksymalnie 100 znaków
-- `TablePassword`: wymagane, maksymalnie 255 znaków
-- `MaxPlayers`: > 0 i ≤ 1000
-- `Stake`: ≥ 0
-
-#### Przykładowe żądanie – poprawne
+#### Przykładowe żądanie
 
 ```http
 POST /api/tables/create HTTP/1.1
@@ -818,11 +1254,11 @@ Authorization: Bearer {Scrubbed}
 Content-Type: application/json
 
 {
-  "TableName": "Authorized Table Guid_1",
+  "TableName": "Authorized Table Guid_2",
   "TablePassword": "AuthTablePass@123",
   "MaxPlayers": 10,
   "Stake": 25.0,
-  "EventTypeId": "Guid_2"
+  "EventTypeId": "Guid_3"
 }
 ```
 
@@ -830,28 +1266,42 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "Guid_3",
-  "name": "Authorized Table Guid_1",
+  "id": "Guid_4",
+  "name": "Authorized Table Guid_2",
   "maxPlayers": 10,
   "stake": 25.0,
   "createdBy": "Guid_1",
-  "createdAt": "DateTimeOffset_1",
+  "createdAt": "DateTimeOffset_3",
   "isSecretMode": false
 }
 ```
 
-#### Odpowiedź 401 Unauthorized – brak lub nieważny token
+Nagłówek `Location`: `http://localhost/api/Tables/Guid_4`
+
+#### Odpowiedź 400 – brak nazwy stołu
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Unauthorized",
-  "status": 401,
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "TableName": [
+      "Nazwa stołu jest wymagana"
+    ]
+  },
   "traceId": "{Scrubbed}"
 }
 ```
 
-#### Odpowiedź 409 Conflict – duplikat nazwy stołu
+#### Odpowiedź 401 – brak tokenu
+
+```json
+null
+```
+*(pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+#### Odpowiedź 409 – nazwa stołu już istnieje
 
 ```json
 {
@@ -862,20 +1312,22 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `201 Created` – stół utworzony
-- `401 Unauthorized` – brak/niepoprawny token
-- `409 Conflict` – duplikat nazwy stołu
-- `400 BadRequest` – błędy walidacyjne
+| Kod | Opis |
+|-----|------|
+| `201 Created` | Stół utworzony |
+| `400 Bad Request` | Błąd walidacji |
+| `401 Unauthorized` | Brak tokenu |
+| `409 Conflict` | Nazwa stołu już istnieje |
 
 ---
 
 ### POST /api/tables/join
 
-Dołączenie do istniejącego stołu. Endpoint równocześnie loguje użytkownika.
+Dołącza użytkownika do istniejącego stołu. To jest **starszy endpoint** (legacy) – przyjmuje dane logowania w ciele żądania. Nowym odpowiednikiem jest `POST /api/tables/{tableId}/join`.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/tables/join`
-- **Autoryzacja:** niewymagana (login/hasło w body)
+- **Autoryzacja:** niewymagana (dane logowania w body)
 
 #### Body (request)
 
@@ -888,35 +1340,35 @@ Dołączenie do istniejącego stołu. Endpoint równocześnie loguje użytkownik
 }
 ```
 
-#### Przykładowe żądanie – poprawne
+#### Przykładowe żądanie
 
 ```http
 POST /api/tables/join HTTP/1.1
 Content-Type: application/json
 
 {
-  "UserLogin": "joiner_1234abcd",
+  "UserLogin": "{Scrubbed}",
   "UserPassword": "Joiner@12345",
   "TableName": "Joinable Table Guid_1",
-  "TablePassword": "JoinPass@123"
+  "TablePassword": "TablePass@123"
 }
 ```
 
-#### Odpowiedź 200 OK – poprawne dołączenie
+#### Odpowiedź 200 OK
 
 ```json
 {
-  "id": "Guid_2",
+  "id": "Guid_3",
   "name": "Joinable Table Guid_1",
-  "maxPlayers": 5,
-  "stake": 100.0,
-  "createdBy": "Guid_3",
-  "createdAt": "DateTimeOffset_1",
+  "maxPlayers": 10,
+  "stake": 50.0,
+  "createdBy": "Guid_4",
+  "createdAt": "DateTimeOffset_2",
   "isSecretMode": false
 }
 ```
 
-#### Odpowiedź 400 BadRequest – błędne hasło do stołu
+#### Odpowiedź 400 – błędne hasło
 
 ```json
 {
@@ -933,7 +1385,7 @@ Content-Type: application/json
 }
 ```
 
-#### Odpowiedź 400 BadRequest – stół pełny
+#### Odpowiedź 400 – stół pełny
 
 ```json
 {
@@ -952,29 +1404,26 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `200 OK` – dołączenie zakończone powodzeniem
-- `400 BadRequest` – błędne hasło lub stół pełny
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Dołączono do stołu |
+| `400 Bad Request` | Błędne hasło lub stół pełny |
 
 ---
 
 ### POST /api/tables/{tableId}/join
 
-Dołączenie do istniejącego stołu przez zalogowanego użytkownika.
+Dołącza zalogowanego użytkownika do stołu. Nowy endpoint wymagający Bearer tokena.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/tables/{tableId}/join`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu (GUID)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-Content-Type: application/json
-```
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
 
 #### Body (request)
 
@@ -984,7 +1433,10 @@ Content-Type: application/json
 }
 ```
 
-#### Przykładowe żądanie – poprawne
+Walidacje:
+- `Password`: wymagane (błąd: `"Hasło stołu jest wymagane"`)
+
+#### Przykładowe żądanie
 
 ```http
 POST /api/tables/Guid_3/join HTTP/1.1
@@ -996,7 +1448,7 @@ Content-Type: application/json
 }
 ```
 
-#### Odpowiedź 200 OK – poprawne dołączenie
+#### Odpowiedź 200 OK
 
 ```json
 {
@@ -1004,50 +1456,16 @@ Content-Type: application/json
   "tableName": "Authorized Join Table Guid_1",
   "maxPlayers": 10,
   "stake": 50.0,
-  "tableCreatedAt": "DateTimeOffset_1",
+  "tableCreatedAt": "DateTimeOffset_4",
   "userId": "Guid_5",
   "userLogin": "{Scrubbed}",
   "isAdmin": false,
-  "joinedAt": "DateTimeOffset_4",
+  "joinedAt": "DateTimeOffset_5",
   "currentMemberCount": 2
 }
 ```
 
-#### Odpowiedź 400 BadRequest – błędne hasło do stołu
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "traceId": "{Scrubbed}",
-  "errors": [
-    {
-      "code": "Table.InvalidPassword",
-      "description": "Nieprawidłowe hasło do stołu"
-    }
-  ]
-}
-```
-
-#### Odpowiedź 400 BadRequest – stół pełny
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "traceId": "{Scrubbed}",
-  "errors": [
-    {
-      "code": "Table.Full",
-      "description": "Stół jest pełny"
-    }
-  ]
-}
-```
-
-#### Odpowiedź 400 BadRequest – brak hasła
+#### Odpowiedź 400 – puste hasło
 
 ```json
 {
@@ -1056,25 +1474,55 @@ Content-Type: application/json
   "status": 400,
   "errors": {
     "Password": [
-      "Hasło jest wymagane"
+      "Hasło stołu jest wymagane"
     ]
   },
   "traceId": "{Scrubbed}"
 }
 ```
 
-#### Odpowiedź 401 Unauthorized – brak tokenu
+#### Odpowiedź 400 – błędne hasło
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Unauthorized",
-  "status": 401,
-  "traceId": "{Scrubbed}"
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "traceId": "{Scrubbed}",
+  "errors": [
+    {
+      "errorCode": "Table.InvalidPassword",
+      "description": "Nieprawidłowe hasło do stołu"
+    }
+  ]
 }
 ```
 
-#### Odpowiedź 404 Not Found – stół nie istnieje
+#### Odpowiedź 400 – stół pełny
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "traceId": "{Scrubbed}",
+  "errors": [
+    {
+      "errorCode": "Table.Full",
+      "description": "Stół jest pełny"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 401 – brak tokenu
+
+```json
+null
+```
+*(pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+#### Odpowiedź 404 – stół nie istnieje
 
 ```json
 {
@@ -1085,7 +1533,7 @@ Content-Type: application/json
 }
 ```
 
-#### Odpowiedź 409 Conflict – użytkownik już jest członkiem
+#### Odpowiedź 409 – użytkownik już jest członkiem
 
 ```json
 {
@@ -1100,27 +1548,23 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `200 OK` – dołączenie zakończone powodzeniem
-- `400 BadRequest` – błędne hasło, stół pełny lub brak hasła
-- `401 Unauthorized` – brak tokenu
-- `404 Not Found` – stół nie istnieje
-- `409 Conflict` – użytkownik już jest członkiem
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Dołączono do stołu |
+| `400 Bad Request` | Błąd walidacji, błędne hasło lub stół pełny |
+| `401 Unauthorized` | Brak tokenu |
+| `404 Not Found` | Stół nie istnieje |
+| `409 Conflict` | Użytkownik już jest członkiem stołu |
 
 ---
 
 ### GET /api/tables
 
-Pobranie listy stołów, których użytkownik jest członkiem.
+Pobiera listę stołów, do których należy zalogowany użytkownik.
 
 - **Metoda:** `GET`
 - **Ścieżka:** `/api/tables`
-- **Autoryzacja:** wymagana (`Bearer`)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-```
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Przykładowe żądanie
 
@@ -1134,19 +1578,19 @@ Authorization: Bearer {Scrubbed}
 ```json
 [
   {
-    "id": "Guid_3",
-    "name": "Table One Guid_2",
-    "maxPlayers": 5,
-    "stake": 50.0,
+    "id": "Guid_4",
+    "name": "Authorized Table Guid_2",
+    "maxPlayers": 10,
+    "stake": 25.0,
     "createdBy": "Guid_1",
     "createdAt": "DateTimeOffset_3",
     "isSecretMode": false
   },
   {
-    "id": "Guid_5",
-    "name": "Table Two Guid_4",
+    "id": "Guid_6",
+    "name": "Authorized Table Guid_5",
     "maxPlayers": 10,
-    "stake": 100.0,
+    "stake": 25.0,
     "createdBy": "Guid_1",
     "createdAt": "DateTimeOffset_4",
     "isSecretMode": false
@@ -1156,27 +1600,30 @@ Authorization: Bearer {Scrubbed}
 
 #### Kody statusu
 
-- `200 OK` – lista stołów użytkownika
-- `401 Unauthorized` – brak/niepoprawny token
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Lista stołów użytkownika |
 
 ---
 
 ### GET /api/tables/{tableId}
 
-Pobranie szczegółów stołu i listy członków.
+Pobiera szczegóły stołu wraz z listą członków.
 
 - **Metoda:** `GET`
 - **Ścieżka:** `/api/tables/{tableId}`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu (GUID)
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
 
 #### Przykładowe żądanie
 
 ```http
-GET /api/tables/Guid_3 HTTP/1.1
+GET /api/tables/Guid_4 HTTP/1.1
 Authorization: Bearer {Scrubbed}
 ```
 
@@ -1184,22 +1631,16 @@ Authorization: Bearer {Scrubbed}
 
 ```json
 {
-  "id": "Guid_3",
+  "id": "Guid_4",
   "name": "Details Table Guid_2",
-  "maxPlayers": 5,
+  "maxPlayers": 10,
   "stake": 50.0,
-  "createdAt": "DateTimeOffset_3",
+  "createdAt": "DateTimeOffset_4",
   "members": [
     {
       "userId": "Guid_1",
       "login": "{Scrubbed}",
       "isAdmin": true,
-      "joinedAt": "DateTimeOffset_4"
-    },
-    {
-      "userId": "Guid_4",
-      "login": "{Scrubbed}",
-      "isAdmin": false,
       "joinedAt": "DateTimeOffset_5"
     }
   ]
@@ -1208,47 +1649,43 @@ Authorization: Bearer {Scrubbed}
 
 #### Kody statusu
 
-- `200 OK` – szczegóły stołu
-- `401 Unauthorized` – brak autoryzacji
-- `404 NotFound` – stół nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Szczegóły stołu z listą członków |
 
 ---
 
 ### GET /api/tables/{tableId}/dashboard
 
-Pobranie pełnego dashboardu stołu z informacjami o członkach, meczach i zakładach.
+Pobiera dashboard stołu dla zalogowanego użytkownika. Zwraca informacje o stole, członkach, meczach, zakładach, tablicy wyników (leaderboard) i pulach (pools).
 
 - **Metoda:** `GET`
 - **Ścieżka:** `/api/tables/{tableId}/dashboard`
-- **Autoryzacja:** wymagana (`Bearer`, użytkownik musi być członkiem stołu)
+- **Autoryzacja:** Bearer token (wymagane, użytkownik musi być członkiem stołu)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu (GUID)
-
-#### Nagłówki
-
-```http
-Authorization: Bearer {accessToken}
-```
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
 
 #### Przykładowe żądanie
 
 ```http
-GET /api/tables/Guid_6/dashboard HTTP/1.1
+GET /api/tables/Guid_5/dashboard HTTP/1.1
 Authorization: Bearer {Scrubbed}
 ```
 
-#### Odpowiedź 200 OK
+#### Odpowiedź 200 OK – podstawowe dane (bez meczów)
 
 ```json
 {
   "table": {
-    "id": "Guid_6",
-    "name": "Full Data Table Guid_4",
+    "id": "Guid_5",
+    "name": "Dashboard Table Guid_3",
     "maxPlayers": 10,
     "stake": 50.0,
-    "createdAt": "DateTimeOffset_7"
+    "createdAt": "DateTimeOffset_6"
   },
   "members": [
     {
@@ -1261,13 +1698,41 @@ Authorization: Bearer {Scrubbed}
       "userId": "Guid_2",
       "login": "{Scrubbed}",
       "isAdmin": false,
-      "joinedAt": "DateTimeOffset_18"
+      "joinedAt": "DateTimeOffset_8"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 200 OK – pełne dane (z meczami, zakładami, leaderboardem)
+
+```json
+{
+  "table": {
+    "id": "Guid_6",
+    "name": "Full Data Table Guid_4",
+    "maxPlayers": 10,
+    "stake": 50.0,
+    "createdAt": "DateTimeOffset_8"
+  },
+  "members": [
+    {
+      "userId": "Guid_1",
+      "login": "{Scrubbed}",
+      "isAdmin": true,
+      "joinedAt": "DateTimeOffset_8"
+    },
+    {
+      "userId": "Guid_2",
+      "login": "{Scrubbed}",
+      "isAdmin": false,
+      "joinedAt": "DateTimeOffset_20"
     },
     {
       "userId": "Guid_3",
       "login": "{Scrubbed}",
       "isAdmin": false,
-      "joinedAt": "DateTimeOffset_19"
+      "joinedAt": "DateTimeOffset_21"
     }
   ],
   "matches": [
@@ -1275,15 +1740,15 @@ Authorization: Bearer {Scrubbed}
       "id": "Guid_8",
       "country1": "Poland",
       "country2": "Spain",
-      "matchDateTime": "DateTimeOffset_11",
-      "result": "2:1",
-      "isStarted": true
+      "matchDateTime": "DateTimeOffset_22",
+      "result": null,
+      "isStarted": false
     },
     {
       "id": "Guid_9",
       "country1": "Germany",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_13",
+      "matchDateTime": "DateTimeOffset_23",
       "result": null,
       "isStarted": false
     }
@@ -1293,65 +1758,22 @@ Authorization: Bearer {Scrubbed}
       "id": "Guid_10",
       "userId": "Guid_1",
       "matchId": "Guid_8",
-      "prediction": "2:1",
-      "editedAt": "DateTimeOffset_15"
+      "prediction": "1:0",
+      "editedAt": "DateTimeOffset_24"
     },
     {
       "id": "Guid_11",
       "userId": "Guid_2",
       "matchId": "Guid_8",
-      "prediction": "1:0",
-      "editedAt": "DateTimeOffset_16"
+      "prediction": "2:1",
+      "editedAt": "DateTimeOffset_25"
     },
     {
       "id": "Guid_12",
       "userId": "Guid_3",
       "matchId": "Guid_9",
       "prediction": "X",
-      "editedAt": "DateTimeOffset_17"
-    }
-  ],
-  "pools": [
-    {
-      "id": "Guid_13",
-      "matchId": "Guid_7",
-      "amount": 100.0,
-      "status": "active"
-    },
-    {
-      "id": "Guid_14",
-      "matchId": "Guid_8",
-      "amount": 100.0,
-      "status": "won",
-      "winners": ["Guid_1"]
-    },
-    {
-      "id": "Guid_15",
-      "matchId": "Guid_9",
-      "amount": 100.0,
-      "status": "rollover"
-    },
-    {
-      "id": "Guid_16",
-      "matchId": "Guid_10",
-      "amount": 100.0,
-      "status": "expired"
-    }
-  ],
-  "stats": [
-    {
-      "userId": "Guid_1",
-      "matchesPlayed": 3,
-      "betsPlaced": 4,
-      "poolsWon": 1,
-      "totalWon": 100.0
-    },
-    {
-      "userId": "Guid_2",
-      "matchesPlayed": 3,
-      "betsPlaced": 3,
-      "poolsWon": 0,
-      "totalWon": 0.0
+      "editedAt": "DateTimeOffset_26"
     }
   ],
   "leaderboard": [
@@ -1359,105 +1781,115 @@ Authorization: Bearer {Scrubbed}
       "position": 1,
       "userId": "Guid_1",
       "login": "{Scrubbed}",
-      "points": 3,
-      "exactHits": 1,
+      "points": 0,
+      "exactHits": 0,
       "winnerHits": 0,
-      "totalBets": 1,
-      "accuracy": 100.0
+      "totalBets": 0,
+      "accuracy": 0
     },
     {
       "position": 2,
       "userId": "Guid_2",
       "login": "{Scrubbed}",
-      "points": 1,
+      "points": 0,
       "exactHits": 0,
-      "winnerHits": 1,
-      "totalBets": 1,
-      "accuracy": 100.0
+      "winnerHits": 0,
+      "totalBets": 0,
+      "accuracy": 0
+    },
+    {
+      "position": 3,
+      "userId": "Guid_3",
+      "login": "{Scrubbed}",
+      "points": 0,
+      "exactHits": 0,
+      "winnerHits": 0,
+      "totalBets": 0,
+      "accuracy": 0
     }
   ]
 }
 ```
 
-#### System pul (pools)
+#### Odpowiedź 200 OK – z pulą aktywną
 
-Pole `pools` zawiera listę pul finansowych powiązanych z meczami w ramach typu wydarzenia stołu. Pule służą do gromadzenia stawek graczy i ich rozdzielania między zwycięzców.
-
-**Struktura PoolItem:**
-
-| Pole | Typ | Opis |
-|------|-----|------|
-| `id` | Guid | Identyfikator puli |
-| `matchId` | Guid | Identyfikator meczu, do którego należy pula |
-| `amount` | decimal | Kwota puli (suma stawek uczestników) |
-| `status` | string | Status puli (patrz tabela poniżej) |
-| `winners` | Guid[] | Lista identyfikatorów zwycięzców (tylko gdy status = "won") |
-
-**Statusy puli:**
-
-| Status | Opis |
-|--------|------|
-| `active` | Pula aktywna – mecz jeszcze się nie rozpoczął, można obstawiać |
-| `won` | Pula wygrana – mecz zakończony, są zwycięzcy z dokładnym trafieniem wyniku |
-| `rollover` | Pula przeniesiona – mecz zakończony, nikt nie trafił dokładnego wyniku; kwota zostaje przeniesiona do następnej puli |
-| `expired` | Pula wygasła – mecz zakończony bez zwycięzców i bez przeniesienia (np. ostatni mecz wydarzenia) |
-
-#### System statystyk użytkowników (stats)
-
-Pole `stats` zawiera zagregowane statystyki użytkowników dla danego stołu. Statystyki są aktualizowane po zakończeniu każdego meczu i rozliczeniu puli.
-
-**Struktura UserStatsItem:**
-
-| Pole | Typ | Opis |
-|------|-----|------|
-| `userId` | Guid | Identyfikator użytkownika |
-| `matchesPlayed` | int | Liczba meczów, w których użytkownik brał udział (zakończone mecze z postawionym typem) |
-| `betsPlaced` | int | Całkowita liczba postawionych zakładów przez użytkownika |
-| `poolsWon` | int | Liczba pul wygranych przez użytkownika |
-| `totalWon` | decimal | Całkowita kwota wygranych przez użytkownika |
-
-> **Uwaga:** Statystyki są powiązane z konkretnym stołem – ten sam użytkownik może mieć różne statystyki na różnych stołach.
-
-#### System punktacji leaderboard
-
-Leaderboard pokazuje ranking członków stołu na podstawie trafności typów.
-
-**Punktacja:**
-
-| Typ trafienia | Punkty | Opis |
-|---------------|--------|------|
-| **Exact Hit** | 3 | Dokładne trafienie wyniku (np. przewidywanie "2:1" przy wyniku "2:1") |
-| **Winner Hit** | 1 | Trafienie zwycięzcy/remisu, ale z innym wynikiem (np. "2:0" przy wyniku "1:0") |
-| **Miss** | 0 | Nietrafiony typ (np. przewidywanie "2:0" przy wyniku "0:1") |
-
-**Typy specjalne:**
-
-- Przewidywanie `"X"` oznacza remis i pasuje do każdego remisowego wyniku (0:0, 1:1, 2:2, itd.) jako **Winner Hit**
-
-**Sortowanie rankingu:**
-
-1. Punkty (malejąco)
-2. Liczba Exact Hits (malejąco)
-3. Procent trafności (malejąco)
-
-**Obliczanie Accuracy:**
-
-```
-accuracy = (exactHits + winnerHits) / totalBets × 100
-```
-
-#### Odpowiedź 401 Unauthorized – brak tokenu
+Gdy dla meczu istnieje pula, w odpowiedzi pojawia się dodatkowe pole `pools`:
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Unauthorized",
-  "status": 401,
-  "traceId": "{Scrubbed}"
+  "table": { "..." : "..." },
+  "members": ["..."],
+  "matches": [
+    {
+      "id": "Guid_6",
+      "country1": "Poland",
+      "country2": "Spain",
+      "matchDateTime": "DateTimeOffset_12",
+      "result": null,
+      "isStarted": false
+    }
+  ],
+  "pools": [
+    {
+      "id": "Guid_7",
+      "matchId": "Guid_6",
+      "amount": 200.0,
+      "status": "active"
+    }
+  ]
 }
 ```
 
-#### Odpowiedź 403 Forbidden – użytkownik nie jest członkiem stołu
+#### Odpowiedź 200 OK – z pulą wygraną (status `won`)
+
+```json
+{
+  "table": { "..." : "..." },
+  "members": ["..."],
+  "matches": [
+    {
+      "id": "Guid_6",
+      "country1": "Germany",
+      "country2": "France",
+      "matchDateTime": "DateTimeOffset_9",
+      "result": "2:1",
+      "isStarted": true
+    }
+  ],
+  "pools": [
+    {
+      "id": "Guid_7",
+      "matchId": "Guid_6",
+      "amount": 200.0,
+      "status": "won",
+      "winners": [
+        "Guid_1"
+      ]
+    }
+  ]
+}
+```
+
+Statusy pul obserwowane w snapshotach: `"active"`, `"expired"`, `"won"`, `"rollover"`.
+
+#### Opis systemu punktowego (leaderboard)
+
+| Typ trafienia | Punkty | Opis |
+|---------------|--------|------|
+| Dokładny wynik (`exactHits`) | 3 pkt | Przewidziano dokładny wynik meczu |
+| Trafiony zwycięzca (`winnerHits`) | 1 pkt | Przewidziano właściwego zwycięzcę (lub remis `X`) |
+| Pudło | 0 pkt | Brak trafienia |
+
+Pole `accuracy` informuje o ogólnej skuteczności gracza.
+
+#### Odpowiedź 401 – brak tokenu
+
+```json
+null
+```
+*(pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+#### Odpowiedź 403 – nie jest członkiem stołu
 
 ```json
 {
@@ -1470,7 +1902,7 @@ accuracy = (exactHits + winnerHits) / totalBets × 100
 }
 ```
 
-#### Odpowiedź 404 Not Found – stół nie istnieje
+#### Odpowiedź 404 – stół nie istnieje
 
 ```json
 {
@@ -1483,29 +1915,33 @@ accuracy = (exactHits + winnerHits) / totalBets × 100
 
 #### Kody statusu
 
-- `200 OK` – dashboard zwrócony
-- `401 Unauthorized` – brak tokenu
-- `403 Forbidden` – użytkownik nie jest członkiem stołu
-- `404 Not Found` – stół nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Dashboard stołu |
+| `401 Unauthorized` | Brak tokenu |
+| `403 Forbidden` | Użytkownik nie jest członkiem stołu |
+| `404 Not Found` | Stół nie istnieje |
 
 ---
 
 ### DELETE /api/tables/{tableId}/members
 
-Opuszczenie stołu przez zalogowanego użytkownika (członka stołu).
+Opuszczenie stołu przez zalogowanego użytkownika.
 
 - **Metoda:** `DELETE`
 - **Ścieżka:** `/api/tables/{tableId}/members`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
 
 #### Przykładowe żądanie
 
 ```http
-DELETE /api/tables/Guid_2/members HTTP/1.1
+DELETE /api/tables/Guid_3/members HTTP/1.1
 Authorization: Bearer {Scrubbed}
 ```
 
@@ -1519,36 +1955,38 @@ Authorization: Bearer {Scrubbed}
 
 #### Kody statusu
 
-- `200 OK` – użytkownik opuścił stół
-- `401 Unauthorized` – brak autoryzacji
-- `404 NotFound` – użytkownik nie jest członkiem stołu lub stół nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Pomyślnie opuszczono stół |
 
 ---
 
 ### POST /api/tables/{tableId}/admins
 
-Nadanie roli administratora innemu użytkownikowi stołu. Wymagane uprawnienia twórcy stołu.
+Nadaje uprawnienia administratora wybranemu użytkownikowi stołu. Może wykonać tylko twórca (kreator) stołu.
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/tables/{tableId}/admins`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane, kreator stołu)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
 
 #### Body (request)
 
 ```json
 {
-  "UserId": "Guid"
+  "UserId": "GUID"
 }
 ```
 
 #### Przykładowe żądanie
 
 ```http
-POST /api/tables/Guid_4/admins HTTP/1.1
+POST /api/tables/Guid_5/admins HTTP/1.1
 Authorization: Bearer {Scrubbed}
 Content-Type: application/json
 
@@ -1567,30 +2005,31 @@ Content-Type: application/json
 
 #### Kody statusu
 
-- `200 OK` – rola nadana
-- `401 Unauthorized` – brak autoryzacji
-- `403 Forbidden` – użytkownik nie jest uprawniony do zarządzania adminami
-- `404 NotFound` – stół lub użytkownik nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Uprawnienia admina nadane |
 
 ---
 
 ### DELETE /api/tables/{tableId}/admins/{userId}
 
-Odebranie roli administratora użytkownikowi stołu.
+Odbiera uprawnienia administratora od wybranego użytkownika stołu. Może wykonać tylko twórca (kreator) stołu.
 
 - **Metoda:** `DELETE`
 - **Ścieżka:** `/api/tables/{tableId}/admins/{userId}`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane, kreator stołu)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu
-- `userId` – identyfikator użytkownika, któremu odbieramy rolę
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+| `userId` | GUID | Identyfikator użytkownika, któremu odbieramy uprawnienia |
 
 #### Przykładowe żądanie
 
 ```http
-DELETE /api/tables/Guid_4/admins/Guid_2 HTTP/1.1
+DELETE /api/tables/Guid_5/admins/Guid_2 HTTP/1.1
 Authorization: Bearer {Scrubbed}
 ```
 
@@ -1604,10 +2043,9 @@ Authorization: Bearer {Scrubbed}
 
 #### Kody statusu
 
-- `200 OK` – rola odebrana
-- `401 Unauthorized`
-- `403 Forbidden`
-- `404 NotFound`
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Uprawnienia admina odebrane |
 
 ---
 
@@ -1615,16 +2053,18 @@ Authorization: Bearer {Scrubbed}
 
 ### GET /api/tables/{tableId}/matches/{matchId}
 
-Pobranie szczegółów meczu.
+Pobiera szczegóły meczu w kontekście danego stołu. Pole `started` wskazuje, czy mecz już się rozpoczął (data w przeszłości).
 
 - **Metoda:** `GET`
 - **Ścieżka:** `/api/tables/{tableId}/matches/{matchId}`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Parametry ścieżki
 
-- `tableId` – identyfikator stołu
-- `matchId` – identyfikator meczu
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+| `matchId` | GUID | Identyfikator meczu |
 
 #### Przykładowe żądanie
 
@@ -1641,21 +2081,21 @@ Authorization: Bearer {Scrubbed}
   "eventTypeId": "Guid_3",
   "country1": "Spain",
   "country2": "Portugal",
-  "matchDateTime": "DateTimeOffset_7",
+  "matchDateTime": "DateTimeOffset_10",
   "result": null,
   "status": "scheduled",
   "started": true,
-  "createdAt": "DateTimeOffset_8"
+  "createdAt": "DateTimeOffset_11"
 }
 ```
 
-> Pole `started` jest dynamiczne: `false` dla przyszłych meczów, `true` po przekroczeniu czasu meczu.
+> Pole `started` jest `true` gdy `matchDateTime` jest w przeszłości, a `false` gdy data jest w przyszłości. Nie zależy od statusu meczu.
 
 #### Kody statusu
 
-- `200 OK`
-- `401 Unauthorized`
-- `404 NotFound` – mecz nie istnieje
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Szczegóły meczu |
 
 ---
 
@@ -1663,16 +2103,18 @@ Authorization: Bearer {Scrubbed}
 
 ### POST /api/tables/{tableId}/matches/{matchId}/bets
 
-Utworzenie lub aktualizacja typu (zakładu) użytkownika na mecz.
+Składa lub aktualizuje zakład na wynik meczu. Jeśli zakład dla danego użytkownika i meczu już istnieje, zostanie zaktualizowany (zwraca `201 Created` przy aktualizacji).
 
 - **Metoda:** `POST`
 - **Ścieżka:** `/api/tables/{tableId}/matches/{matchId}/bets`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Parametry ścieżki
 
-- `tableId`
-- `matchId`
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+| `matchId` | GUID | Identyfikator meczu |
 
 #### Body (request)
 
@@ -1682,19 +2124,18 @@ Utworzenie lub aktualizacja typu (zakładu) użytkownika na mecz.
 }
 ```
 
-Dozwolone formaty:
+Format typowania:
+- `"X:Y"` – przewidywany wynik, np. `"2:1"`, `"0:0"`, `"3:2"`
+- `"X"` – remis (draw)
 
-- wynik meczu: `"gole1:gole2"` np. `"2:1"`
-- remis: `"X"`
+Walidacje:
+- Maksymalna długość: 10 znaków
+- Musi być w formacie `"wynik1:wynik2"` lub `"X"` (remis)
 
-Zabronione:
-
-- inne stringi, np. `"invalid prediction format"`
-
-#### Przykładowe żądanie – poprawny wynik
+#### Przykładowe żądanie
 
 ```http
-POST /api/tables/Guid_2/matches/Guid_5/bets HTTP/1.1
+POST /api/tables/Guid_4/matches/Guid_7/bets HTTP/1.1
 Authorization: Bearer {Scrubbed}
 Content-Type: application/json
 
@@ -1705,46 +2146,45 @@ Content-Type: application/json
 
 #### Odpowiedź 201 Created – nowy zakład
 
-Nagłówki:
-- `Location: http://localhost/api/tables/Guid_2/matches/Guid_5/bets/my`
-
 ```json
 {
-  "id": "Guid_6",
-  "userId": "Guid_4",
-  "matchId": "Guid_5",
+  "id": "Guid_8",
+  "userId": "Guid_5",
+  "matchId": "Guid_7",
   "prediction": "2:1",
-  "editedAt": "DateTimeOffset_8"
+  "editedAt": "DateTimeOffset_14"
 }
 ```
 
-#### Odpowiedź 201 Created – aktualizacja istniejącego zakładu
+Nagłówek `Location`: `http://localhost/api/tables/Guid_4/matches/Guid_7/bets/my`
 
-Kolejne wywołanie zastępuje typ:
-
-```json
-{
-  "id": "Guid_6",
-  "userId": "Guid_4",
-  "matchId": "Guid_5",
-  "prediction": "3:0",
-  "editedAt": "DateTimeOffset_9"
-}
-```
-
-#### Odpowiedź 201 Created – remis
+#### Odpowiedź 201 Created – zakład z remisem
 
 ```json
 {
-  "id": "Guid_6",
-  "userId": "Guid_4",
-  "matchId": "Guid_5",
+  "id": "Guid_8",
+  "userId": "Guid_5",
+  "matchId": "Guid_7",
   "prediction": "X",
-  "editedAt": "DateTimeOffset_8"
+  "editedAt": "DateTimeOffset_14"
 }
 ```
 
-#### Odpowiedź 400 BadRequest – niepoprawny format typu
+#### Odpowiedź 201 Created – zaktualizowany zakład
+
+Przy aktualizacji istniejącego zakładu API zwraca `201 Created` z nową wartością:
+
+```json
+{
+  "id": "Guid_8",
+  "userId": "Guid_5",
+  "matchId": "Guid_7",
+  "prediction": "2:1",
+  "editedAt": "DateTimeOffset_15"
+}
+```
+
+#### Odpowiedź 400 – nieprawidłowy format typowania
 
 ```json
 {
@@ -1761,48 +2201,7 @@ Kolejne wywołanie zastępuje typ:
 }
 ```
 
-#### Kody statusu
-
-- `201 Created` – zakład utworzony lub zaktualizowany
-- `400 BadRequest` – błędny format `Prediction`
-- `401 Unauthorized` – brak tokena
-- `404 NotFound` – mecz/ stół nie istnieje
-
----
-
-### GET /api/tables/{tableId}/matches/{matchId}/bets/my
-
-Pobranie zakładu aktualnie zalogowanego użytkownika na dany mecz.
-
-- **Metoda:** `GET`
-- **Ścieżka:** `/api/tables/{tableId}/matches/{matchId}/bets/my`
-- **Autoryzacja:** wymagana (`Bearer`)
-
-#### Parametry ścieżki
-
-- `tableId`
-- `matchId`
-
-#### Przykładowe żądanie
-
-```http
-GET /api/tables/Guid_2/matches/Guid_5/bets/my HTTP/1.1
-Authorization: Bearer {Scrubbed}
-```
-
-#### Odpowiedź 200 OK – zakład istnieje
-
-```json
-{
-  "id": "Guid_6",
-  "userId": "Guid_4",
-  "matchId": "Guid_5",
-  "prediction": "3:2",
-  "editedAt": "DateTimeOffset_8"
-}
-```
-
-#### Odpowiedź 404 NotFound – brak zakładu
+#### Odpowiedź 404 – mecz lub stół nie istnieje
 
 ```json
 {
@@ -1815,33 +2214,91 @@ Authorization: Bearer {Scrubbed}
 
 #### Kody statusu
 
-- `200 OK`
-- `404 NotFound` – użytkownik nie ma zakładu
-- `401 Unauthorized`
+| Kod | Opis |
+|-----|------|
+| `201 Created` | Zakład złożony lub zaktualizowany |
+| `400 Bad Request` | Nieprawidłowy format typowania |
+| `404 Not Found` | Mecz lub stół nie istnieje |
+
+---
+
+### GET /api/tables/{tableId}/matches/{matchId}/bets/my
+
+Pobiera zakład zalogowanego użytkownika dla danego meczu.
+
+- **Metoda:** `GET`
+- **Ścieżka:** `/api/tables/{tableId}/matches/{matchId}/bets/my`
+- **Autoryzacja:** Bearer token (wymagane)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+| `matchId` | GUID | Identyfikator meczu |
+
+#### Przykładowe żądanie
+
+```http
+GET /api/tables/Guid_4/matches/Guid_7/bets/my HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "id": "Guid_8",
+  "userId": "Guid_5",
+  "matchId": "Guid_7",
+  "prediction": "3:2",
+  "editedAt": "DateTimeOffset_15"
+}
+```
+
+#### Odpowiedź 404 – brak zakładu
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "traceId": "{Scrubbed}"
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Zakład użytkownika |
+| `404 Not Found` | Użytkownik nie ma zakładu na ten mecz |
 
 ---
 
 ### DELETE /api/tables/{tableId}/matches/{matchId}/bets
 
-Usunięcie zakładu użytkownika przed rozpoczęciem meczu.
+Usuwa zakład zalogowanego użytkownika dla danego meczu. Możliwe tylko przed rozpoczęciem meczu.
 
 - **Metoda:** `DELETE`
 - **Ścieżka:** `/api/tables/{tableId}/matches/{matchId}/bets`
-- **Autoryzacja:** wymagana (`Bearer`)
+- **Autoryzacja:** Bearer token (wymagane)
 
 #### Parametry ścieżki
 
-- `tableId`
-- `matchId`
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+| `matchId` | GUID | Identyfikator meczu |
 
 #### Przykładowe żądanie
 
 ```http
-DELETE /api/tables/Guid_2/matches/Guid_5/bets HTTP/1.1
+DELETE /api/tables/Guid_4/matches/Guid_7/bets HTTP/1.1
 Authorization: Bearer {Scrubbed}
 ```
 
-#### Odpowiedź 200 OK – zakład usunięty
+#### Odpowiedź 200 OK
 
 ```json
 {
@@ -1849,7 +2306,7 @@ Authorization: Bearer {Scrubbed}
 }
 ```
 
-#### Odpowiedź 404 NotFound – brak zakładu
+#### Odpowiedź 404 – brak zakładu do usunięcia
 
 ```json
 {
@@ -1862,54 +2319,20 @@ Authorization: Bearer {Scrubbed}
 
 #### Kody statusu
 
-- `200 OK`
-- `404 NotFound` – brak zakładu
-- `401 Unauthorized`
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Zakład usunięty |
+| `404 Not Found` | Brak zakładu do usunięcia |
 
 ---
 
 ## Typy modeli
 
-Poniżej zestawienie modeli request/response na podstawie snapshotów.
-
 ### Auth – modele
 
-#### RegisterRequest
-
-```json
-{
-  "Login": "string",
-  "Password": "string",
-  "Email": "string"
-}
-```
-
-#### LoginRequest
-
-```json
-{
-  "Login": "string",
-  "Password": "string"
-}
-```
-
-#### RefreshRequest
-
-```json
-{
-  "RefreshToken": "string"
-}
-```
-
-#### LogoutRequest
-
-```json
-{
-  "RefreshToken": "string"
-}
-```
-
 #### AuthResponse
+
+Odpowiedź zwracana po rejestracji, logowaniu i odświeżeniu tokenów.
 
 ```json
 {
@@ -1917,126 +2340,181 @@ Poniżej zestawienie modeli request/response na podstawie snapshotów.
   "refreshToken": "string",
   "expiresAt": "DateTimeOffset",
   "user": {
-    "id": "Guid",
+    "id": "GUID",
     "login": "string",
     "email": "string",
     "createdAt": "DateTimeOffset",
-    "isActive": true
+    "isActive": "boolean",
+    "isSuperAdmin": "boolean"
   }
 }
 ```
+
+#### UserResponse
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `id` | GUID | Unikalny identyfikator użytkownika |
+| `login` | string | Login użytkownika |
+| `email` | string | Adres email |
+| `createdAt` | DateTimeOffset | Data rejestracji |
+| `isActive` | boolean | Czy konto jest aktywne |
+| `isSuperAdmin` | boolean | Czy użytkownik posiada uprawnienia SuperAdmina |
+
+#### RegisterRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `Login` | string | tak | Login użytkownika |
+| `Password` | string | tak | Hasło (min. 10 znaków, wielka litera, cyfra, znak specjalny) |
+| `Email` | string | tak | Adres email (poprawny format) |
+
+#### LoginRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `Login` | string | tak | Login użytkownika |
+| `Password` | string | tak | Hasło |
+
+#### RefreshRequest / LogoutRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `RefreshToken` | string | tak | Refresh token |
 
 ---
 
 ### EventTypes – modele
 
-#### CreateEventTypeRequest
-
-```json
-{
-  "Code": "string",
-  "Name": "string",
-  "StartDate": "DateTimeOffset"
-}
-```
-
-#### UpdateEventTypeRequest
-
-```json
-{
-  "Name": "string",
-  "StartDate": "DateTimeOffset"
-}
-```
-
 #### EventTypeResponse
 
 ```json
 {
-  "id": "Guid",
+  "id": "GUID",
   "code": "string",
   "name": "string",
   "startDate": "DateTimeOffset",
-  "isActive": true
+  "isActive": "boolean"
 }
 ```
 
-#### EventTypesListResponse
+| Pole | Typ | Opis |
+|------|-----|------|
+| `id` | GUID | Unikalny identyfikator |
+| `code` | string | Unikalny kod (np. `"LIGA_MISTRZOW_2026"`) |
+| `name` | string | Nazwa wyświetlana |
+| `startDate` | DateTimeOffset | Data rozpoczęcia |
+| `isActive` | boolean | Czy aktywny (widoczny publicznie) |
+
+#### CreateEventTypeRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `Code` | string | tak | Unikalny kod wydarzenia |
+| `Name` | string | tak | Nazwa wyświetlana |
+| `StartDate` | DateTimeOffset | tak | Data rozpoczęcia |
+
+#### UpdateEventTypeRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `Name` | string | tak | Nowa nazwa wyświetlana |
+| `StartDate` | DateTimeOffset | tak | Nowa data rozpoczęcia |
+
+---
+
+### AdminMatches – modele
+
+#### MatchResponse (admin)
+
+Odpowiedź z endpointów administracyjnych (GET lista, POST tworzenie):
 
 ```json
 {
-  "eventTypes": [
-    {
-      "id": "Guid",
-      "code": "string",
-      "name": "string",
-      "startDate": "DateTimeOffset",
-      "isActive": true
-    }
-  ]
+  "id": "GUID",
+  "eventTypeId": "GUID",
+  "country1": "string",
+  "country2": "string",
+  "matchDateTime": "DateTimeOffset",
+  "status": "string",
+  "createdAt": "DateTimeOffset"
 }
 ```
+
+Odpowiedź z endpointów GET (lista) oraz PUT (aktualizacja) zawiera dodatkowo pola `result` i `started`:
+
+```json
+{
+  "id": "GUID",
+  "eventTypeId": "GUID",
+  "country1": "string",
+  "country2": "string",
+  "matchDateTime": "DateTimeOffset",
+  "result": "string | null",
+  "status": "string",
+  "started": "boolean",
+  "createdAt": "DateTimeOffset"
+}
+```
+
+#### SetMatchResultRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `Result` | string | tak | Wynik meczu w formacie `"X:Y"` (np. `"2:1"`) |
+
+#### SetMatchResultResponse
+
+```json
+{
+  "id": "GUID",
+  "result": "string",
+  "status": "finished"
+}
+```
+
+#### Statusy meczów
+
+| Status | Opis |
+|--------|------|
+| `scheduled` | Zaplanowany |
+| `finished` | Zakończony (wynik ustawiony) |
 
 ---
 
 ### Tables – modele
 
-#### CreateTableRequest (anonimowy)
+#### TableResponse (tworzenie / legacy join)
 
 ```json
 {
-  "UserLogin": "string",
-  "UserPassword": "string",
-  "TableName": "string",
-  "TablePassword": "string",
-  "MaxPlayers": 10,
-  "Stake": 50.0,
-  "EventTypeId": "Guid"
-}
-```
-
-#### CreateTableAuthorizedRequest
-
-```json
-{
-  "TableName": "string",
-  "TablePassword": "string",
-  "MaxPlayers": 10,
-  "Stake": 50.0,
-  "EventTypeId": "Guid"
-}
-```
-
-#### JoinTableRequest (anonimowy)
-
-```json
-{
-  "UserLogin": "string",
-  "UserPassword": "string",
-  "TableName": "string",
-  "TablePassword": "string"
-}
-```
-
-#### JoinTableAuthorizedRequest
-
-```json
-{
-  "Password": "string"
-}
-```
-
-#### TableResponse
-
-```json
-{
-  "id": "Guid",
+  "id": "GUID",
   "name": "string",
-  "maxPlayers": 10,
-  "stake": 50.0,
-  "createdBy": "Guid",
+  "maxPlayers": "integer",
+  "stake": "decimal",
+  "createdBy": "GUID",
   "createdAt": "DateTimeOffset",
-  "isSecretMode": false
+  "isSecretMode": "boolean"
+}
+```
+
+#### TableDetailsResponse (GET szczegóły)
+
+```json
+{
+  "id": "GUID",
+  "name": "string",
+  "maxPlayers": "integer",
+  "stake": "decimal",
+  "createdAt": "DateTimeOffset",
+  "members": [
+    {
+      "userId": "GUID",
+      "login": "string",
+      "isAdmin": "boolean",
+      "joinedAt": "DateTimeOffset"
+    }
+  ]
 }
 ```
 
@@ -2044,238 +2522,153 @@ Poniżej zestawienie modeli request/response na podstawie snapshotów.
 
 ```json
 {
-  "tableId": "Guid",
+  "tableId": "GUID",
   "tableName": "string",
-  "maxPlayers": 10,
-  "stake": 50.0,
+  "maxPlayers": "integer",
+  "stake": "decimal",
   "tableCreatedAt": "DateTimeOffset",
-  "userId": "Guid",
+  "userId": "GUID",
   "userLogin": "string",
-  "isAdmin": false,
+  "isAdmin": "boolean",
   "joinedAt": "DateTimeOffset",
-  "currentMemberCount": 2
+  "currentMemberCount": "integer"
 }
 ```
 
-#### TableDetailsResponse
-
-```json
-{
-  "id": "Guid",
-  "name": "string",
-  "maxPlayers": 5,
-  "stake": 50.0,
-  "createdAt": "DateTimeOffset",
-  "members": [
-    {
-      "userId": "Guid",
-      "login": "string",
-      "isAdmin": true,
-      "joinedAt": "DateTimeOffset"
-    }
-  ]
-}
-```
-
-#### TableDashboardResponse
+#### DashboardResponse
 
 ```json
 {
   "table": {
-    "id": "Guid",
+    "id": "GUID",
     "name": "string",
-    "maxPlayers": 10,
-    "stake": 50.0,
+    "maxPlayers": "integer",
+    "stake": "decimal",
     "createdAt": "DateTimeOffset"
   },
   "members": [
     {
-      "userId": "Guid",
+      "userId": "GUID",
       "login": "string",
-      "isAdmin": true,
+      "isAdmin": "boolean",
       "joinedAt": "DateTimeOffset"
     }
   ],
   "matches": [
     {
-      "id": "Guid",
+      "id": "GUID",
       "country1": "string",
       "country2": "string",
       "matchDateTime": "DateTimeOffset",
       "result": "string | null",
-      "isStarted": false
+      "isStarted": "boolean"
     }
   ],
   "bets": [
     {
-      "id": "Guid",
-      "userId": "Guid",
-      "matchId": "Guid",
+      "id": "GUID",
+      "userId": "GUID",
+      "matchId": "GUID",
       "prediction": "string",
       "editedAt": "DateTimeOffset"
     }
   ],
-  "pools": [
-    {
-      "id": "Guid",
-      "matchId": "Guid",
-      "amount": 100.0,
-      "status": "string",
-      "winners": ["Guid"]
-    }
-  ],
-  "stats": [
-    {
-      "userId": "Guid",
-      "matchesPlayed": 5,
-      "betsPlaced": 10,
-      "poolsWon": 2,
-      "totalWon": 150.0
-    }
-  ],
   "leaderboard": [
     {
-      "position": 1,
-      "userId": "Guid",
+      "position": "integer",
+      "userId": "GUID",
       "login": "string",
-      "points": 7,
-      "exactHits": 2,
-      "winnerHits": 1,
-      "totalBets": 5,
-      "accuracy": 60.0
+      "points": "integer",
+      "exactHits": "integer",
+      "winnerHits": "integer",
+      "totalBets": "integer",
+      "accuracy": "decimal"
+    }
+  ],
+  "pools": [
+    {
+      "id": "GUID",
+      "matchId": "GUID",
+      "amount": "decimal",
+      "status": "string",
+      "winners": ["GUID"]
     }
   ]
 }
 ```
 
-#### LeaderboardEntry
+> Pola `matches`, `bets`, `leaderboard` i `pools` są opcjonalne – pojawiają się tylko gdy są dostępne dane.
 
-| Pole | Typ | Opis |
-|------|-----|------|
-| `position` | int | Pozycja w rankingu (1-based) |
-| `userId` | Guid | Identyfikator użytkownika |
-| `login` | string | Login użytkownika |
-| `points` | int | Suma punktów (3×exactHits + 1×winnerHits) |
-| `exactHits` | int | Liczba dokładnych trafień wyniku |
-| `winnerHits` | int | Liczba trafionych zwycięzców/remisów |
-| `totalBets` | int | Liczba zakładów na zakończone mecze |
-| `accuracy` | double | Procent trafności (0-100) |
+#### Statusy pul (pools)
 
-#### PoolItem
-
-| Pole | Typ | Opis |
-|------|-----|------|
-| `id` | Guid | Identyfikator puli |
-| `matchId` | Guid | Identyfikator meczu powiązanego z pulą |
-| `amount` | decimal | Kwota puli (suma stawek) |
-| `status` | string | Status puli: `active`, `won`, `rollover`, `expired` |
-| `winners` | Guid[] | Lista ID zwycięzców (tylko gdy status = `won`) |
-
-#### UserStatsItem
-
-| Pole | Typ | Opis |
-|------|-----|------|
-| `userId` | Guid | Identyfikator użytkownika |
-| `matchesPlayed` | int | Liczba rozegranych meczów z typem |
-| `betsPlaced` | int | Całkowita liczba postawionych zakładów |
-| `poolsWon` | int | Liczba wygranych pul |
-| `totalWon` | decimal | Suma wygranych kwot |
-
-#### GrantAdminRequest
-
-```json
-{
-  "UserId": "Guid"
-}
-```
+| Status | Opis |
+|--------|------|
+| `active` | Pula aktywna (mecz nie zakończony) |
+| `expired` | Pula wygasła |
+| `won` | Pula wygrana – pole `winners` zawiera GUID zwycięzców |
+| `rollover` | Pula przeniesiona (brak zwycięzców) |
 
 ---
 
 ### Matches – modele
 
-#### CreateMatchRequest
+#### MatchResponse (publiczny)
 
 ```json
 {
-  "Country1": "string",
-  "Country2": "string",
-  "MatchDateTime": "DateTimeOffset"
-}
-```
-
-#### MatchResponse (z tworzenia przez admin)
-
-```json
-{
-  "id": "Guid",
-  "eventTypeId": "Guid",
+  "id": "GUID",
+  "eventTypeId": "GUID",
   "country1": "string",
   "country2": "string",
   "matchDateTime": "DateTimeOffset",
-  "status": "scheduled",
+  "result": "string | null",
+  "status": "string",
+  "started": "boolean",
   "createdAt": "DateTimeOffset"
 }
 ```
 
-#### MatchResponse (z pobierania przez członka stołu)
-
-```json
-{
-  "id": "Guid",
-  "eventTypeId": "Guid",
-  "country1": "string",
-  "country2": "string",
-  "matchDateTime": "DateTimeOffset",
-  "result": null,
-  "status": "scheduled",
-  "started": false,
-  "createdAt": "DateTimeOffset"
-}
-```
-
-> Pole `started` jest dynamiczne: `false` dla przyszłych meczów, `true` po przekroczeniu czasu meczu.
-
-#### MatchDashboardItem
-
-```json
-{
-  "id": "Guid",
-  "country1": "string",
-  "country2": "string",
-  "matchDateTime": "DateTimeOffset",
-  "result": null,
-  "isStarted": false
-}
-```
+| Pole | Typ | Opis |
+|------|-----|------|
+| `id` | GUID | Identyfikator meczu |
+| `eventTypeId` | GUID | Identyfikator typu wydarzenia |
+| `country1` | string | Drużyna/kraj 1 |
+| `country2` | string | Drużyna/kraj 2 |
+| `matchDateTime` | DateTimeOffset | Data i godzina meczu |
+| `result` | string\|null | Wynik w formacie `"X:Y"` lub `null` jeśli nie zakończony |
+| `status` | string | Status meczu (`scheduled`, `finished`) |
+| `started` | boolean | `true` gdy `matchDateTime` minął |
+| `createdAt` | DateTimeOffset | Data utworzenia rekordu |
 
 ---
 
 ### Bets – modele
 
-#### PlaceBetRequest
-
-```json
-{
-  "Prediction": "string"
-}
-```
-
-Dozwolone wartości:
-
-- `"X"` – remis
-- `"{gole1}:{gole2}"` np. `"1:0"`, `"3:2"`
-
 #### BetResponse
 
 ```json
 {
-  "id": "Guid",
-  "userId": "Guid",
-  "matchId": "Guid",
+  "id": "GUID",
+  "userId": "GUID",
+  "matchId": "GUID",
   "prediction": "string",
   "editedAt": "DateTimeOffset"
 }
 ```
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `id` | GUID | Identyfikator zakładu |
+| `userId` | GUID | Identyfikator użytkownika |
+| `matchId` | GUID | Identyfikator meczu |
+| `prediction` | string | Typowanie w formacie `"X:Y"` lub `"X"` (remis) |
+| `editedAt` | DateTimeOffset | Data ostatniej edycji |
+
+#### PlaceBetRequest
+
+| Pole | Typ | Wymagane | Opis |
+|------|-----|----------|------|
+| `Prediction` | string | tak | Typowanie: `"X:Y"` (wynik) lub `"X"` (remis), max 10 znaków |
 
 ---
 
@@ -2283,9 +2676,7 @@ Dozwolone wartości:
 
 ### Walidacja 400 – RFC 9110
 
-Część błędów walidacyjnych ma standardowy format z dokumentu RFC 9110:
-
-#### Struktura
+Błędy walidacji modelu zwracane są w standardowym formacie ASP.NET:
 
 ```json
 {
@@ -2293,7 +2684,7 @@ Część błędów walidacyjnych ma standardowy format z dokumentu RFC 9110:
   "title": "One or more validation errors occurred.",
   "status": 400,
   "errors": {
-    "FieldName": [
+    "NazwaPola": [
       "Komunikat błędu"
     ]
   },
@@ -2301,21 +2692,11 @@ Część błędów walidacyjnych ma standardowy format z dokumentu RFC 9110:
 }
 ```
 
-Przykłady:
-
-- Rejestracja – błędny email (`FieldName: "Email"`)
-- Rejestracja – słabe hasło (`FieldName: "Password"`)
-- Tworzenie stołu – pusta nazwa (`FieldName: "TableName"`)
-- Tworzenie stołu – ujemna stawka (`FieldName: "Stake"`)
-- Dołączanie do stołu – brak hasła (`FieldName: "Password"`)
-- Typowanie – zły format (`FieldName: "Prediction"`)
-
----
-
 ### Błędy domenowe (tablice `errors`)
 
-Część błędów domenowych ma strukturę:
+Błędy biznesowe mogą przyjmować dwa formaty:
 
+**Format z `errorCode`:**
 ```json
 {
   "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
@@ -2324,74 +2705,44 @@ Część błędów domenowych ma strukturę:
   "traceId": "{Scrubbed}",
   "errors": [
     {
-      "errorCode": "Some.Code",
-      "description": "Opis błędu"
+      "errorCode": "Namespace.ErrorCode",
+      "description": "Opis błędu po polsku"
     }
   ]
 }
 ```
 
-Zaobserwowane kody:
-
-| Kod błędu | Opis |
-|-----------|------|
-| `User.AlreadyExists` | Próba rejestracji użytkownika o istniejącym loginie |
-| `Auth.InvalidCredentials` | Błędny login lub hasło przy logowaniu |
-| `Auth.RefreshNotFound` | Refresh token nie został znaleziony |
-| `RefreshToken.NotFound` | Refresh token nie został znaleziony (przy logout) |
-| `Table.Full` | Próba dołączenia do pełnego stołu |
-| `Table.InvalidPassword` | Nieprawidłowe hasło do stołu |
-| `Table.AlreadyMember` | Użytkownik jest już członkiem stołu |
-| `Table.AccessDenied` | Użytkownik nie ma dostępu do stołu |
-| `Table.DuplicateName` | Stół o podanej nazwie już istnieje |
-| `Table.NotAdmin` | Brak uprawnień administratora stołu |
-| `EventType.CodeExists` | Typ wydarzenia o podanym kodzie już istnieje |
-
----
-
-### 401 Unauthorized
-
-Używany, gdy brak lub niepoprawny token autoryzacyjny:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Unauthorized",
-  "status": 401,
-  "traceId": "{Scrubbed}"
-}
-```
-
-Nagłówki mogą zawierać: `WWW-Authenticate: Bearer`
-
----
-
-### 403 Forbidden
-
-Używany, gdy użytkownik nie ma odpowiednich uprawnień:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.4",
-  "title": "Forbidden",
-  "status": 403,
-  "traceId": "{Scrubbed}"
-}
-```
-
-Lub z błędem domenowym:
-
+**Format z `code`:**
 ```json
 {
   "errors": [
     {
-      "code": "Table.NotAdmin",
-      "description": "Nie masz uprawnień do wykonania tej czynności"
+      "code": "Namespace.ErrorCode",
+      "description": "Opis błędu po polsku"
     }
   ]
 }
 ```
 
+### 401 Unauthorized
+
+Zwracana gdy brak tokenu Bearer lub token jest nieważny:
+
+```json
+null
+```
+
+*(Pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+### 403 Forbidden
+
+Zwracana gdy użytkownik nie ma uprawnień do zasobu (np. nie jest SuperAdminem lub nie należy do stołu):
+
+```json
+null
+```
+
+*(Pusta odpowiedź, lub w przypadku dashboardu:)*
 ```json
 {
   "errors": [
@@ -2403,11 +2754,7 @@ Lub z błędem domenowym:
 }
 ```
 
----
-
 ### 404 Not Found
-
-Standardowy format dla brakujących zasobów:
 
 ```json
 {
@@ -2418,19 +2765,23 @@ Standardowy format dla brakujących zasobów:
 }
 ```
 
-Przykłady:
-
-- `GET /bets/my` – brak zakładu dla użytkownika
-- `DELETE /bets` – próba usunięcia nieistniejącego zakładu
-- `POST /tables/{tableId}/join` – stół nie istnieje
-- `GET /tables/{tableId}/dashboard` – stół nie istnieje
-
----
-
 ### 409 Conflict
 
-Używany przy konfliktach stanu:
+Zwracana przy próbie stworzenia zasobu, który już istnieje. Format zależy od endpointu:
 
+**EventType (kod już istnieje):**
+```json
+{
+  "errors": [
+    {
+      "code": "EventType.CodeExists",
+      "description": "Kod wydarzenia już istnieje"
+    }
+  ]
+}
+```
+
+**Table (nazwa stołu już istnieje):**
 ```json
 {
   "code": "Table.DuplicateName",
@@ -2438,6 +2789,7 @@ Używany przy konfliktach stanu:
 }
 ```
 
+**Table (użytkownik już jest członkiem):**
 ```json
 {
   "errors": [
@@ -2449,27 +2801,34 @@ Używany przy konfliktach stanu:
 }
 ```
 
-```json
-{
-  "code": "EventType.CodeExists",
-  "message": "Typ wydarzenia o podanym kodzie już istnieje"
-}
-```
-
 ---
 
 ### Zestawienie kodów statusu
 
-| Kod | Znaczenie                                              | Przykładowe endpointy                                |
-|-----|--------------------------------------------------------|------------------------------------------------------|
-| 200 | OK                                                     | `GET /api/tables`, `GET /matches/{id}`, `logout`, `login` |
-| 201 | Created                                                | `POST /api/tables`, `POST /api/admin/event-types`, `POST /bets` |
-| 400 | Bad Request – walidacja lub błędy domenowe             | rejestracja, tworzenie stołu, place bet, join |
-| 401 | Unauthorized – brak/niepoprawny token                  | wszystkie endpointy wymagające Bearer token |
-| 403 | Forbidden – brak uprawnień                             | admin operations, dashboard bez członkostwa |
-| 404 | Not Found – zasób nie istnieje                         | brak zakładu, brak stołu, brak meczu |
-| 409 | Conflict – konflikt stanu                              | duplikat nazwy stołu, już członek stołu |
+| Kod | Nazwa | Kiedy |
+|-----|-------|-------|
+| `200 OK` | OK | Sukces (GET, DELETE, POST dla login/logout) |
+| `201 Created` | Created | Zasób został utworzony (POST tworzący zasób, POST zakładu) |
+| `400 Bad Request` | Bad Request | Błąd walidacji lub reguły biznesowej |
+| `401 Unauthorized` | Unauthorized | Brak lub nieważny token Bearer |
+| `403 Forbidden` | Forbidden | Brak uprawnień do zasobu |
+| `404 Not Found` | Not Found | Zasób nie istnieje |
+| `409 Conflict` | Conflict | Konflikt (duplikat kodu, nazwy lub członkostwa) |
 
----
+### Zestawienie kodów błędów domenowych
 
-> Wszystkie przykłady danych (`Guid_X`, `DateTimeOffset_X`, `{Scrubbed}`) są zanonimizowane zgodnie z konfiguracją snapshotów i nie reprezentują rzeczywistych wartości w systemie produkcyjnym.
+| Kod błędu | Opis | HTTP |
+|-----------|------|------|
+| `User.AlreadyExists` | Użytkownik o podanym loginie już istnieje | 400 |
+| `Auth.InvalidCredentials` | Nieprawidłowy login lub hasło | 400 |
+| `Auth.RefreshNotFound` | Refresh token nie został znaleziony | 400 |
+| `RefreshToken.NotFound` | Refresh token nie został znaleziony | 400 |
+| `EventType.CodeExists` | Kod wydarzenia już istnieje | 409 |
+| `Match.AlreadyStarted` | Mecz już się rozpoczął | 400 |
+| `Match.NotStarted` | Mecz jeszcze się nie rozpoczął | 400 |
+| `Score.InvalidFormat` | Nieprawidłowy format wyniku | 400 |
+| `Table.InvalidPassword` | Nieprawidłowe hasło do stołu | 400 |
+| `Table.Full` | Stół jest pełny | 400 |
+| `Table.DuplicateName` | Stół o podanej nazwie już istnieje | 409 |
+| `Table.AlreadyMember` | Użytkownik jest już członkiem tego stołu | 409 |
+| `Table.AccessDenied` | Brak dostępu do stołu | 403 |

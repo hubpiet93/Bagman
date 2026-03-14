@@ -51,7 +51,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_3",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },

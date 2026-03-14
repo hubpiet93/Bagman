@@ -1,0 +1,107 @@
+﻿[
+  {
+    "TestName": "Bagman.IntegrationTests.Controllers.AdminMatchesControllerTests.SetMatchResult_WithFutureMatch_ReturnsBadRequest"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true,
+        "isSuperAdmin": false
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/login",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "SuperAdmin@12345"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true,
+        "isSuperAdmin": true
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types/Guid_2/matches",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Country1": "England",
+      "Country2": "Belgium",
+      "MatchDateTime": "DateTimeOffset_5"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "/api/admin/event-types/Guid_2/matches/Guid_3"
+    },
+    "ResponseContent": {
+      "id": "Guid_3",
+      "eventTypeId": "Guid_2",
+      "country1": "England",
+      "country2": "Belgium",
+      "matchDateTime": "DateTimeOffset_5",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_6"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/matches/Guid_3/result",
+    "RequestOptions": {},
+    "RequestMethod": "PUT",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Result": "1:0"
+    },
+    "ResponseStatus": "BadRequest 400",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+      "title": "Bad Request",
+      "status": 400,
+      "traceId": "{Scrubbed}",
+      "errors": [
+        {
+          "errorCode": "Match.NotStarted",
+          "description": "Nie można ustawić wyniku przed rozpoczęciem meczu"
+        }
+      ]
+    }
+  }
+]

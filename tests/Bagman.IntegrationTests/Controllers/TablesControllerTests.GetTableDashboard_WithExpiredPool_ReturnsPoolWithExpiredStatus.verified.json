@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -71,14 +72,14 @@
         "name": "Expired Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_4"
+        "createdAt": "DateTimeOffset_3"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_4"
+          "joinedAt": "DateTimeOffset_3"
         }
       ],
       "matches": [
@@ -86,7 +87,7 @@
           "id": "Guid_5",
           "country1": "England",
           "country2": "Scotland",
-          "matchDateTime": "DateTimeOffset_5",
+          "matchDateTime": "DateTimeOffset_4",
           "result": null,
           "isStarted": true
         }

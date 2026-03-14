@@ -17,6 +17,7 @@ public record MatchListItemResult
     public required string Country1 { get; init; }
     public required string Country2 { get; init; }
     public required DateTime MatchDateTime { get; init; }
+    public string? Result { get; init; }
     public required string Status { get; init; }
     public required DateTime CreatedAt { get; init; }
 }
@@ -73,6 +74,7 @@ public class GetMatchesByEventTypeHandler
             Country1 = m.Country1.Name,
             Country2 = m.Country2.Name,
             MatchDateTime = m.MatchDateTime,
+            Result = m.Result?.Value,
             Status = m.Status,
             CreatedAt = m.CreatedAt
         }).ToList();

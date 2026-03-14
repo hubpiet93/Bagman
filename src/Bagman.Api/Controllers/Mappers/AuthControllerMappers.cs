@@ -18,7 +18,8 @@ public static class AuthControllerMappers
                 Login = authResult.User.Login,
                 Email = authResult.User.Email,
                 CreatedAt = authResult.User.CreatedAt,
-                IsActive = authResult.User.IsActive
+                IsActive = authResult.User.IsActive,
+                IsSuperAdmin = authResult.User.IsSuperAdmin
             }
         };
     }

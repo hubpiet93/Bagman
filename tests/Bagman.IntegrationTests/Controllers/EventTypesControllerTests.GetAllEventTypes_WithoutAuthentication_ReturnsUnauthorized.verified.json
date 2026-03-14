@@ -1,0 +1,17 @@
+﻿[
+  {
+    "TestName": "Bagman.IntegrationTests.Controllers.EventTypesControllerTests.GetAllEventTypes_WithoutAuthentication_ReturnsUnauthorized"
+  },
+  {
+    "RequestUri": "http://localhost/api/admin/event-types",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {},
+    "RequestContent": null,
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {
+      "WWW-Authenticate": "Bearer"
+    },
+    "ResponseContent": null
+  }
+]

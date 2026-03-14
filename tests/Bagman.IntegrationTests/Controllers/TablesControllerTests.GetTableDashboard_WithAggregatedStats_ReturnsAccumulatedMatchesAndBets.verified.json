@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -48,7 +49,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_4",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -73,7 +75,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_6",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -174,19 +177,19 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_9"
+          "joinedAt": "DateTimeOffset_8"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_10"
+          "joinedAt": "DateTimeOffset_9"
         },
         {
           "userId": "Guid_3",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_11"
+          "joinedAt": "DateTimeOffset_10"
         }
       ],
       "stats": [

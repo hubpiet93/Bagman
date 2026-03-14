@@ -23,7 +23,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_2",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -76,7 +77,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_5",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -150,7 +152,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_9",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": false
       }
     }
   },
@@ -174,7 +177,8 @@
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
         "createdAt": "DateTimeOffset_11",
-        "isActive": true
+        "isActive": true,
+        "isSuperAdmin": true
       }
     }
   },
@@ -241,7 +245,7 @@
       "userId": "Guid_5",
       "matchId": "Guid_7",
       "prediction": "3:2",
-      "editedAt": "DateTimeOffset_14"
+      "editedAt": "DateTimeOffset_15"
     }
   }
 ]
