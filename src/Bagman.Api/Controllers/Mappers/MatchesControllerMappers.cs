@@ -16,7 +16,7 @@ public static class MatchesControllerMappers
             MatchDateTime = result.MatchDateTime,
             Result = result.Result,
             Status = result.Status,
-            Started = result.Status != "Pending",
+            Started = DateTime.UtcNow >= result.MatchDateTime,
             CreatedAt = result.CreatedAt
         };
     }
