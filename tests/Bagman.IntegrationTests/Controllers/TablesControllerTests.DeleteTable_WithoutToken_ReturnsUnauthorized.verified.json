@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.UpdateTable_AsAdmin_WithValidName_ReturnsOkWithUpdatedTable"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.DeleteTable_WithoutToken_ReturnsUnauthorized"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Pass@12345",
+      "Password": "Creator@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -29,17 +29,17 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables",
+    "RequestUri": "http://localhost/api/tables/create",
     "RequestOptions": {},
     "RequestMethod": "POST",
-    "RequestHeaders": {},
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
     "RequestContent": {
-      "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
-      "TableName": "Test Betting Table Guid_2",
-      "TablePassword": "TablePass@123",
+      "TableName": "Authorized Table Guid_2",
+      "TablePassword": "AuthTablePass@123",
       "MaxPlayers": 10,
-      "Stake": 50.0,
+      "Stake": 25.0,
       "EventTypeId": "Guid_3"
     },
     "ResponseStatus": "Created 201",
@@ -48,9 +48,9 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Test Betting Table Guid_2",
+      "name": "Authorized Table Guid_2",
       "maxPlayers": 10,
-      "stake": 50.0,
+      "stake": 25.0,
       "createdBy": "Guid_1",
       "createdAt": "DateTimeOffset_3",
       "isSecretMode": false
@@ -59,26 +59,13 @@
   {
     "RequestUri": "http://localhost/api/tables/Guid_4",
     "RequestOptions": {},
-    "RequestMethod": "PATCH",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
+    "RequestMethod": "DELETE",
+    "RequestHeaders": {},
+    "RequestContent": null,
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {
+      "WWW-Authenticate": "Bearer"
     },
-    "RequestContent": {
-      "Name": "Updated Table Name",
-      "Password": null,
-      "MaxPlayers": null,
-      "Stake": null
-    },
-    "ResponseStatus": "OK 200",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "id": "Guid_4",
-      "name": "Updated Table Name",
-      "maxPlayers": 10,
-      "stake": 50.0,
-      "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_4",
-      "isSecretMode": false
-    }
+    "ResponseContent": null
   }
 ]

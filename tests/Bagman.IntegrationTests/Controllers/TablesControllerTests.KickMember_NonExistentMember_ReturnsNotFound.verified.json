@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetUserTables_WithMultipleTables_ReturnsOkWithTableList"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.KickMember_NonExistentMember_ReturnsNotFound"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Pass@12345",
+      "Password": "Creator@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -57,62 +57,20 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/create",
+    "RequestUri": "http://localhost/api/tables/Guid_4/members/Guid_5",
     "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "TableName": "Authorized Table Guid_5",
-      "TablePassword": "AuthTablePass@123",
-      "MaxPlayers": 10,
-      "Stake": 25.0,
-      "EventTypeId": "Guid_3"
-    },
-    "ResponseStatus": "Created 201",
-    "ResponseHeaders": {
-      "Location": "http://localhost/api/Tables/Guid_6"
-    },
-    "ResponseContent": {
-      "id": "Guid_6",
-      "name": "Authorized Table Guid_5",
-      "maxPlayers": 10,
-      "stake": 25.0,
-      "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_4",
-      "isSecretMode": false
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables",
-    "RequestOptions": {},
-    "RequestMethod": "GET",
+    "RequestMethod": "DELETE",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": null,
-    "ResponseStatus": "OK 200",
+    "ResponseStatus": "NotFound 404",
     "ResponseHeaders": {},
-    "ResponseContent": [
-      {
-        "id": "Guid_4",
-        "name": "Authorized Table Guid_2",
-        "maxPlayers": 10,
-        "stake": 25.0,
-        "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_5",
-        "isSecretMode": false
-      },
-      {
-        "id": "Guid_6",
-        "name": "Authorized Table Guid_5",
-        "maxPlayers": 10,
-        "stake": 25.0,
-        "createdBy": "Guid_1",
-        "createdAt": "DateTimeOffset_6",
-        "isSecretMode": false
-      }
-    ]
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
   }
 ]

@@ -101,7 +101,7 @@
         "id": "Guid_5",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -117,7 +117,7 @@
     "RequestContent": {
       "Country1": "Poland",
       "Country2": "Spain",
-      "MatchDateTime": "DateTimeOffset_7"
+      "MatchDateTime": "DateTimeOffset_8"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -128,9 +128,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Poland",
       "country2": "Spain",
-      "matchDateTime": "DateTimeOffset_7",
+      "matchDateTime": "DateTimeOffset_8",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_8"
+      "createdAt": "DateTimeOffset_9"
     }
   },
   {
@@ -149,14 +149,14 @@
         "name": "Active Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_9"
+        "createdAt": "DateTimeOffset_10"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_10"
+          "joinedAt": "DateTimeOffset_11"
         }
       ],
       "matches": [
@@ -164,7 +164,7 @@
           "id": "Guid_6",
           "country1": "Poland",
           "country2": "Spain",
-          "matchDateTime": "DateTimeOffset_11",
+          "matchDateTime": "DateTimeOffset_12",
           "result": null,
           "isStarted": false
         }

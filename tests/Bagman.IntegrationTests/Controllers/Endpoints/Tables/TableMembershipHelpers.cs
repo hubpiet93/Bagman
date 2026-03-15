@@ -80,4 +80,38 @@ public static class TableMembershipHelpers
     {
         return client.PatchAsync<T>($"/api/tables/{tableId}", request, token);
     }
+
+    /// <summary>
+    ///     Deletes a table. Only the table creator can delete it.
+    /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
+    /// <param name="client">The HttpClient instance.</param>
+    /// <param name="tableId">The ID of the table to delete.</param>
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> DeleteTableAsync<T>(
+        this HttpClient client,
+        Guid tableId,
+        string? token = null) where T : class
+    {
+        return client.DeleteAsync<T>($"/api/tables/{tableId}", token);
+    }
+
+    /// <summary>
+    ///     Kicks a member from a table. Requires admin rights.
+    /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
+    /// <param name="client">The HttpClient instance.</param>
+    /// <param name="tableId">The ID of the table.</param>
+    /// <param name="userId">The ID of the user to kick.</param>
+    /// <param name="token">Optional Bearer token for authentication (must be table admin).</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> KickMemberAsync<T>(
+        this HttpClient client,
+        Guid tableId,
+        Guid userId,
+        string? token = null) where T : class
+    {
+        return client.DeleteAsync<T>($"/api/tables/{tableId}/members/{userId}", token);
+    }
 }

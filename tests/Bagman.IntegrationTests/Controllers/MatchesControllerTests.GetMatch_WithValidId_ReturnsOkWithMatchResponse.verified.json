@@ -148,11 +148,11 @@
       "eventTypeId": "Guid_3",
       "country1": "Spain",
       "country2": "Portugal",
-      "matchDateTime": "DateTimeOffset_10",
+      "matchDateTime": "DateTimeOffset_8",
       "result": null,
       "status": "scheduled",
       "started": true,
-      "createdAt": "DateTimeOffset_11"
+      "createdAt": "DateTimeOffset_10"
     }
   }
 ]

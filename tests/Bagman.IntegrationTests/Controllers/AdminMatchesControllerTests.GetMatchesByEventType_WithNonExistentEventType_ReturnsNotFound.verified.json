@@ -47,7 +47,7 @@
         "id": "Guid_1",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_4",
+        "createdAt": "DateTimeOffset_2",
         "isActive": true,
         "isSuperAdmin": true
       }

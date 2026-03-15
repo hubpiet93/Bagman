@@ -129,7 +129,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_8"
+          "joinedAt": "DateTimeOffset_9"
         }
       ]
     }
@@ -195,12 +195,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_9",
+      "expiresAt": "DateTimeOffset_10",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_10",
+        "createdAt": "DateTimeOffset_11",
         "isActive": true,
         "isSuperAdmin": false
       }
@@ -220,12 +220,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_11",
+      "expiresAt": "DateTimeOffset_12",
       "user": {
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_12",
+        "createdAt": "DateTimeOffset_13",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -241,7 +241,7 @@
     "RequestContent": {
       "Country1": "Japan",
       "Country2": "Korea",
-      "MatchDateTime": "DateTimeOffset_13"
+      "MatchDateTime": "DateTimeOffset_14"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -252,9 +252,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Japan",
       "country2": "Korea",
-      "matchDateTime": "DateTimeOffset_13",
+      "matchDateTime": "DateTimeOffset_14",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_14"
+      "createdAt": "DateTimeOffset_15"
     }
   },
   {
@@ -276,7 +276,7 @@
       "userId": "Guid_5",
       "matchId": "Guid_8",
       "prediction": "1:1",
-      "editedAt": "DateTimeOffset_15"
+      "editedAt": "DateTimeOffset_16"
     }
   },
   {
@@ -298,7 +298,7 @@
       "userId": "Guid_6",
       "matchId": "Guid_8",
       "prediction": "1:1",
-      "editedAt": "DateTimeOffset_16"
+      "editedAt": "DateTimeOffset_17"
     }
   }
 ]

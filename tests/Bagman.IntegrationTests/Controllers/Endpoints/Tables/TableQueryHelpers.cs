@@ -52,4 +52,18 @@ public static class TableQueryHelpers
     {
         return client.GetAsync<T>($"/api/tables/{tableId}/dashboard", token);
     }
+
+    /// <summary>
+    ///     Gets public information about a table (no authentication required).
+    /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
+    /// <param name="client">The HttpClient instance.</param>
+    /// <param name="tableId">The ID of the table.</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> GetTablePublicInfoAsync<T>(
+        this HttpClient client,
+        Guid tableId) where T : class
+    {
+        return client.GetAsync<T>($"/api/tables/{tableId}/public");
+    }
 }

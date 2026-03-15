@@ -10,6 +10,9 @@ using Bagman.Application.Features.Tables.GrantAdmin;
 using Bagman.Application.Features.Tables.JoinTable;
 using Bagman.Application.Features.Tables.LeaveTable;
 using Bagman.Application.Features.Tables.RevokeAdmin;
+using Bagman.Application.Features.Tables.DeleteTable;
+using Bagman.Application.Features.Tables.GetTablePublicInfo;
+using Bagman.Application.Features.Tables.KickMember;
 using Bagman.Application.Features.Tables.UpdateTable;
 using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
@@ -380,6 +383,75 @@ public class TablesController : AppControllerBase
             return MapErrors(result.Errors);
 
         return Ok(new SuccessResponse("Admin role revoked"));
+    }
+
+    /// <summary>
+    ///     Usunięcie stołu (tylko twórca)
+    /// </summary>
+    [HttpDelete("{tableId}")]
+    public async Task<IActionResult> DeleteTable(Guid tableId)
+    {
+        var userId = GetUserId();
+        if (!userId.HasValue)
+            return Unauthorized();
+
+        var result = await _dispatcher.HandleAsync<DeleteTableCommand, Success>(
+            new DeleteTableCommand
+            {
+                TableId = tableId,
+                RequestingUserId = userId.Value
+            });
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        return Ok(new SuccessResponse("Stół został usunięty"));
+    }
+
+    /// <summary>
+    ///     Wyrzucenie członka ze stołu (tylko admin)
+    /// </summary>
+    [HttpDelete("{tableId}/members/{userId}")]
+    public async Task<IActionResult> KickMember(Guid tableId, Guid userId)
+    {
+        var currentUserId = GetUserId();
+        if (!currentUserId.HasValue)
+            return Unauthorized();
+
+        var result = await _dispatcher.HandleAsync<KickMemberCommand, Success>(
+            new KickMemberCommand
+            {
+                TableId = tableId,
+                RequestingUserId = currentUserId.Value,
+                TargetUserId = userId
+            });
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        return Ok(new SuccessResponse("Użytkownik usunięty ze stołu"));
+    }
+
+    /// <summary>
+    ///     Publiczne informacje o stole (bez autoryzacji)
+    /// </summary>
+    [HttpGet("{tableId}/public")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetTablePublicInfo(Guid tableId)
+    {
+        var result = await _dispatcher.HandleAsync<GetTablePublicInfoQuery, TablePublicInfoResult>(
+            new GetTablePublicInfoQuery { TableId = tableId });
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        return Ok(new
+        {
+            id = result.Value.Id,
+            name = result.Value.Name,
+            membersCount = result.Value.MembersCount,
+            maxPlayers = result.Value.MaxPlayers
+        });
     }
 
     private Guid? GetUserId()

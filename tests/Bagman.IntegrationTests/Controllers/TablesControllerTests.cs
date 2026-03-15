@@ -1229,4 +1229,162 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     #endregion
+
+    #region DeleteTable Tests
+
+    [Fact]
+    public async Task DeleteTable_AsCreator_ReturnsOk()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("del_creator", TestConstants.CreatorPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+
+        // Act
+        await HttpClient.DeleteTableAsync<HttpResponseMessage>(table.Id, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task DeleteTable_AsNonCreator_ReturnsForbidden()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("del_creator2", TestConstants.CreatorPassword);
+        var (otherToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("del_other", TestConstants.MemberPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+
+        // Act
+        await HttpClient.DeleteTableAsync<HttpResponseMessage>(table.Id, otherToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task DeleteTable_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("del_creator3", TestConstants.CreatorPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+
+        // Act
+        await HttpClient.DeleteTableAsync<HttpResponseMessage>(table.Id);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    #endregion
+
+    #region KickMember Tests
+
+    [Fact]
+    public async Task KickMember_AsAdmin_ReturnsOk()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("kick_creator", TestConstants.CreatorPassword);
+        var (memberToken, memberId, _) = await HttpClient.RegisterAndGetTokenAsync("kick_member", TestConstants.MemberPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+        await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(
+            table.Id,
+            TableJoinHelpers.CreateJoinTableAuthorizedRequest(TestConstants.AuthTablePassword),
+            memberToken);
+
+        // Act
+        await HttpClient.KickMemberAsync<HttpResponseMessage>(table.Id, memberId, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task KickMember_AsNonAdmin_ReturnsForbidden()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("kick_creator2", TestConstants.CreatorPassword);
+        var (member1Token, _, _) = await HttpClient.RegisterAndGetTokenAsync("kick_member2a", TestConstants.MemberPassword);
+        var (member2Token, member2Id, _) = await HttpClient.RegisterAndGetTokenAsync("kick_member2b", TestConstants.MemberPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+        var joinRequest = TableJoinHelpers.CreateJoinTableAuthorizedRequest(TestConstants.AuthTablePassword);
+        await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(table.Id, joinRequest, member1Token);
+        await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(table.Id, joinRequest, member2Token);
+
+        // Act - member1 (non-admin) tries to kick member2
+        await HttpClient.KickMemberAsync<HttpResponseMessage>(table.Id, member2Id, member1Token);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task KickMember_TryingToKickCreator_ReturnsForbidden()
+    {
+        // Arrange
+        var (creatorToken, creatorId, _) = await HttpClient.RegisterAndGetTokenAsync("kick_creator3", TestConstants.CreatorPassword);
+        var (adminToken, adminId, _) = await HttpClient.RegisterAndGetTokenAsync("kick_admin3", TestConstants.MemberPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+        var joinRequest = TableJoinHelpers.CreateJoinTableAuthorizedRequest(TestConstants.AuthTablePassword);
+        await HttpClient.JoinTableAuthorizedAsync<HttpResponseMessage>(table.Id, joinRequest, adminToken);
+        await HttpClient.GrantAdminAsync<HttpResponseMessage>(table.Id, new GrantAdminRequest { UserId = adminId }, creatorToken);
+
+        // Act - admin tries to kick creator
+        await HttpClient.KickMemberAsync<HttpResponseMessage>(table.Id, creatorId, adminToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task KickMember_NonExistentMember_ReturnsNotFound()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("kick_creator4", TestConstants.CreatorPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+        var nonExistentUserId = Guid.NewGuid();
+
+        // Act
+        await HttpClient.KickMemberAsync<HttpResponseMessage>(table.Id, nonExistentUserId, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    #endregion
+
+    #region GetTablePublicInfo Tests
+
+    [Fact]
+    public async Task GetTablePublicInfo_WithoutAuth_ReturnsOk()
+    {
+        // Arrange
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("pub_creator", TestConstants.CreatorPassword);
+        var createRequest = TableCreationHelpers.CreateDefaultAuthorizedTableRequest(DefaultEventTypeId);
+        var table = await HttpClient.CreateAuthorizedTableAsync<TableResponse>(createRequest, creatorToken);
+
+        // Act - no token
+        await HttpClient.GetTablePublicInfoAsync<HttpResponseMessage>(table.Id);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task GetTablePublicInfo_NonExistentTable_ReturnsNotFound()
+    {
+        // Act
+        await HttpClient.GetTablePublicInfoAsync<HttpResponseMessage>(Guid.NewGuid());
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    #endregion
 }

@@ -75,7 +75,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_4",
-      "createdAt": "DateTimeOffset_4",
+      "createdAt": "DateTimeOffset_1",
       "isSecretMode": false
     }
   },

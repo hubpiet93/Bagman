@@ -13,19 +13,21 @@
     - [POST /api/auth/login](#post-apiauthlogin)
     - [POST /api/auth/refresh](#post-apiauthrefresh)
     - [POST /api/auth/logout](#post-apiauthlogout)
-2. [EventTypesController](#eventtypescontroller)
+2. [UsersController](#userscontroller)
+    - [GET /api/users/me](#get-apiusersme)
+3. [EventTypesController](#eventtypescontroller)
     - [GET /api/event-types](#get-apievent-types)
     - [GET /api/admin/event-types](#get-apiadminevent-types)
     - [POST /api/admin/event-types](#post-apiadminevent-types)
     - [PUT /api/admin/event-types/{id}](#put-apiadminevent-typesid)
     - [POST /api/admin/event-types/{id}/deactivate](#post-apiadminevent-typesiddeactivate)
-3. [AdminMatchesController](#adminmatchescontroller)
+4. [AdminMatchesController](#adminmatchescontroller)
     - [GET /api/admin/event-types/{eventTypeId}/matches](#get-apiadminevent-typeseventtypeidmatches)
     - [POST /api/admin/event-types/{eventTypeId}/matches](#post-apiadminevent-typeseventtypeidmatches)
     - [PUT /api/admin/event-types/{eventTypeId}/matches/{matchId}](#put-apiadminevent-typeseventtypeidmatchesmatchid)
     - [DELETE /api/admin/event-types/{eventTypeId}/matches/{matchId}](#delete-apiadminevent-typeseventtypeidmatchesmatchid)
     - [PUT /api/admin/matches/{matchId}/result](#put-apiadminmatchesmatchidresult)
-4. [TablesController](#tablescontroller)
+5. [TablesController](#tablescontroller)
     - [POST /api/tables](#post-apitables)
     - [POST /api/tables/create](#post-apitablescreate)
     - [POST /api/tables/join](#post-apitablesjoin)
@@ -33,24 +35,28 @@
     - [GET /api/tables](#get-apitables)
     - [GET /api/tables/{tableId}](#get-apitablestableid)
     - [GET /api/tables/{tableId}/dashboard](#get-apitablestableiddashboard)
+    - [GET /api/tables/{tableId}/public](#get-apitablestableidpublic)
+    - [DELETE /api/tables/{tableId}](#delete-apitablestableid)
     - [DELETE /api/tables/{tableId}/members](#delete-apitablestableidmembers)
+    - [DELETE /api/tables/{tableId}/members/{userId}](#delete-apitablestableidmembersuserid)
     - [POST /api/tables/{tableId}/admins](#post-apitablestableidadmins)
     - [DELETE /api/tables/{tableId}/admins/{userId}](#delete-apitablestableidadminsuserid)
     - [PATCH /api/tables/{tableId}](#patch-apitablestableid)
-5. [MatchesController](#matchescontroller)
+6. [MatchesController](#matchescontroller)
     - [GET /api/tables/{tableId}/matches/{matchId}](#get-apitablestableidmatchesmatchid)
-6. [BetsController](#betscontroller)
+7. [BetsController](#betscontroller)
     - [POST /api/tables/{tableId}/matches/{matchId}/bets](#post-apitablestableidmatchesmatchidbets)
     - [GET /api/tables/{tableId}/matches/{matchId}/bets/my](#get-apitablestableidmatchesmatchidbetsmy)
     - [DELETE /api/tables/{tableId}/matches/{matchId}/bets](#delete-apitablestableidmatchesmatchidbets)
-7. [Typy modeli](#typy-modeli)
+8. [Typy modeli](#typy-modeli)
     - [Auth](#auth--modele)
+    - [Users](#users--modele)
     - [EventTypes](#eventtypes--modele)
     - [AdminMatches](#adminmatches--modele)
     - [Tables](#tables--modele)
     - [Matches](#matches--modele)
     - [Bets](#bets--modele)
-8. [Błędy i kody statusu](#błędy-i-kody-statusu)
+9. [Błędy i kody statusu](#błędy-i-kody-statusu)
     - [Walidacja 400 – RFC 9110](#walidacja-400--rfc-9110)
     - [Błędy domenowe (tablice `errors`)](#błędy-domenowe-tablice-errors)
     - [401 Unauthorized](#401-unauthorized)
@@ -385,6 +391,52 @@ Content-Type: application/json
 |-----|------|
 | `200 OK` | Wylogowanie zakończone sukcesem |
 | `400 Bad Request` | Refresh token nieznany |
+
+---
+
+## UsersController
+
+### GET /api/users/me
+
+Pobiera profil aktualnie zalogowanego użytkownika.
+
+- **Metoda:** `GET`
+- **Ścieżka:** `/api/users/me`
+- **Autoryzacja:** Bearer token (wymagane)
+
+#### Przykładowe żądanie
+
+```http
+GET /api/users/me HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "id": "Guid_1",
+  "login": "{Scrubbed}",
+  "email": "{Scrubbed}",
+  "createdAt": "DateTimeOffset_1",
+  "isActive": true,
+  "isSuperAdmin": false
+}
+```
+
+#### Odpowiedź 401 – brak tokenu
+
+```json
+null
+```
+*(pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Profil zalogowanego użytkownika |
+| `401 Unauthorized` | Brak lub nieważny token Bearer |
 
 ---
 
@@ -2135,6 +2187,206 @@ Content-Type: application/json
 
 ---
 
+### GET /api/tables/{tableId}/public
+
+Pobiera publiczne informacje o stole. Endpoint niewymagający autoryzacji – przeznaczony dla stron zaproszenia.
+
+- **Metoda:** `GET`
+- **Ścieżka:** `/api/tables/{tableId}/public`
+- **Autoryzacja:** niewymagana
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+
+#### Przykładowe żądanie
+
+```http
+GET /api/tables/Guid_1/public HTTP/1.1
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "id": "Guid_1",
+  "name": "Nazwa stołu",
+  "membersCount": 3,
+  "maxPlayers": 10
+}
+```
+
+#### Odpowiedź 404 – stół nie istnieje
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "traceId": "{Scrubbed}"
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Publiczne dane stołu |
+| `404 Not Found` | Stół nie istnieje |
+
+---
+
+### DELETE /api/tables/{tableId}
+
+Usuwa stół. Może wykonać wyłącznie twórca (kreator) stołu.
+
+- **Metoda:** `DELETE`
+- **Ścieżka:** `/api/tables/{tableId}`
+- **Autoryzacja:** Bearer token (wymagane, twórca stołu)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+
+#### Przykładowe żądanie
+
+```http
+DELETE /api/tables/Guid_1 HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "message": "Stół został usunięty"
+}
+```
+
+#### Odpowiedź 401 – brak tokenu
+
+```json
+null
+```
+*(pusta odpowiedź z nagłówkiem `WWW-Authenticate: Bearer`)*
+
+#### Odpowiedź 403 – nie jest twórcą
+
+```json
+{
+  "errors": [
+    {
+      "code": "Table.NotCreator",
+      "description": "Tylko twórca stołu może go usunąć"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 404 – stół nie istnieje
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "traceId": "{Scrubbed}"
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Stół usunięty |
+| `401 Unauthorized` | Brak tokenu |
+| `403 Forbidden` | Użytkownik nie jest twórcą stołu (`Table.NotCreator`) |
+| `404 Not Found` | Stół nie istnieje |
+
+---
+
+### DELETE /api/tables/{tableId}/members/{userId}
+
+Usuwa (wyrzuca) wybranego członka ze stołu. Może wykonać admin stołu. Nie można wyrzucić twórcy stołu.
+
+- **Metoda:** `DELETE`
+- **Ścieżka:** `/api/tables/{tableId}/members/{userId}`
+- **Autoryzacja:** Bearer token (wymagane, admin stołu)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+| `userId` | GUID | Identyfikator użytkownika do usunięcia |
+
+#### Przykładowe żądanie
+
+```http
+DELETE /api/tables/Guid_1/members/Guid_2 HTTP/1.1
+Authorization: Bearer {Scrubbed}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "message": "Użytkownik usunięty ze stołu"
+}
+```
+
+#### Odpowiedź 403 – brak uprawnień
+
+```json
+{
+  "errors": [
+    {
+      "code": "Table.NotAdmin",
+      "description": "Nie masz uprawnień do zarządzania członkami stołu"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 403 – próba wyrzucenia twórcy
+
+```json
+{
+  "errors": [
+    {
+      "code": "Table.CannotKickCreator",
+      "description": "Nie można usunąć twórcy stołu"
+    }
+  ]
+}
+```
+
+#### Odpowiedź 404 – użytkownik nie jest członkiem
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "traceId": "{Scrubbed}"
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Użytkownik usunięty ze stołu |
+| `401 Unauthorized` | Brak tokenu |
+| `403 Forbidden` | Brak uprawnień (`Table.NotAdmin`) lub próba wyrzucenia twórcy (`Table.CannotKickCreator`) |
+| `404 Not Found` | Stół nie istnieje lub użytkownik nie jest członkiem |
+
+---
+
 ## MatchesController
 
 ### GET /api/tables/{tableId}/matches/{matchId}
@@ -2470,6 +2722,25 @@ Odpowiedź zwracana po rejestracji, logowaniu i odświeżeniu tokenów.
 
 ---
 
+### Users – modele
+
+#### UserResponse (GET /api/users/me)
+
+```json
+{
+  "id": "GUID",
+  "login": "string",
+  "email": "string",
+  "createdAt": "DateTimeOffset",
+  "isActive": "boolean",
+  "isSuperAdmin": "boolean"
+}
+```
+
+> Struktura identyczna jak pole `user` w odpowiedzi `AuthResponse`.
+
+---
+
 ### EventTypes – modele
 
 #### EventTypeResponse
@@ -2569,6 +2840,19 @@ Odpowiedź z endpointów GET (lista) oraz PUT (aktualizacja) zawiera dodatkowo p
 ---
 
 ### Tables – modele
+
+#### TablePublicInfoResponse (GET publiczne dane)
+
+```json
+{
+  "id": "GUID",
+  "name": "string",
+  "membersCount": "integer",
+  "maxPlayers": "integer"
+}
+```
+
+---
 
 #### UpdateTableRequest (edycja stołu)
 
@@ -2931,3 +3215,6 @@ Zwracana przy próbie stworzenia zasobu, który już istnieje. Format zależy od
 | `Table.DuplicateName` | Stół o podanej nazwie już istnieje | 409 |
 | `Table.AlreadyMember` | Użytkownik jest już członkiem tego stołu | 409 |
 | `Table.AccessDenied` | Brak dostępu do stołu | 403 |
+| `Table.NotCreator` | Tylko twórca stołu może wykonać tę operację | 403 |
+| `Table.CannotKickCreator` | Nie można usunąć twórcy stołu | 403 |
+| `Table.MemberNotFound` | Użytkownik nie jest członkiem stołu | 404 |

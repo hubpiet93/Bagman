@@ -1,0 +1,145 @@
+﻿[
+  {
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.KickMember_TryingToKickCreator_ReturnsForbidden"
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_1",
+      "user": {
+        "id": "Guid_1",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_2",
+        "isActive": true,
+        "isSuperAdmin": false
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_3",
+      "user": {
+        "id": "Guid_2",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_4",
+        "isActive": true,
+        "isSuperAdmin": false
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/create",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "TableName": "Authorized Table Guid_3",
+      "TablePassword": "AuthTablePass@123",
+      "MaxPlayers": 10,
+      "Stake": 25.0,
+      "EventTypeId": "Guid_4"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_5"
+    },
+    "ResponseContent": {
+      "id": "Guid_5",
+      "name": "Authorized Table Guid_3",
+      "maxPlayers": 10,
+      "stake": 25.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_5",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_5/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Password": "AuthTablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "tableId": "Guid_5",
+      "tableName": "Authorized Table Guid_3",
+      "maxPlayers": 10,
+      "stake": 25.0,
+      "tableCreatedAt": "DateTimeOffset_6",
+      "userId": "Guid_2",
+      "userLogin": "{Scrubbed}",
+      "isAdmin": false,
+      "joinedAt": "DateTimeOffset_7",
+      "currentMemberCount": 2
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_5/admins",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "UserId": "Guid_2"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "message": "Admin role granted"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_5/members/Guid_1",
+    "RequestOptions": {},
+    "RequestMethod": "DELETE",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": null,
+    "ResponseStatus": "Forbidden 403",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "errors": [
+        {
+          "code": "Table.CannotKickCreator",
+          "description": "Nie można usunąć twórcy stołu"
+        }
+      ]
+    }
+  }
+]

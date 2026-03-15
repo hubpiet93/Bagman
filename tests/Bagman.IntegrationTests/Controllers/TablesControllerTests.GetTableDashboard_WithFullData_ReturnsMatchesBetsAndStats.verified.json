@@ -199,7 +199,7 @@
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_10",
+        "createdAt": "DateTimeOffset_12",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -215,7 +215,7 @@
     "RequestContent": {
       "Country1": "Poland",
       "Country2": "Spain",
-      "MatchDateTime": "DateTimeOffset_12"
+      "MatchDateTime": "DateTimeOffset_13"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -226,9 +226,9 @@
       "eventTypeId": "Guid_5",
       "country1": "Poland",
       "country2": "Spain",
-      "matchDateTime": "DateTimeOffset_12",
+      "matchDateTime": "DateTimeOffset_13",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_13"
+      "createdAt": "DateTimeOffset_14"
     }
   },
   {
@@ -241,7 +241,7 @@
     "RequestContent": {
       "Country1": "Germany",
       "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_14"
+      "MatchDateTime": "DateTimeOffset_15"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -252,9 +252,9 @@
       "eventTypeId": "Guid_5",
       "country1": "Germany",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_14",
+      "matchDateTime": "DateTimeOffset_15",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_15"
+      "createdAt": "DateTimeOffset_16"
     }
   },
   {
@@ -276,7 +276,7 @@
       "userId": "Guid_1",
       "matchId": "Guid_8",
       "prediction": "1:0",
-      "editedAt": "DateTimeOffset_16"
+      "editedAt": "DateTimeOffset_17"
     }
   },
   {
@@ -298,7 +298,7 @@
       "userId": "Guid_2",
       "matchId": "Guid_8",
       "prediction": "2:1",
-      "editedAt": "DateTimeOffset_17"
+      "editedAt": "DateTimeOffset_18"
     }
   },
   {
@@ -320,7 +320,7 @@
       "userId": "Guid_3",
       "matchId": "Guid_9",
       "prediction": "X",
-      "editedAt": "DateTimeOffset_18"
+      "editedAt": "DateTimeOffset_19"
     }
   },
   {
@@ -346,19 +346,19 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_19"
+          "joinedAt": "DateTimeOffset_20"
         },
         {
           "userId": "Guid_2",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_20"
+          "joinedAt": "DateTimeOffset_21"
         },
         {
           "userId": "Guid_3",
           "login": "{Scrubbed}",
           "isAdmin": false,
-          "joinedAt": "DateTimeOffset_21"
+          "joinedAt": "DateTimeOffset_22"
         }
       ],
       "matches": [
@@ -366,7 +366,7 @@
           "id": "Guid_8",
           "country1": "Poland",
           "country2": "Spain",
-          "matchDateTime": "DateTimeOffset_22",
+          "matchDateTime": "DateTimeOffset_23",
           "result": null,
           "isStarted": false
         },
@@ -374,7 +374,7 @@
           "id": "Guid_9",
           "country1": "Germany",
           "country2": "France",
-          "matchDateTime": "DateTimeOffset_23",
+          "matchDateTime": "DateTimeOffset_24",
           "result": null,
           "isStarted": false
         }
@@ -385,14 +385,14 @@
           "userId": "Guid_1",
           "matchId": "Guid_8",
           "prediction": "1:0",
-          "editedAt": "DateTimeOffset_24"
+          "editedAt": "DateTimeOffset_25"
         },
         {
           "id": "Guid_11",
           "userId": "Guid_2",
           "matchId": "Guid_8",
           "prediction": "2:1",
-          "editedAt": "DateTimeOffset_25"
+          "editedAt": "DateTimeOffset_18"
         },
         {
           "id": "Guid_12",

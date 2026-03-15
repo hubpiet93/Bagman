@@ -1,0 +1,20 @@
+﻿[
+  {
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTablePublicInfo_NonExistentTable_ReturnsNotFound"
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_1/public",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {},
+    "RequestContent": null,
+    "ResponseStatus": "NotFound 404",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+      "title": "Not Found",
+      "status": 404,
+      "traceId": "{Scrubbed}"
+    }
+  }
+]

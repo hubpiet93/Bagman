@@ -1,0 +1,17 @@
+﻿[
+  {
+    "TestName": "Bagman.IntegrationTests.Controllers.UsersControllerTests.GetCurrentUser_WithoutToken_ReturnsUnauthorized"
+  },
+  {
+    "RequestUri": "http://localhost/api/users/me",
+    "RequestOptions": {},
+    "RequestMethod": "GET",
+    "RequestHeaders": {},
+    "RequestContent": null,
+    "ResponseStatus": "Unauthorized 401",
+    "ResponseHeaders": {
+      "WWW-Authenticate": "Bearer"
+    },
+    "ResponseContent": null
+  }
+]

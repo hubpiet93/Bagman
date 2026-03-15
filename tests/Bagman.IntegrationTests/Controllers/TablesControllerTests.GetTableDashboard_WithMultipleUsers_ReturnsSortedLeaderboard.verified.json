@@ -199,7 +199,7 @@
         "id": "Guid_7",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_10",
+        "createdAt": "DateTimeOffset_12",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -215,7 +215,7 @@
     "RequestContent": {
       "Country1": "Brazil",
       "Country2": "Argentina",
-      "MatchDateTime": "DateTimeOffset_12"
+      "MatchDateTime": "DateTimeOffset_13"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},
@@ -241,7 +241,7 @@
     "RequestContent": {
       "Country1": "Chile",
       "Country2": "Uruguay",
-      "MatchDateTime": "DateTimeOffset_13"
+      "MatchDateTime": "DateTimeOffset_14"
     },
     "ResponseStatus": "BadRequest 400",
     "ResponseHeaders": {},
@@ -432,7 +432,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_14"
+          "joinedAt": "DateTimeOffset_8"
         },
         {
           "userId": "Guid_2",
