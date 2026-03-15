@@ -23,8 +23,6 @@ public class Match
     // Navigation properties
     public virtual EventType? EventType { get; private set; }
     public virtual IReadOnlyCollection<Bet> Bets => _bets.AsReadOnly();
-    public virtual ICollection<Pool> Pools { get; private set; } = new List<Pool>();
-
     // EF Core constructor
     private Match()
     {
@@ -67,9 +65,9 @@ public class Match
             "scheduled");
     }
 
-    public ErrorOr<Success> Update(Country country1, Country country2, DateTime matchDateTime)
+    public ErrorOr<Success> Update(Country country1, Country country2, DateTime matchDateTime, bool isSuperAdmin = false)
     {
-        if (Started)
+        if (!isSuperAdmin && Started)
             return Error.Failure(
                 "Match.AlreadyStarted",
                 "Nie można edytować meczu, który już się rozpoczął");
@@ -81,17 +79,20 @@ public class Match
         return ErrorOr.Result.Success;
     }
 
-    public ErrorOr<Success> SetResult(Score result)
+    public ErrorOr<Success> SetResult(Score result, bool isSuperAdmin = false)
     {
-        if (!Started)
-            return Error.Validation(
-                "Match.NotStarted",
-                "Nie można ustawić wyniku przed rozpoczęciem meczu");
+        if (!isSuperAdmin)
+        {
+            if (!Started)
+                return Error.Validation(
+                    "Match.NotStarted",
+                    "Nie można ustawić wyniku przed rozpoczęciem meczu");
 
-        if (Status == "finished")
-            return Error.Validation(
-                "Match.AlreadyFinished",
-                "Mecz jest już zakończony");
+            if (Status == "finished")
+                return Error.Validation(
+                    "Match.AlreadyFinished",
+                    "Mecz jest już zakończony");
+        }
 
         Result = result;
         Status = "finished";

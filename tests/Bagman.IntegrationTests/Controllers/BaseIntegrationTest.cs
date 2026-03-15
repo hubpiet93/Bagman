@@ -110,7 +110,7 @@ public abstract class BaseIntegrationTest : AuthTestWebApplicationFactory
             {
                 await dbContext.Database.EnsureCreatedAsync();
                 await dbContext.Database.ExecuteSqlRawAsync(
-                    "TRUNCATE TABLE pool_winners, pools, bets, matches, user_stats, table_members, tables, refresh_tokens, users, event_types RESTART IDENTITY CASCADE;");
+                    "TRUNCATE TABLE bets, matches, table_members, tables, refresh_tokens, users, event_types RESTART IDENTITY CASCADE;");
 
                 // Create default EventType for tests
                 await dbContext.Database.ExecuteSqlRawAsync(@"

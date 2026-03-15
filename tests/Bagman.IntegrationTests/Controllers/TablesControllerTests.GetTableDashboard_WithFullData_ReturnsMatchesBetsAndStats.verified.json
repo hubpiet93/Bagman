@@ -392,14 +392,51 @@
           "userId": "Guid_2",
           "matchId": "Guid_8",
           "prediction": "2:1",
-          "editedAt": "DateTimeOffset_18"
+          "editedAt": "DateTimeOffset_26"
         },
         {
           "id": "Guid_12",
           "userId": "Guid_3",
           "matchId": "Guid_9",
           "prediction": "X",
-          "editedAt": "DateTimeOffset_26"
+          "editedAt": "DateTimeOffset_27"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_8",
+          "amount": 150.0,
+          "status": "active",
+          "winners": null
+        },
+        {
+          "matchId": "Guid_9",
+          "amount": 150.0,
+          "status": "active",
+          "winners": null
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 0,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
+        },
+        {
+          "userId": "Guid_2",
+          "matchesPlayed": 0,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
+        },
+        {
+          "userId": "Guid_3",
+          "matchesPlayed": 0,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
         }
       ],
       "leaderboard": [

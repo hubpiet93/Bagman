@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bagman-postgres
+    environment:
+      POSTGRES_USER: bagman
+      POSTGRES_PASSWORD: bagman123
+      POSTGRES_DB: bagman
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

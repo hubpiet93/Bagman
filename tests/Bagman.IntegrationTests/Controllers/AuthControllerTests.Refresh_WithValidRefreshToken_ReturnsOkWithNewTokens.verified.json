@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "TestName": "Bagman.IntegrationTests.Controllers.AuthControllerTests.Refresh_WithValidRefreshToken_ReturnsOkWithNewTokens"
   },

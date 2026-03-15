@@ -1,6 +1,6 @@
-﻿[
+[
   {
-    "TestName": "Bagman.IntegrationTests.Controllers.AdminMatchesControllerTests.UpdateMatch_WithStartedMatch_ReturnsBadRequest"
+    "TestName": "Bagman.IntegrationTests.Controllers.AdminMatchesControllerTests.UpdateMatch_WithStartedMatch_AsSuperAdmin_ReturnsOk"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -65,19 +65,16 @@
       "Country2": "Belgium",
       "MatchDateTime": "DateTimeOffset_5"
     },
-    "ResponseStatus": "BadRequest 400",
+    "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "Bad Request",
-      "status": 400,
-      "traceId": "{Scrubbed}",
-      "errors": [
-        {
-          "errorCode": "Match.AlreadyStarted",
-          "description": "Nie można edytować meczu, który już się rozpoczął"
-        }
-      ]
+      "id": "Guid_3",
+      "eventTypeId": "Guid_2",
+      "country1": "Turkey",
+      "country2": "Belgium",
+      "matchDateTime": "DateTimeOffset_5",
+      "status": "scheduled",
+      "createdAt": "DateTimeOffset_6"
     }
   }
 ]

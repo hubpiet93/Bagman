@@ -76,7 +76,7 @@ public class UpdateMatchHandler : IFeatureHandler<UpdateMatchCommand, UpdateMatc
             return country2Result.Errors;
 
         // Update through aggregate
-        var updateResult = match.Update(country1Result.Value, country2Result.Value, request.MatchDateTime);
+        var updateResult = match.Update(country1Result.Value, country2Result.Value, request.MatchDateTime, isSuperAdmin: true);
         if (updateResult.IsError)
             return updateResult.Errors;
 

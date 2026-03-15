@@ -79,7 +79,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_5"
+          "joinedAt": "DateTimeOffset_4"
         }
       ],
       "matches": [
@@ -87,17 +87,47 @@
           "id": "Guid_5",
           "country1": "Italy",
           "country2": "Portugal",
-          "matchDateTime": "DateTimeOffset_6",
+          "matchDateTime": "DateTimeOffset_5",
           "result": "1:1",
           "isStarted": true
         }
       ],
-      "pools": [
+      "bets": [
         {
           "id": "Guid_6",
+          "userId": "Guid_1",
           "matchId": "Guid_5",
-          "amount": 150.0,
-          "status": "rollover"
+          "prediction": "2:0",
+          "editedAt": "DateTimeOffset_6"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_5",
+          "amount": 50.0,
+          "status": "rollover",
+          "winners": null
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 1,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
+        }
+      ],
+      "leaderboard": [
+        {
+          "position": 1,
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "points": 0,
+          "exactHits": 0,
+          "winnerHits": 0,
+          "totalBets": 1,
+          "accuracy": 0
         }
       ]
     }

@@ -8,7 +8,12 @@
       "Bash(py -c \"print\\(''ok''\\)\")",
       "Bash(python3.exe -c \"print\\(''ok''\\)\")",
       "Bash(node -e \":*)",
-      "Bash(dotnet restore:*)"
+      "Bash(dotnet restore:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/Dell/OneDrive/Pulpit/Repositories/Bagman/tests/Bagman.IntegrationTests/Controllers/**)",
+      "Bash(done)",
+      "Bash(dotnet test:*)"
     ]
   }
 }

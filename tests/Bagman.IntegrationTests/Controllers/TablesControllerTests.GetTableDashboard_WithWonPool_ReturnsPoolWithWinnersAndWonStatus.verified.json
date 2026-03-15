@@ -147,15 +147,68 @@
           "isStarted": true
         }
       ],
-      "pools": [
+      "bets": [
         {
           "id": "Guid_7",
+          "userId": "Guid_1",
+          "matchId": "Guid_6",
+          "prediction": "2:1",
+          "editedAt": "DateTimeOffset_10"
+        },
+        {
+          "id": "Guid_8",
+          "userId": "Guid_2",
+          "matchId": "Guid_6",
+          "prediction": "1:0",
+          "editedAt": "DateTimeOffset_11"
+        }
+      ],
+      "pools": [
+        {
           "matchId": "Guid_6",
           "amount": 200.0,
           "status": "won",
           "winners": [
             "Guid_1"
           ]
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 1,
+          "betsPlaced": 1,
+          "poolsWon": 1,
+          "totalWon": 200.0
+        },
+        {
+          "userId": "Guid_2",
+          "matchesPlayed": 1,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
+        }
+      ],
+      "leaderboard": [
+        {
+          "position": 1,
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "points": 3,
+          "exactHits": 1,
+          "winnerHits": 0,
+          "totalBets": 1,
+          "accuracy": 100
+        },
+        {
+          "position": 2,
+          "userId": "Guid_2",
+          "login": "{Scrubbed}",
+          "points": 1,
+          "exactHits": 0,
+          "winnerHits": 1,
+          "totalBets": 1,
+          "accuracy": 100
         }
       ]
     }

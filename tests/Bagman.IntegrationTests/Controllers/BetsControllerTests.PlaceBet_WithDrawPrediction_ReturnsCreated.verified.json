@@ -103,7 +103,7 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_7"
+          "joinedAt": "DateTimeOffset_6"
         }
       ]
     }
@@ -146,12 +146,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_8",
+      "expiresAt": "DateTimeOffset_7",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_8",
         "isActive": true,
         "isSuperAdmin": false
       }
@@ -171,12 +171,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_10",
+      "expiresAt": "DateTimeOffset_9",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_11",
+        "createdAt": "DateTimeOffset_10",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -192,7 +192,7 @@
     "RequestContent": {
       "Country1": "Italy",
       "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_12"
+      "MatchDateTime": "DateTimeOffset_11"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -203,9 +203,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Italy",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_12",
+      "matchDateTime": "DateTimeOffset_11",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_13"
+      "createdAt": "DateTimeOffset_12"
     }
   },
   {
@@ -227,7 +227,7 @@
       "userId": "Guid_5",
       "matchId": "Guid_7",
       "prediction": "X",
-      "editedAt": "DateTimeOffset_14"
+      "editedAt": "DateTimeOffset_13"
     }
   }
 ]

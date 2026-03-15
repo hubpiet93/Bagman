@@ -61,7 +61,6 @@ public record BetInfo
 
 public record PoolInfo
 {
-    public required Guid Id { get; init; }
     public required Guid MatchId { get; init; }
     public required decimal Amount { get; init; }
     public required string Status { get; init; }

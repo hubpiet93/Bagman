@@ -79,7 +79,16 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_5"
+          "joinedAt": "DateTimeOffset_4"
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 0,
+          "betsPlaced": 0,
+          "poolsWon": 0,
+          "totalWon": 0
         }
       ]
     }

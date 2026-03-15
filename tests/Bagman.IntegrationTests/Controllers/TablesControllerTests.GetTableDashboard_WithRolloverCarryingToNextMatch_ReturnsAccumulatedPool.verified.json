@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Bagman.IntegrationTests.Controllers.MatchesControllerTests.GetMatch_WithValidId_ReturnsOkWithMatchResponse"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithRolloverCarryingToNextMatch_ReturnsAccumulatedPool"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Pass@12345",
+      "Password": "Creator@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -35,8 +35,8 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Pass@12345",
-      "TableName": "Test Betting Table Guid_2",
+      "UserPassword": "Creator@12345",
+      "TableName": "Rollover Carry Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
@@ -48,7 +48,7 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Test Betting Table Guid_2",
+      "name": "Rollover Carry Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -115,8 +115,8 @@
       "Authorization": "{Scrubbed}"
     },
     "RequestContent": {
-      "Country1": "Spain",
-      "Country2": "Portugal",
+      "Country1": "Belgium",
+      "Country2": "Netherlands",
       "MatchDateTime": "DateTimeOffset_8"
     },
     "ResponseStatus": "Created 201",
@@ -126,15 +126,37 @@
     "ResponseContent": {
       "id": "Guid_6",
       "eventTypeId": "Guid_3",
-      "country1": "Spain",
-      "country2": "Portugal",
+      "country1": "Belgium",
+      "country2": "Netherlands",
       "matchDateTime": "DateTimeOffset_8",
       "status": "scheduled",
       "createdAt": "DateTimeOffset_9"
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_6",
+    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_6/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "1:0"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_4/matches/Guid_6/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_7",
+      "userId": "Guid_1",
+      "matchId": "Guid_6",
+      "prediction": "1:0",
+      "editedAt": "DateTimeOffset_10"
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
     "RequestOptions": {},
     "RequestMethod": "GET",
     "RequestHeaders": {
@@ -144,15 +166,90 @@
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "id": "Guid_6",
-      "eventTypeId": "Guid_3",
-      "country1": "Spain",
-      "country2": "Portugal",
-      "matchDateTime": "DateTimeOffset_10",
-      "result": null,
-      "status": "scheduled",
-      "started": true,
-      "createdAt": "DateTimeOffset_11"
+      "table": {
+        "id": "Guid_4",
+        "name": "Rollover Carry Table Guid_2",
+        "maxPlayers": 10,
+        "stake": 50.0,
+        "createdAt": "DateTimeOffset_11"
+      },
+      "members": [
+        {
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "isAdmin": true,
+          "joinedAt": "DateTimeOffset_12"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_8",
+          "country1": "England",
+          "country2": "Scotland",
+          "matchDateTime": "DateTimeOffset_13",
+          "result": "1:1",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_6",
+          "country1": "Belgium",
+          "country2": "Netherlands",
+          "matchDateTime": "DateTimeOffset_14",
+          "result": null,
+          "isStarted": false
+        }
+      ],
+      "bets": [
+        {
+          "id": "Guid_9",
+          "userId": "Guid_1",
+          "matchId": "Guid_8",
+          "prediction": "2:0",
+          "editedAt": "DateTimeOffset_15"
+        },
+        {
+          "id": "Guid_7",
+          "userId": "Guid_1",
+          "matchId": "Guid_6",
+          "prediction": "1:0",
+          "editedAt": "DateTimeOffset_16"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_8",
+          "amount": 50.0,
+          "status": "rollover",
+          "winners": null
+        },
+        {
+          "matchId": "Guid_6",
+          "amount": 100.0,
+          "status": "active",
+          "winners": null
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 1,
+          "betsPlaced": 2,
+          "poolsWon": 0,
+          "totalWon": 0
+        }
+      ],
+      "leaderboard": [
+        {
+          "position": 1,
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "points": 0,
+          "exactHits": 0,
+          "winnerHits": 0,
+          "totalBets": 1,
+          "accuracy": 0
+        }
+      ]
     }
   }
 ]

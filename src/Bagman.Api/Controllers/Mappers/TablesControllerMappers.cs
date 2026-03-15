@@ -167,7 +167,6 @@ public static class TablesControllerMappers
     {
         return new PoolInfo
         {
-            Id = result.Id,
             MatchId = result.MatchId,
             Amount = result.Amount,
             Status = result.Status,

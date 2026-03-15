@@ -79,16 +79,57 @@
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_5"
+          "joinedAt": "DateTimeOffset_4"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_5",
+          "country1": "Croatia",
+          "country2": "Brazil",
+          "matchDateTime": "DateTimeOffset_5",
+          "result": "1:0",
+          "isStarted": true
+        }
+      ],
+      "bets": [
+        {
+          "id": "Guid_6",
+          "userId": "Guid_1",
+          "matchId": "Guid_5",
+          "prediction": "1:0",
+          "editedAt": "DateTimeOffset_6"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_5",
+          "amount": 50.0,
+          "status": "won",
+          "winners": [
+            "Guid_1"
+          ]
         }
       ],
       "stats": [
         {
           "userId": "Guid_1",
-          "matchesPlayed": 3,
-          "betsPlaced": 3,
+          "matchesPlayed": 1,
+          "betsPlaced": 1,
           "poolsWon": 1,
-          "totalWon": 150.0
+          "totalWon": 50.0
+        }
+      ],
+      "leaderboard": [
+        {
+          "position": 1,
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "points": 3,
+          "exactHits": 1,
+          "winnerHits": 0,
+          "totalBets": 1,
+          "accuracy": 100
         }
       ]
     }

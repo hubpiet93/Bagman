@@ -25,8 +25,6 @@ public static class AppServicesInitializationExtensions
 
         // Keep old repositories for compatibility during migration
         services.AddScoped<IUserRepository, EfUserRepository>();
-        services.AddScoped<IPoolRepository, EfPoolRepository>();
-        services.AddScoped<IUserStatsRepository, EfUserStatsRepository>();
 
         return services;
     }

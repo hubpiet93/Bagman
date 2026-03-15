@@ -25,6 +25,4 @@ public class User
     // Navigation properties
     // Note: TableMemberships and Bets are owned by Table and Match aggregates, so no direct navigation
     public virtual ICollection<Table> CreatedTables { get; set; } = new List<Table>();
-    public virtual ICollection<UserStats> Stats { get; set; } = new List<UserStats>();
-    public virtual ICollection<PoolWinner> PoolWinnings { get; set; } = new List<PoolWinner>();
 }

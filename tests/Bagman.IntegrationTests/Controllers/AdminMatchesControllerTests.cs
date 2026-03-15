@@ -152,7 +152,7 @@ public class AdminMatchesControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
-    public async Task UpdateMatch_WithStartedMatch_ReturnsBadRequest()
+    public async Task UpdateMatch_WithStartedMatch_AsSuperAdmin_ReturnsOk()
     {
         // Arrange
         var superAdminToken = await HttpClient.GetSuperAdminTokenAsync(Services);

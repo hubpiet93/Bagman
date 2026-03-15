@@ -57,377 +57,6 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/auth/register",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {},
-    "RequestContent": {
-      "Login": "{Scrubbed}",
-      "Password": "SuperAdmin@12345",
-      "Email": "{Scrubbed}"
-    },
-    "ResponseStatus": "OK 200",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "accessToken": "{Scrubbed}",
-      "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_4",
-      "user": {
-        "id": "Guid_5",
-        "login": "{Scrubbed}",
-        "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_5",
-        "isActive": true,
-        "isSuperAdmin": false
-      }
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/auth/login",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {},
-    "RequestContent": {
-      "Login": "{Scrubbed}",
-      "Password": "SuperAdmin@12345"
-    },
-    "ResponseStatus": "OK 200",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "accessToken": "{Scrubbed}",
-      "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_6",
-      "user": {
-        "id": "Guid_5",
-        "login": "{Scrubbed}",
-        "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_7",
-        "isActive": true,
-        "isSuperAdmin": true
-      }
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Country1": "Match1 Team A",
-      "Country2": "Match1 Team B",
-      "MatchDateTime": "DateTimeOffset_8"
-    },
-    "ResponseStatus": "BadRequest 400",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "MatchDateTime": [
-          "Data meczu musi być w przyszłości"
-        ]
-      },
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Country1": "Match2 Team A",
-      "Country2": "Match2 Team B",
-      "MatchDateTime": "DateTimeOffset_9"
-    },
-    "ResponseStatus": "BadRequest 400",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "MatchDateTime": [
-          "Data meczu musi być w przyszłości"
-        ]
-      },
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Country1": "Match3 Team A",
-      "Country2": "Match3 Team B",
-      "MatchDateTime": "DateTimeOffset_10"
-    },
-    "ResponseStatus": "BadRequest 400",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "MatchDateTime": [
-          "Data meczu musi być w przyszłości"
-        ]
-      },
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Country1": "Match4 Team A",
-      "Country2": "Match4 Team B",
-      "MatchDateTime": "DateTimeOffset_11"
-    },
-    "ResponseStatus": "BadRequest 400",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "MatchDateTime": [
-          "Data meczu musi być w przyszłości"
-        ]
-      },
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/event-types/Guid_3/matches",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Country1": "Match5 Team A",
-      "Country2": "Match5 Team B",
-      "MatchDateTime": "DateTimeOffset_12"
-    },
-    "ResponseStatus": "BadRequest 400",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-      "title": "One or more validation errors occurred.",
-      "status": 400,
-      "errors": {
-        "MatchDateTime": [
-          "Data meczu musi być w przyszłości"
-        ]
-      },
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_Empty/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "2:1"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_Empty/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "1:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_Empty/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "3:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_Empty/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "2:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_Empty/bets",
-    "RequestOptions": {},
-    "RequestMethod": "POST",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Prediction": "0:1"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
-    "RequestOptions": {},
-    "RequestMethod": "PUT",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Result": "2:1"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
-    "RequestOptions": {},
-    "RequestMethod": "PUT",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Result": "1:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
-    "RequestOptions": {},
-    "RequestMethod": "PUT",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Result": "2:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
-    "RequestOptions": {},
-    "RequestMethod": "PUT",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Result": "0:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
-    "RequestUri": "http://localhost/api/admin/matches/Guid_Empty/result",
-    "RequestOptions": {},
-    "RequestMethod": "PUT",
-    "RequestHeaders": {
-      "Authorization": "{Scrubbed}"
-    },
-    "RequestContent": {
-      "Result": "1:0"
-    },
-    "ResponseStatus": "NotFound 404",
-    "ResponseHeaders": {},
-    "ResponseContent": {
-      "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-      "title": "Not Found",
-      "status": 404,
-      "traceId": "{Scrubbed}"
-    }
-  },
-  {
     "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
     "RequestOptions": {},
     "RequestMethod": "GET",
@@ -443,14 +72,150 @@
         "name": "Leaderboard Accuracy Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_13"
+        "createdAt": "DateTimeOffset_4"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_14"
+          "joinedAt": "DateTimeOffset_4"
+        }
+      ],
+      "matches": [
+        {
+          "id": "Guid_5",
+          "country1": "Match1 Team A",
+          "country2": "Match1 Team B",
+          "matchDateTime": "DateTimeOffset_5",
+          "result": "2:1",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_6",
+          "country1": "Match2 Team A",
+          "country2": "Match2 Team B",
+          "matchDateTime": "DateTimeOffset_6",
+          "result": "1:0",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_7",
+          "country1": "Match3 Team A",
+          "country2": "Match3 Team B",
+          "matchDateTime": "DateTimeOffset_7",
+          "result": "2:0",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_8",
+          "country1": "Match4 Team A",
+          "country2": "Match4 Team B",
+          "matchDateTime": "DateTimeOffset_8",
+          "result": "0:0",
+          "isStarted": true
+        },
+        {
+          "id": "Guid_9",
+          "country1": "Match5 Team A",
+          "country2": "Match5 Team B",
+          "matchDateTime": "DateTimeOffset_9",
+          "result": "1:0",
+          "isStarted": true
+        }
+      ],
+      "bets": [
+        {
+          "id": "Guid_10",
+          "userId": "Guid_1",
+          "matchId": "Guid_5",
+          "prediction": "2:1",
+          "editedAt": "DateTimeOffset_10"
+        },
+        {
+          "id": "Guid_11",
+          "userId": "Guid_1",
+          "matchId": "Guid_6",
+          "prediction": "1:0",
+          "editedAt": "DateTimeOffset_11"
+        },
+        {
+          "id": "Guid_12",
+          "userId": "Guid_1",
+          "matchId": "Guid_7",
+          "prediction": "3:0",
+          "editedAt": "DateTimeOffset_12"
+        },
+        {
+          "id": "Guid_13",
+          "userId": "Guid_1",
+          "matchId": "Guid_8",
+          "prediction": "2:0",
+          "editedAt": "DateTimeOffset_13"
+        },
+        {
+          "id": "Guid_14",
+          "userId": "Guid_1",
+          "matchId": "Guid_9",
+          "prediction": "0:1",
+          "editedAt": "DateTimeOffset_14"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_5",
+          "amount": 50.0,
+          "status": "won",
+          "winners": [
+            "Guid_1"
+          ]
+        },
+        {
+          "matchId": "Guid_6",
+          "amount": 50.0,
+          "status": "won",
+          "winners": [
+            "Guid_1"
+          ]
+        },
+        {
+          "matchId": "Guid_7",
+          "amount": 50.0,
+          "status": "rollover",
+          "winners": null
+        },
+        {
+          "matchId": "Guid_8",
+          "amount": 100.0,
+          "status": "rollover",
+          "winners": null
+        },
+        {
+          "matchId": "Guid_9",
+          "amount": 150.0,
+          "status": "rollover",
+          "winners": null
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 5,
+          "betsPlaced": 5,
+          "poolsWon": 2,
+          "totalWon": 100.0
+        }
+      ],
+      "leaderboard": [
+        {
+          "position": 1,
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "points": 7,
+          "exactHits": 2,
+          "winnerHits": 1,
+          "totalBets": 5,
+          "accuracy": 60
         }
       ]
     }

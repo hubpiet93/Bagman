@@ -57,7 +57,6 @@ public record BetDetailResult
 
 public record PoolDetailResult
 {
-    public required Guid Id { get; init; }
     public required Guid MatchId { get; init; }
     public required decimal Amount { get; init; }
     public required string Status { get; init; }
@@ -98,23 +97,17 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
         if (!table.IsUserMember(request.UserId))
             return Error.Forbidden("Table.AccessDenied", "Nie masz dostępu do tego stołu");
 
-        // Get table members in parallel
         var members = await GetTableMembersAsync(request.TableId, cancellationToken);
-
-        // Get matches for the table's event type in parallel
         var matches = await GetMatchesAsync(table.EventTypeId, cancellationToken);
 
-        // Get all bets for those matches
         var matchIds = matches.Select(m => m.Id).ToList();
         var bets = await GetBetsAsync(matchIds, cancellationToken);
 
-        // Get pools for those matches
-        var pools = await GetPoolsAsync(matchIds, cancellationToken);
+        var memberUserIds = members.Select(m => m.UserId).ToHashSet();
+        var stake = table.Stake.Amount;
 
-        // Get user stats for the table
-        var stats = await GetUserStatsAsync(request.TableId, cancellationToken);
-
-        // Calculate leaderboard
+        var pools = ComputePools(matches, bets, memberUserIds, stake);
+        var stats = ComputeStats(members, matches, bets, pools);
         var leaderboard = CalculateLeaderboard(members, matches, bets);
 
         return new TableDashboardResult
@@ -122,7 +115,7 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
             TableId = table.Id,
             TableName = table.Name.Value,
             MaxPlayers = table.MaxPlayers,
-            Stake = table.Stake.Amount,
+            Stake = stake,
             TableCreatedAt = table.CreatedAt,
             Members = members,
             Matches = matches,
@@ -193,41 +186,102 @@ public class GetTableDashboardHandler : IFeatureHandler<GetTableDashboardQuery, 
             .ToListAsync(cancellationToken);
     }
 
-    private async Task<List<PoolDetailResult>> GetPoolsAsync(
-        List<Guid> matchIds,
-        CancellationToken cancellationToken)
+    private static List<PoolDetailResult> ComputePools(
+        List<MatchDetailResult> matches,
+        List<BetDetailResult> bets,
+        HashSet<Guid> memberUserIds,
+        decimal stake)
     {
-        if (!matchIds.Any())
-            return new List<PoolDetailResult>();
+        var memberBetsByMatch = bets
+            .Where(b => memberUserIds.Contains(b.UserId))
+            .GroupBy(b => b.MatchId)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
-        return await _dbContext.Pools
-            .Where(p => matchIds.Contains(p.MatchId))
-            .Select(p => new PoolDetailResult
+        var pools = new List<PoolDetailResult>();
+        decimal runningRollover = 0;
+
+        foreach (var match in matches.OrderBy(m => m.MatchDateTime))
+        {
+            var matchBets = memberBetsByMatch.GetValueOrDefault(match.Id, new List<BetDetailResult>());
+            decimal poolAmount = memberUserIds.Count * stake + runningRollover;
+
+            if (poolAmount == 0)
+                continue;
+
+            string status;
+            List<Guid> winners = new();
+
+            if (match.Result == null)
             {
-                Id = p.Id,
-                MatchId = p.MatchId,
-                Amount = p.Amount,
-                Status = p.Status,
-                Winners = p.Winners.Select(w => w.UserId).ToList()
-            })
-            .ToListAsync(cancellationToken);
+                status = "active";
+            }
+            else
+            {
+                winners = matchBets
+                    .Where(b => BetScoringService.CalculateResult(b.Prediction, match.Result).Type == BetResultType.ExactHit)
+                    .Select(b => b.UserId)
+                    .ToList();
+
+                if (winners.Any())
+                {
+                    status = "won";
+                    runningRollover = 0;
+                }
+                else
+                {
+                    status = "rollover";
+                    runningRollover = poolAmount;
+                }
+            }
+
+            pools.Add(new PoolDetailResult
+            {
+                MatchId = match.Id,
+                Amount = poolAmount,
+                Status = status,
+                Winners = winners.Any() ? winners : null
+            });
+        }
+
+        return pools;
     }
 
-    private async Task<List<StatsDetailResult>> GetUserStatsAsync(
-        Guid tableId,
-        CancellationToken cancellationToken)
+    private static List<StatsDetailResult> ComputeStats(
+        List<MemberDetailResult> members,
+        List<MatchDetailResult> matches,
+        List<BetDetailResult> bets,
+        List<PoolDetailResult> pools)
     {
-        return await _dbContext.UserStats
-            .Where(s => s.TableId == tableId)
-            .Select(s => new StatsDetailResult
+        var finishedMatchIds = matches
+            .Where(m => m.Result != null)
+            .Select(m => m.Id)
+            .ToHashSet();
+
+        var wonPools = pools.Where(p => p.Status == "won").ToList();
+
+        return members.Select(member =>
+        {
+            var memberBets = bets.Where(b => b.UserId == member.UserId).ToList();
+            var betsPlaced = memberBets.Count;
+            var matchesPlayed = memberBets
+                .Select(b => b.MatchId)
+                .Distinct()
+                .Count(mid => finishedMatchIds.Contains(mid));
+
+            var poolsWon = wonPools.Count(p => p.Winners != null && p.Winners.Contains(member.UserId));
+            var totalWon = wonPools
+                .Where(p => p.Winners != null && p.Winners.Contains(member.UserId))
+                .Sum(p => p.Amount / p.Winners!.Count);
+
+            return new StatsDetailResult
             {
-                UserId = s.UserId,
-                MatchesPlayed = s.MatchesPlayed,
-                BetsPlaced = s.BetsPlaced,
-                PoolsWon = s.PoolsWon,
-                TotalWon = s.TotalWon
-            })
-            .ToListAsync(cancellationToken);
+                UserId = member.UserId,
+                MatchesPlayed = matchesPlayed,
+                BetsPlaced = betsPlaced,
+                PoolsWon = poolsWon,
+                TotalWon = totalWon
+            };
+        }).ToList();
     }
 
     private List<LeaderboardEntryResult> CalculateLeaderboard(

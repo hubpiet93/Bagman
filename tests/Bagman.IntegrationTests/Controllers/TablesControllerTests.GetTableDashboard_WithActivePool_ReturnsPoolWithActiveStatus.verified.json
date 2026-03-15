@@ -134,6 +134,28 @@
     }
   },
   {
+    "RequestUri": "http://localhost/api/tables/Guid_4/matches/Guid_6/bets",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Prediction": "1:0"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/tables/Guid_4/matches/Guid_6/bets/my"
+    },
+    "ResponseContent": {
+      "id": "Guid_7",
+      "userId": "Guid_1",
+      "matchId": "Guid_6",
+      "prediction": "1:0",
+      "editedAt": "DateTimeOffset_10"
+    }
+  },
+  {
     "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
     "RequestOptions": {},
     "RequestMethod": "GET",
@@ -149,7 +171,7 @@
         "name": "Active Pool Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_10"
+        "createdAt": "DateTimeOffset_11"
       },
       "members": [
         {
@@ -169,12 +191,42 @@
           "isStarted": false
         }
       ],
-      "pools": [
+      "bets": [
         {
           "id": "Guid_7",
+          "userId": "Guid_1",
           "matchId": "Guid_6",
-          "amount": 200.0,
-          "status": "active"
+          "prediction": "1:0",
+          "editedAt": "DateTimeOffset_10"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_6",
+          "amount": 50.0,
+          "status": "active",
+          "winners": null
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 0,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
+        }
+      ],
+      "leaderboard": [
+        {
+          "position": 1,
+          "userId": "Guid_1",
+          "login": "{Scrubbed}",
+          "points": 0,
+          "exactHits": 0,
+          "winnerHits": 0,
+          "totalBets": 0,
+          "accuracy": 0
         }
       ]
     }

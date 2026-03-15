@@ -197,7 +197,24 @@
           "userId": "Guid_1",
           "matchId": "Guid_6",
           "prediction": "1:0",
-          "editedAt": "DateTimeOffset_10"
+          "editedAt": "DateTimeOffset_12"
+        }
+      ],
+      "pools": [
+        {
+          "matchId": "Guid_6",
+          "amount": 50.0,
+          "status": "active",
+          "winners": null
+        }
+      ],
+      "stats": [
+        {
+          "userId": "Guid_1",
+          "matchesPlayed": 0,
+          "betsPlaced": 1,
+          "poolsWon": 0,
+          "totalWon": 0
         }
       ],
       "leaderboard": [

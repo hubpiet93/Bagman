@@ -24,8 +24,6 @@ public class Table
     public virtual User? CreatedByUser { get; private set; }
     public virtual EventType? EventType { get; private set; }
     public virtual IReadOnlyCollection<TableMember> Members => _members.AsReadOnly();
-    public virtual ICollection<UserStats> UserStats { get; private set; } = new List<UserStats>();
-
     // EF Core constructor
     private Table()
     {
