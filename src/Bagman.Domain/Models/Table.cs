@@ -13,7 +13,7 @@ public class Table
     public Guid Id { get; }
     public TableName Name { get; private set; } = null!;
     public string PasswordHash { get; private set; } = string.Empty;
-    public int MaxPlayers { get; }
+    public int MaxPlayers { get; private set; }
     public Money Stake { get; private set; } = null!;
     public Guid CreatedBy { get; private set; }
     public Guid EventTypeId { get; private set; }
@@ -142,6 +142,34 @@ public class Table
                 "Członek nie został znaleziony");
 
         _members.Remove(member);
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> Update(
+        TableName? name,
+        string? newPasswordHash,
+        int? maxPlayers,
+        Money? stake)
+    {
+        if (maxPlayers.HasValue)
+        {
+            if (maxPlayers.Value < 1)
+                return Error.Validation(
+                    "Table.InvalidMaxPlayers",
+                    "Max players must be at least 1");
+
+            if (maxPlayers.Value < _members.Count)
+                return Error.Validation(
+                    "Table.MaxPlayersBelowMemberCount",
+                    "Nie można ustawić MaxPlayers poniżej aktualnej liczby członków");
+
+            MaxPlayers = maxPlayers.Value;
+        }
+
+        if (name is not null) Name = name;
+        if (newPasswordHash is not null) PasswordHash = newPasswordHash;
+        if (stake is not null) Stake = stake;
+
         return Result.Success;
     }
 

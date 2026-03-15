@@ -10,6 +10,7 @@ using Bagman.Application.Features.Tables.GrantAdmin;
 using Bagman.Application.Features.Tables.JoinTable;
 using Bagman.Application.Features.Tables.LeaveTable;
 using Bagman.Application.Features.Tables.RevokeAdmin;
+using Bagman.Application.Features.Tables.UpdateTable;
 using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
 using Bagman.Domain.Services;
@@ -304,6 +305,33 @@ public class TablesController : AppControllerBase
         };
 
         return Ok(response);
+    }
+
+    /// <summary>
+    ///     Aktualizacja parametrów stołu (tylko admin stołu)
+    /// </summary>
+    [HttpPatch("{tableId}")]
+    public async Task<IActionResult> UpdateTable(Guid tableId, [FromBody] UpdateTableRequest request)
+    {
+        var userId = GetUserId();
+        if (!userId.HasValue)
+            return Unauthorized();
+
+        var result = await _dispatcher.HandleAsync<UpdateTableCommand, UpdateTableResult>(
+            new UpdateTableCommand
+            {
+                TableId = tableId,
+                RequestingUserId = userId.Value,
+                Name = request.Name,
+                Password = request.Password,
+                MaxPlayers = request.MaxPlayers,
+                Stake = request.Stake
+            });
+
+        if (result.IsError)
+            return MapErrors(result.Errors);
+
+        return Ok(result.Value.ToTableResponse());
     }
 
     /// <summary>

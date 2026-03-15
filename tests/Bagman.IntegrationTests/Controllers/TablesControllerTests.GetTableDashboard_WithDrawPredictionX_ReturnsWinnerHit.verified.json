@@ -187,14 +187,14 @@
         "name": "Leaderboard Draw Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_9"
+        "createdAt": "DateTimeOffset_3"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_10"
+          "joinedAt": "DateTimeOffset_3"
         }
       ]
     }

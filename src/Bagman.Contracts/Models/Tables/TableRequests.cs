@@ -33,6 +33,14 @@ public record JoinTableAuthorizedRequest
     public required string Password { get; init; }
 }
 
+public record UpdateTableRequest
+{
+    public string? Name { get; init; }
+    public string? Password { get; init; }
+    public int? MaxPlayers { get; init; }
+    public decimal? Stake { get; init; }
+}
+
 public record TableResponse
 {
     public required Guid Id { get; init; }

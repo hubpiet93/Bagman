@@ -171,14 +171,14 @@
         "name": "Leaderboard Empty Table Guid_2",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_3"
+        "createdAt": "DateTimeOffset_11"
       },
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_3"
+          "joinedAt": "DateTimeOffset_11"
         }
       ],
       "matches": [
@@ -186,7 +186,7 @@
           "id": "Guid_6",
           "country1": "Japan",
           "country2": "Korea",
-          "matchDateTime": "DateTimeOffset_11",
+          "matchDateTime": "DateTimeOffset_8",
           "result": null,
           "isStarted": false
         }

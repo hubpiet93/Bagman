@@ -148,11 +148,11 @@
       "eventTypeId": "Guid_3",
       "country1": "France",
       "country2": "Italy",
-      "matchDateTime": "DateTimeOffset_8",
+      "matchDateTime": "DateTimeOffset_10",
       "result": null,
       "status": "scheduled",
       "started": true,
-      "createdAt": "DateTimeOffset_10"
+      "createdAt": "DateTimeOffset_11"
     }
   }
 ]

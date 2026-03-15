@@ -7,7 +7,8 @@
       "Bash(python -c \"print\\(''ok''\\)\")",
       "Bash(py -c \"print\\(''ok''\\)\")",
       "Bash(python3.exe -c \"print\\(''ok''\\)\")",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(dotnet restore:*)"
     ]
   }
 }

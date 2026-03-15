@@ -3,6 +3,7 @@ using Bagman.Application.Features.Tables.GetTableByName;
 using Bagman.Application.Features.Tables.GetTableDashboard;
 using Bagman.Application.Features.Tables.GetTableDetails;
 using Bagman.Application.Features.Tables.GetUserTables;
+using Bagman.Application.Features.Tables.UpdateTable;
 using Bagman.Contracts.Models;
 using Bagman.Contracts.Models.Tables;
 
@@ -39,6 +40,20 @@ public static class TablesControllerMappers
     }
 
     public static TableResponse ToTableResponse(this UserTableResult result)
+    {
+        return new TableResponse
+        {
+            Id = result.Id,
+            Name = result.Name,
+            MaxPlayers = result.MaxPlayers,
+            Stake = result.Stake,
+            CreatedBy = result.CreatedBy,
+            CreatedAt = result.CreatedAt,
+            IsSecretMode = result.IsSecretMode
+        };
+    }
+
+    public static TableResponse ToTableResponse(this UpdateTableResult result)
     {
         return new TableResponse
         {

@@ -1,6 +1,6 @@
 ﻿[
   {
-    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.GetTableDashboard_WithExpiredPool_ReturnsPoolWithExpiredStatus"
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.UpdateTable_AsAdmin_WithValidName_ReturnsOkWithUpdatedTable"
   },
   {
     "RequestUri": "http://localhost/api/auth/register",
@@ -9,7 +9,7 @@
     "RequestHeaders": {},
     "RequestContent": {
       "Login": "{Scrubbed}",
-      "Password": "Creator@12345",
+      "Password": "Pass@12345",
       "Email": "{Scrubbed}"
     },
     "ResponseStatus": "OK 200",
@@ -35,8 +35,8 @@
     "RequestHeaders": {},
     "RequestContent": {
       "UserLogin": "{Scrubbed}",
-      "UserPassword": "Creator@12345",
-      "TableName": "Expired Pool Table Guid_2",
+      "UserPassword": "Pass@12345",
+      "TableName": "Test Betting Table Guid_2",
       "TablePassword": "TablePass@123",
       "MaxPlayers": 10,
       "Stake": 50.0,
@@ -48,7 +48,7 @@
     },
     "ResponseContent": {
       "id": "Guid_4",
-      "name": "Expired Pool Table Guid_2",
+      "name": "Test Betting Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
@@ -57,49 +57,28 @@
     }
   },
   {
-    "RequestUri": "http://localhost/api/tables/Guid_4/dashboard",
+    "RequestUri": "http://localhost/api/tables/Guid_4",
     "RequestOptions": {},
-    "RequestMethod": "GET",
+    "RequestMethod": "PATCH",
     "RequestHeaders": {
       "Authorization": "{Scrubbed}"
     },
-    "RequestContent": null,
+    "RequestContent": {
+      "Name": "Updated Table Name",
+      "Password": null,
+      "MaxPlayers": null,
+      "Stake": null
+    },
     "ResponseStatus": "OK 200",
     "ResponseHeaders": {},
     "ResponseContent": {
-      "table": {
-        "id": "Guid_4",
-        "name": "Expired Pool Table Guid_2",
-        "maxPlayers": 10,
-        "stake": 50.0,
-        "createdAt": "DateTimeOffset_4"
-      },
-      "members": [
-        {
-          "userId": "Guid_1",
-          "login": "{Scrubbed}",
-          "isAdmin": true,
-          "joinedAt": "DateTimeOffset_5"
-        }
-      ],
-      "matches": [
-        {
-          "id": "Guid_5",
-          "country1": "England",
-          "country2": "Scotland",
-          "matchDateTime": "DateTimeOffset_6",
-          "result": null,
-          "isStarted": true
-        }
-      ],
-      "pools": [
-        {
-          "id": "Guid_6",
-          "matchId": "Guid_5",
-          "amount": 100.0,
-          "status": "expired"
-        }
-      ]
+      "id": "Guid_4",
+      "name": "Updated Table Name",
+      "maxPlayers": 10,
+      "stake": 50.0,
+      "createdBy": "Guid_1",
+      "createdAt": "DateTimeOffset_3",
+      "isSecretMode": false
     }
   }
 ]

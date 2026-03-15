@@ -47,7 +47,7 @@
         "id": "Guid_1",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_2",
+        "createdAt": "DateTimeOffset_4",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -63,7 +63,7 @@
     "RequestContent": {
       "Country1": "Brazil",
       "Country2": "Argentina",
-      "MatchDateTime": "DateTimeOffset_4"
+      "MatchDateTime": "DateTimeOffset_5"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -74,9 +74,9 @@
       "eventTypeId": "Guid_2",
       "country1": "Brazil",
       "country2": "Argentina",
-      "matchDateTime": "DateTimeOffset_4",
+      "matchDateTime": "DateTimeOffset_5",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_5"
+      "createdAt": "DateTimeOffset_6"
     }
   },
   {
@@ -95,22 +95,22 @@
         "eventTypeId": "Guid_2",
         "country1": "France",
         "country2": "Germany",
-        "matchDateTime": "DateTimeOffset_6",
+        "matchDateTime": "DateTimeOffset_7",
         "result": "2:1",
         "status": "finished",
         "started": true,
-        "createdAt": "DateTimeOffset_7"
+        "createdAt": "DateTimeOffset_8"
       },
       {
         "id": "Guid_3",
         "eventTypeId": "Guid_2",
         "country1": "Brazil",
         "country2": "Argentina",
-        "matchDateTime": "DateTimeOffset_8",
+        "matchDateTime": "DateTimeOffset_9",
         "result": null,
         "status": "scheduled",
         "started": false,
-        "createdAt": "DateTimeOffset_9"
+        "createdAt": "DateTimeOffset_10"
       }
     ]
   }

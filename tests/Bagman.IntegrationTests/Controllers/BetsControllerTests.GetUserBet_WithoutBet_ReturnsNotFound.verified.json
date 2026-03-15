@@ -97,13 +97,13 @@
       "name": "Test Betting Table Guid_2",
       "maxPlayers": 10,
       "stake": 50.0,
-      "createdAt": "DateTimeOffset_6",
+      "createdAt": "DateTimeOffset_3",
       "members": [
         {
           "userId": "Guid_1",
           "login": "{Scrubbed}",
           "isAdmin": true,
-          "joinedAt": "DateTimeOffset_7"
+          "joinedAt": "DateTimeOffset_3"
         }
       ]
     }
@@ -127,7 +127,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_6",
+      "createdAt": "DateTimeOffset_3",
       "isSecretMode": false
     }
   },
@@ -146,12 +146,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_8",
+      "expiresAt": "DateTimeOffset_6",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true,
         "isSuperAdmin": false
       }
@@ -171,12 +171,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_10",
+      "expiresAt": "DateTimeOffset_8",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_9",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -192,7 +192,7 @@
     "RequestContent": {
       "Country1": "Italy",
       "Country2": "France",
-      "MatchDateTime": "DateTimeOffset_11"
+      "MatchDateTime": "DateTimeOffset_9"
     },
     "ResponseStatus": "Created 201",
     "ResponseHeaders": {
@@ -203,9 +203,9 @@
       "eventTypeId": "Guid_3",
       "country1": "Italy",
       "country2": "France",
-      "matchDateTime": "DateTimeOffset_11",
+      "matchDateTime": "DateTimeOffset_9",
       "status": "scheduled",
-      "createdAt": "DateTimeOffset_12"
+      "createdAt": "DateTimeOffset_10"
     }
   },
   {

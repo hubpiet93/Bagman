@@ -101,7 +101,7 @@
       "maxPlayers": 10,
       "stake": 50.0,
       "createdBy": "Guid_1",
-      "createdAt": "DateTimeOffset_6",
+      "createdAt": "DateTimeOffset_5",
       "isSecretMode": false
     }
   },
@@ -120,12 +120,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_7",
+      "expiresAt": "DateTimeOffset_6",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_8",
+        "createdAt": "DateTimeOffset_7",
         "isActive": true,
         "isSuperAdmin": false
       }
@@ -145,12 +145,12 @@
     "ResponseContent": {
       "accessToken": "{Scrubbed}",
       "refreshToken": "{Scrubbed}",
-      "expiresAt": "DateTimeOffset_9",
+      "expiresAt": "DateTimeOffset_8",
       "user": {
         "id": "Guid_6",
         "login": "{Scrubbed}",
         "email": "{Scrubbed}",
-        "createdAt": "DateTimeOffset_8",
+        "createdAt": "DateTimeOffset_9",
         "isActive": true,
         "isSuperAdmin": true
       }
@@ -198,7 +198,7 @@
         "name": "Multi Pool Status Table Guid_3",
         "maxPlayers": 10,
         "stake": 50.0,
-        "createdAt": "DateTimeOffset_6"
+        "createdAt": "DateTimeOffset_5"
       },
       "members": [
         {
@@ -263,18 +263,18 @@
         },
         {
           "id": "Guid_13",
+          "matchId": "Guid_10",
+          "amount": 100.0,
+          "status": "expired"
+        },
+        {
+          "id": "Guid_14",
           "matchId": "Guid_8",
           "amount": 100.0,
           "status": "won",
           "winners": [
             "Guid_1"
           ]
-        },
-        {
-          "id": "Guid_14",
-          "matchId": "Guid_10",
-          "amount": 100.0,
-          "status": "expired"
         }
       ],
       "stats": [

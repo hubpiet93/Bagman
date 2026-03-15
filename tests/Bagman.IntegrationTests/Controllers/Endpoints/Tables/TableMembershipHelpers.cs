@@ -1,4 +1,5 @@
 using Bagman.Contracts.Models.Tables;
+using Bagman.IntegrationTests.Controllers.Endpoints;
 
 namespace Bagman.IntegrationTests.Controllers.Endpoints.Tables;
 
@@ -59,5 +60,24 @@ public static class TableMembershipHelpers
         string? token = null) where T : class
     {
         return client.DeleteAsync<T>($"/api/tables/{tableId}/admins/{userId}", token);
+    }
+
+    /// <summary>
+    ///     Updates table parameters via PATCH /api/tables/{tableId}.
+    ///     Only provided fields are updated (partial update). Requires a table admin token.
+    /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for snapshot testing, or a concrete type for deserialization.</typeparam>
+    /// <param name="client">The HttpClient instance.</param>
+    /// <param name="tableId">The ID of the table to update.</param>
+    /// <param name="request">The update request (all fields optional).</param>
+    /// <param name="token">Optional Bearer token for authentication (must be table admin).</param>
+    /// <returns>Response of type T.</returns>
+    public static Task<T> UpdateTableAsync<T>(
+        this HttpClient client,
+        Guid tableId,
+        UpdateTableRequest request,
+        string? token = null) where T : class
+    {
+        return client.PatchAsync<T>($"/api/tables/{tableId}", request, token);
     }
 }

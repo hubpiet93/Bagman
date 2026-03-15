@@ -110,6 +110,41 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
+    ///     Sends a PATCH request with JSON content.
+    ///     Returns HttpResponseMessage for snapshot testing or deserializes to T.
+    /// </summary>
+    /// <typeparam name="T">HttpResponseMessage for raw response, or a concrete type for deserialization.</typeparam>
+    /// <param name="client">The HttpClient instance.</param>
+    /// <param name="endpoint">The endpoint URL.</param>
+    /// <param name="request">The request object to serialize as JSON.</param>
+    /// <param name="token">Optional Bearer token for authentication.</param>
+    /// <returns>Response of type T.</returns>
+    public static async Task<T> PatchAsync<T>(
+        this HttpClient client,
+        string endpoint,
+        object request,
+        string? token = null) where T : class
+    {
+        var content = new StringContent(
+            JsonConvert.SerializeObject(request),
+            Encoding.UTF8,
+            "application/json");
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Patch, endpoint) {Content = content};
+
+        if (token != null)
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await client.SendAsync(httpRequest);
+
+        if (typeof(T) == typeof(HttpResponseMessage))
+            return (response as T)!;
+
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(body)!;
+    }
+
+    /// <summary>
     ///     Sends a DELETE request without body.
     ///     Returns HttpResponseMessage for snapshot testing or deserializes to T.
     /// </summary>

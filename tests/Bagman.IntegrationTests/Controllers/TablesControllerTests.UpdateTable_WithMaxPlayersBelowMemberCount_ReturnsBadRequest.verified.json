@@ -1,0 +1,160 @@
+﻿[
+  {
+    "TestName": "Bagman.IntegrationTests.Controllers.TablesControllerTests.UpdateTable_WithMaxPlayersBelowMemberCount_ReturnsBadRequest"
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "MaxPlayers Violation Table Guid_1",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 5,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_2"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_3"
+    },
+    "ResponseContent": {
+      "id": "Guid_3",
+      "name": "MaxPlayers Violation Table Guid_1",
+      "maxPlayers": 5,
+      "stake": 50.0,
+      "createdBy": "Guid_4",
+      "createdAt": "DateTimeOffset_1",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Creator@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_2",
+      "user": {
+        "id": "Guid_5",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_3",
+        "isActive": true,
+        "isSuperAdmin": false
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Creator@12345",
+      "TableName": "MaxPlayers Table2 Guid_6",
+      "TablePassword": "TablePass@123",
+      "MaxPlayers": 5,
+      "Stake": 50.0,
+      "EventTypeId": "Guid_2"
+    },
+    "ResponseStatus": "Created 201",
+    "ResponseHeaders": {
+      "Location": "http://localhost/api/Tables/Guid_7"
+    },
+    "ResponseContent": {
+      "id": "Guid_7",
+      "name": "MaxPlayers Table2 Guid_6",
+      "maxPlayers": 5,
+      "stake": 50.0,
+      "createdBy": "Guid_8",
+      "createdAt": "DateTimeOffset_4",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/auth/register",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "Login": "{Scrubbed}",
+      "Password": "Member@12345",
+      "Email": "{Scrubbed}"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "accessToken": "{Scrubbed}",
+      "refreshToken": "{Scrubbed}",
+      "expiresAt": "DateTimeOffset_5",
+      "user": {
+        "id": "Guid_9",
+        "login": "{Scrubbed}",
+        "email": "{Scrubbed}",
+        "createdAt": "DateTimeOffset_6",
+        "isActive": true,
+        "isSuperAdmin": false
+      }
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/join",
+    "RequestOptions": {},
+    "RequestMethod": "POST",
+    "RequestHeaders": {},
+    "RequestContent": {
+      "UserLogin": "{Scrubbed}",
+      "UserPassword": "Member@12345",
+      "TableName": "MaxPlayers Table2 Guid_6",
+      "TablePassword": "TablePass@123"
+    },
+    "ResponseStatus": "OK 200",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "id": "Guid_7",
+      "name": "MaxPlayers Table2 Guid_6",
+      "maxPlayers": 5,
+      "stake": 50.0,
+      "createdBy": "Guid_8",
+      "createdAt": "DateTimeOffset_7",
+      "isSecretMode": false
+    }
+  },
+  {
+    "RequestUri": "http://localhost/api/tables/Guid_7",
+    "RequestOptions": {},
+    "RequestMethod": "PATCH",
+    "RequestHeaders": {
+      "Authorization": "{Scrubbed}"
+    },
+    "RequestContent": {
+      "Name": null,
+      "Password": null,
+      "MaxPlayers": 1,
+      "Stake": null
+    },
+    "ResponseStatus": "Forbidden 403",
+    "ResponseHeaders": {},
+    "ResponseContent": {
+      "errors": [
+        {
+          "code": "Table.NotAdmin",
+          "description": "Nie masz uprawnień do edycji tego stołu"
+        }
+      ]
+    }
+  }
+]

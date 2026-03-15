@@ -240,6 +240,87 @@ public class TablesControllerTests : BaseIntegrationTest, IAsyncLifetime
     }
 
     [Fact]
+    public async Task UpdateTable_AsAdmin_WithValidName_ReturnsOkWithUpdatedTable()
+    {
+        // Arrange
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "update_name_creator");
+
+        // Act
+        var request = new UpdateTableRequest {Name = "Updated Table Name"};
+        await HttpClient.UpdateTableAsync<HttpResponseMessage>(tableId, request, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task UpdateTable_AsAdmin_WithAllFields_ReturnsOkWithAllFieldsUpdated()
+    {
+        // Arrange
+        var (tableId, creatorToken, _) = await HttpClient.CreateTableAsync(DefaultEventTypeId, "update_all_creator");
+
+        // Act
+        var request = new UpdateTableRequest
+        {
+            Name = "All Fields Updated",
+            Password = "NewPass@123",
+            MaxPlayers = 20,
+            Stake = 100m
+        };
+        await HttpClient.UpdateTableAsync<HttpResponseMessage>(tableId, request, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task UpdateTable_AsNonAdmin_ReturnsForbidden()
+    {
+        // Arrange - create table as creator, then join as a regular member
+        var tableName = $"NonAdmin Update Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, tableName: tableName);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        var (memberToken, _, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("nonadmin_member", "Member@12345", "nonadmin");
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName, TestConstants.DefaultTablePassword, memberLogin, "Member@12345");
+
+        // Act - non-admin tries to update
+        var request = new UpdateTableRequest {Name = "Attempted Rename"};
+        await HttpClient.UpdateTableAsync<HttpResponseMessage>(createdTable.Id, request, memberToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
+    public async Task UpdateTable_WithMaxPlayersBelowMemberCount_ReturnsBadRequest()
+    {
+        // Arrange - create table with 2 members (creator + joiner), then try to set MaxPlayers = 1
+        var tableName = $"MaxPlayers Violation Table {Guid.NewGuid()}";
+        var createRequest = TableCreationHelpers.CreateDefaultTableRequest(
+            DefaultEventTypeId,
+            tableName: tableName,
+            maxPlayers: 5);
+        var createdTable = await HttpClient.CreateTableAsync<TableResponse>(createRequest);
+
+        // Extract creator token by re-logging in
+        var (creatorToken, _, _) = await HttpClient.RegisterAndGetTokenAsync("maxp_creator", "Creator@12345", "maxp");
+        var tableName2 = $"MaxPlayers Table2 {Guid.NewGuid()}";
+        var createRequest2 = TableCreationHelpers.CreateDefaultTableRequest(DefaultEventTypeId, "maxp_creator", tableName2, maxPlayers: 5);
+        var createdTable2 = await HttpClient.CreateTableAsync<TableResponse>(createRequest2);
+
+        var (_, _, memberLogin) = await HttpClient.RegisterAndGetTokenAsync("maxp_member", "Member@12345", "maxp");
+        await HttpClient.JoinTableAsExistingUserAsync<HttpResponseMessage>(tableName2, TestConstants.DefaultTablePassword, memberLogin, "Member@12345");
+
+        // Act - try to set MaxPlayers below current member count (2)
+        var request = new UpdateTableRequest {MaxPlayers = 1};
+        await HttpClient.UpdateTableAsync<HttpResponseMessage>(createdTable2.Id, request, creatorToken);
+
+        // Assert
+        await VerifyHttpRecording();
+    }
+
+    [Fact]
     public async Task AuthorizedCreateTable_WithValidTokenAndRequest_ReturnsCreated()
     {
         // Arrange

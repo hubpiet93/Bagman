@@ -36,6 +36,7 @@
     - [DELETE /api/tables/{tableId}/members](#delete-apitablestableidmembers)
     - [POST /api/tables/{tableId}/admins](#post-apitablestableidadmins)
     - [DELETE /api/tables/{tableId}/admins/{userId}](#delete-apitablestableidadminsuserid)
+    - [PATCH /api/tables/{tableId}](#patch-apitablestableid)
 5. [MatchesController](#matchescontroller)
     - [GET /api/tables/{tableId}/matches/{matchId}](#get-apitablestableidmatchesmatchid)
 6. [BetsController](#betscontroller)
@@ -2049,6 +2050,91 @@ Authorization: Bearer {Scrubbed}
 
 ---
 
+### PATCH /api/tables/{tableId}
+
+Aktualizuje parametry stołu. Można zmienić dowolny podzbiór pól — pola pominięte w żądaniu pozostają bez zmian. Może wykonać tylko admin stołu.
+
+- **Metoda:** `PATCH`
+- **Ścieżka:** `/api/tables/{tableId}`
+- **Autoryzacja:** Bearer token (wymagane, admin stołu)
+
+#### Parametry ścieżki
+
+| Parametr | Typ | Opis |
+|----------|-----|------|
+| `tableId` | GUID | Identyfikator stołu |
+
+#### Ciało żądania (wszystkie pola opcjonalne)
+
+```json
+{
+  "name": "string | null",
+  "password": "string | null",
+  "maxPlayers": "integer | null",
+  "stake": "decimal | null"
+}
+```
+
+| Pole | Typ | Opis |
+|------|-----|------|
+| `name` | string? | Nowa nazwa stołu (maks. 100 znaków). Pominięcie = bez zmiany |
+| `password` | string? | Nowe hasło stołu (będzie zahashowane). Pominięcie = bez zmiany |
+| `maxPlayers` | integer? | Nowa maks. liczba graczy (min. 1, nie może być mniejsza niż aktualna liczba członków). Pominięcie = bez zmiany |
+| `stake` | decimal? | Nowa stawka (wartość nieujemna). Pominięcie = bez zmiany |
+
+#### Przykładowe żądanie – zmiana tylko nazwy
+
+```http
+PATCH /api/tables/Guid_1 HTTP/1.1
+Authorization: Bearer {Scrubbed}
+Content-Type: application/json
+
+{
+  "name": "Nowa nazwa stołu"
+}
+```
+
+#### Przykładowe żądanie – zmiana wszystkich pól
+
+```http
+PATCH /api/tables/Guid_1 HTTP/1.1
+Authorization: Bearer {Scrubbed}
+Content-Type: application/json
+
+{
+  "name": "Nowa nazwa",
+  "password": "NoweHaslo@123",
+  "maxPlayers": 20,
+  "stake": 100.00
+}
+```
+
+#### Odpowiedź 200 OK
+
+```json
+{
+  "id": "Guid_1",
+  "name": "Nowa nazwa stołu",
+  "maxPlayers": 10,
+  "stake": 50.00,
+  "createdBy": "Guid_2",
+  "createdAt": "DateTimeOffset_1",
+  "isSecretMode": false
+}
+```
+
+#### Kody statusu
+
+| Kod | Opis |
+|-----|------|
+| `200 OK` | Parametry stołu zaktualizowane |
+| `400 Bad Request` | Błąd walidacji (np. pusta nazwa, ujemna stawka, `maxPlayers` poniżej liczby członków) |
+| `401 Unauthorized` | Brak tokenu |
+| `403 Forbidden` | Użytkownik nie jest adminem stołu (`Table.NotAdmin`) |
+| `404 Not Found` | Stół nie istnieje (`Table.NotFound`) |
+
+---
+
 ## MatchesController
 
 ### GET /api/tables/{tableId}/matches/{matchId}
@@ -2484,7 +2570,20 @@ Odpowiedź z endpointów GET (lista) oraz PUT (aktualizacja) zawiera dodatkowo p
 
 ### Tables – modele
 
-#### TableResponse (tworzenie / legacy join)
+#### UpdateTableRequest (edycja stołu)
+
+Wszystkie pola są opcjonalne. Pola pominięte lub `null` są ignorowane.
+
+```json
+{
+  "name": "string | null",
+  "password": "string | null",
+  "maxPlayers": "integer | null",
+  "stake": "decimal | null"
+}
+```
+
+#### TableResponse (tworzenie / legacy join / edycja)
 
 ```json
 {

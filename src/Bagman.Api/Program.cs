@@ -29,37 +29,27 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration["AllowedCorsOrigins"];
+    var origins = (allowedOrigins ?? "")
+        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(o => o.Trim())
+        .ToArray();
 
-    if (builder.Environment.IsDevelopment() || string.IsNullOrEmpty(allowedOrigins))
+    options.AddPolicy("AllowAll", policy =>
     {
-        // Development: Allow all
-        options.AddPolicy("AllowAll", policy =>
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
-    }
-    else
-    {
-        // Production/Staging: Specific origins only
-        var origins = allowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                     .Select(o => o.Trim())
-                                     .ToArray();
-
-        options.AddPolicy("AllowAll", policy =>
-        {
-            policy.WithOrigins(origins)
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
-        });
-    }
+        policy.WithOrigins(origins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddApplicationDbContext(builder.Configuration.GetConnectionString("Postgres"));
 builder.Services.AddDomainServices();
 builder.Services.AddApplication(); // Register feature handlers
+
+// Health checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>();
 // Add Authentication + Authorization (JWT)
 builder.Services.AddAuthentication(options =>
 {
@@ -109,13 +99,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Health check endpoint
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "healthy",
-    timestamp = DateTime.UtcNow,
-    environment = app.Environment.EnvironmentName
-}));
+app.MapHealthChecks("/health");
 
 app.Run();
 
